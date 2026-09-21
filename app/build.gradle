@@ -239,6 +239,9 @@ task downloadBootstraps() {
 }
 
 afterEvaluate {
+    tasks.matching { it.name.contains("NdkBuild") || it.name == "preBuild" }.configureEach {
+        it.dependsOn(downloadBootstraps)
+    }
     android.applicationVariants.all { variant ->
         variant.javaCompileProvider.get().dependsOn(downloadBootstraps)
     }
