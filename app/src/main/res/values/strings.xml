@@ -229,6 +229,70 @@
 
 
 
+    <!-- Tab Bar Preferences -->
+    <string name="termux_tab_bar_header">Material 3 Tab Bar</string>
+    <string name="termux_tab_bar_title">Enable Pill Tab Bar</string>
+    <string name="termux_tab_bar_summary">Show pill-shaped session tabs at top of terminal screen</string>
+    <string name="termux_tab_bar_corner_radius_title">Tab Corner Radius (dp)</string>
+    <string name="termux_tab_bar_border_width_title">Tab Border Stroke (dp)</string>
+    <string name="termux_tab_bar_border_color_title">Tab Border Color</string>
+    <string name="termux_tab_bar_border_color_summary">Hex color code (click to choose from palette or type hex)</string>
+
+    <!-- Niri WM Window Border Preferences -->
+    <string name="termux_niri_border_header">Niri Window Border</string>
+    <string name="termux_niri_border_enable_title">Enable Window Border</string>
+    <string name="termux_niri_border_enable_summary">Surround terminal screen with styled rounded border like Niri WM</string>
+    <string name="termux_niri_border_corner_radius_title">Corner Radius (dp)</string>
+    <string name="termux_niri_border_width_title">Border Stroke Width (dp)</string>
+    <string name="termux_niri_border_color_title">Border Color (Hex / Palette)</string>
+    <string name="termux_niri_border_color_summary">Hex color code (click to choose from palette or type hex)</string>
+    <string name="termux_niri_border_gaps_title">Window Gaps / Margins (dp)</string>
+
+    <!-- Background Wallpaper Preferences -->
+    <string name="termux_background_header">Background Wallpaper</string>
+    <string name="termux_background_pick_title">Choose Background Image</string>
+    <string name="termux_background_pick_summary">Pick image from Gallery / Files directly</string>
+    <string name="termux_background_clear_title">Remove Background Image</string>
+    <string name="termux_background_clear_summary">Reset to solid black terminal background</string>
+    <string name="termux_background_image_path_title">Manual Image Path / URI</string>
+    <string name="termux_background_image_path_summary">File path or content URI to custom background image</string>
+    <string name="termux_background_opacity_title">Background Dim Overlay Opacity (%)</string>
+    <string name="termux_cell_background_transparency_title">Transparent Editor / App Background</string>
+    <string name="termux_cell_background_transparency_summary">Allow wallpaper to show through TUI editors like Neovim, Vim, Htop</string>
+    <string name="termux_cell_background_opacity_title">Editor Cell Background Opacity (%)</string>
+
+    <!-- Extra Keys Styling & Presets -->
+    <string name="termux_extra_keys_styling_header">Extra Keys Shape &amp; Styling</string>
+    <string name="termux_extra_keys_color_theme_title">Bar Color Theme</string>
+    <string name="termux_extra_keys_color_theme_summary">Choose color palette (Catppuccin, Dracula, System Material You...)</string>
+    <string name="termux_extra_keys_flat_keys_title">Flat Keys (Sync with Bar Color)</string>
+    <string name="termux_extra_keys_flat_keys_summary">Key background color matches the bar background seamlessly</string>
+    <string name="termux_extra_keys_margin_title">Key Spacing / Margin (dp)</string>
+    <string name="termux_extra_keys_text_size_title">Key Text Size (sp)</string>
+    <string name="termux_extra_keys_height_scale_title">Key Height Scale (%)</string>
+
+    <string name="termux_extra_keys_bar_border_header">Extra Keys Bar Border</string>
+    <string name="termux_extra_keys_bar_border_enable_title">Enable Bar Border</string>
+    <string name="termux_extra_keys_bar_border_enable_summary">Surround entire extra keys toolbar with a border frame</string>
+    <string name="termux_extra_keys_bar_border_width_title">Bar Border Width (dp)</string>
+    <string name="termux_extra_keys_bar_border_color_title">Bar Border Color</string>
+    <string name="termux_extra_keys_bar_border_color_summary">Hex color code (click to choose from palette or type hex)</string>
+
+    <string name="termux_extra_keys_customizer_header">Extra Keys Configuration</string>
+    <string name="termux_extra_keys_use_custom_title">Use Custom Extra Keys</string>
+    <string name="termux_extra_keys_use_custom_summary">Enable GUI-configured extra keys instead of termux.properties default</string>
+    <string name="termux_extra_keys_preset_title">Choose Preset</string>
+    <string name="termux_extra_keys_preset_summary">Quickly switch between popular key configurations</string>
+    <string name="termux_extra_keys_custom_json_title">Custom Extra Keys JSON</string>
+    <string name="termux_extra_keys_custom_json_summary">Matrix array of extra keys buttons</string>
+
+    <!-- Reset Settings Preferences -->
+    <string name="termux_reset_settings_title">Reset All Settings to Default</string>
+    <string name="termux_reset_settings_summary">Restore all custom UI, borders, colors, and extra keys to default</string>
+    <string name="termux_reset_settings_confirm_message">Are you sure you want to reset all custom UI settings (borders, colors, tab bar, extra keys, background) to their default values?</string>
+    <string name="termux_reset_settings_confirm_button">Reset</string>
+    <string name="termux_reset_settings_success">All settings have been reset to default</string>
+
     <!-- About Preference -->
     <string name="about_preference_title">About</string>
 

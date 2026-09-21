@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="extra_keys_preset_titles">
+        <item>Default (2 Rows)</item>
+        <item>Minimal (1 Row)</item>
+        <item>Developer / Coding Symbols</item>
+        <item>Vim &amp; Navigation</item>
+    </string-array>
+
+    <string-array name="extra_keys_preset_values">
+        <item>[[\"ESC\",\"/\",{\"key\":\"-\",\"popup\":\"|\"},\"HOME\",\"UP\",\"END\",\"PGUP\"],[\"TAB\",\"CTRL\",\"ALT\",\"LEFT\",\"DOWN\",\"RIGHT\",\"PGDN\"]]</item>
+        <item>[[\"ESC\",\"TAB\",\"CTRL\",\"ALT\",\"UP\",\"DOWN\",\"LEFT\",\"RIGHT\"]]</item>
+        <item>[[\"ESC\",\"TAB\",\"CTRL\",\"ALT\",\"{\",\"}\",\"[\",\"]\",\"(\",\")\"],[\"~\",\"`\",\"|\",\"\\\\\",\"/\",\"=\",\"+\",\"-\",\"_\",\";\"]]</item>
+        <item>[[\"ESC\",\"CTRL\",\"ALT\",\"TAB\",\":\",\"w\",\"q\",\"!\",\"/\"],[\"HOME\",\"LEFT\",\"DOWN\",\"UP\",\"RIGHT\",\"END\",\"PGUP\",\"PGDN\"]]</item>
+    </string-array>
+
+    <string-array name="extra_keys_color_theme_titles">
+        <item>Default (Termux Dark)</item>
+        <item>Follow System (Material You)</item>
+        <item>Catppuccin Mocha</item>
+        <item>Catppuccin Macchiato</item>
+        <item>Catppuccin Latte (Light)</item>
+        <item>Dracula</item>
+        <item>Nord</item>
+        <item>One Dark</item>
+        <item>Tokyo Night</item>
+    </string-array>
+
+    <string-array name="extra_keys_color_theme_values">
+        <item>default</item>
+        <item>system</item>
+        <item>catppuccin_mocha</item>
+        <item>catppuccin_macchiato</item>
+        <item>catppuccin_latte</item>
+        <item>dracula</item>
+        <item>nord</item>
+        <item>one_dark</item>
+        <item>tokyo_night</item>
+    </string-array>
+</resources>

@@ -15,6 +15,7 @@ import android.widget.ListView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.termux.R;
 import com.termux.shared.interact.ShareUtils;
@@ -384,7 +385,8 @@ public class TermuxTerminalSessionActivityClient extends TermuxTerminalSessionCl
             TerminalSession newTerminalSession = newTermuxSession.getTerminalSession();
             setCurrentSession(newTerminalSession);
 
-            mActivity.getDrawer().closeDrawers();
+            DrawerLayout drawer = mActivity.getDrawer();
+            if (drawer != null) drawer.closeDrawers();
         }
     }
 
@@ -457,6 +459,10 @@ public class TermuxTerminalSessionActivityClient extends TermuxTerminalSessionCl
 
     public void checkAndScrollToSession(TerminalSession session) {
         if (!mActivity.isVisible()) return;
+        if (mActivity.getTermuxTabBarController() != null) {
+            mActivity.getTermuxTabBarController().updateTabs();
+        }
+
         TermuxService service = mActivity.getTermuxService();
         if (service == null) return;
 
@@ -466,7 +472,6 @@ public class TermuxTerminalSessionActivityClient extends TermuxTerminalSessionCl
         if (termuxSessionsListView == null) return;
 
         termuxSessionsListView.setItemChecked(indexOfSession, true);
-        // Delay is necessary otherwise sometimes scroll to newly added session does not happen
         termuxSessionsListView.postDelayed(() -> termuxSessionsListView.smoothScrollToPosition(indexOfSession), 1000);
     }
 

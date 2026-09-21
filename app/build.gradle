@@ -88,13 +88,15 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled true
+            signingConfig signingConfigs.debug
+            minifyEnabled false
             shrinkResources false // Reproducible builds
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
 
         debug {
             signingConfig signingConfigs.debug
+            debuggable false
         }
     }
 
@@ -148,7 +150,7 @@ android {
 dependencies {
     testImplementation "junit:junit:4.13.2"
     testImplementation "org.robolectric:robolectric:4.10"
-    coreLibraryDesugaring "com.android.tools:desugar_jdk_libs:1.1.5"
+    coreLibraryDesugaring "com.android.tools:desugar_jdk_libs:2.0.4"
 }
 
 task versionName {

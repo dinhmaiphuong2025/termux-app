@@ -54,6 +54,7 @@ public final class TerminalView extends View {
     public TerminalEmulator mEmulator;
 
     public TerminalRenderer mRenderer;
+    private int mCellBackgroundAlpha = -1;
 
     public TerminalViewClient mClient;
 
@@ -514,13 +515,27 @@ public final class TerminalView extends View {
      */
     public void setTextSize(int textSize) {
         mRenderer = new TerminalRenderer(textSize, mRenderer == null ? Typeface.MONOSPACE : mRenderer.mTypeface);
+        mRenderer.mCellBackgroundAlpha = mCellBackgroundAlpha;
         updateSize();
     }
 
     public void setTypeface(Typeface newTypeface) {
         mRenderer = new TerminalRenderer(mRenderer.mTextSize, newTypeface);
+        mRenderer.mCellBackgroundAlpha = mCellBackgroundAlpha;
         updateSize();
         invalidate();
+    }
+
+    public void setCellBackgroundAlpha(int alpha) {
+        mCellBackgroundAlpha = alpha;
+        if (mRenderer != null) {
+            mRenderer.mCellBackgroundAlpha = alpha;
+            invalidate();
+        }
+    }
+
+    public int getCellBackgroundAlpha() {
+        return mCellBackgroundAlpha;
     }
 
     @Override
@@ -530,7 +545,7 @@ public final class TerminalView extends View {
 
     @Override
     public boolean isOpaque() {
-        return true;
+        return mCellBackgroundAlpha < 0;
     }
 
     /**

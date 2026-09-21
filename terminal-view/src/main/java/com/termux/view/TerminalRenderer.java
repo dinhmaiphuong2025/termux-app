@@ -2,6 +2,7 @@ package com.termux.view;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
@@ -36,6 +37,14 @@ public final class TerminalRenderer {
     final int mFontLineSpacingAndAscent;
 
     private final float[] asciiMeasures = new float[127];
+
+    /**
+     * Alpha (0-255) to apply to non-default cell backgrounds when transparency is enabled.
+     * -1 means feature disabled (100% opaque, stock Termux behavior).
+     * 0 means completely transparent (skip drawRect).
+     * > 0 means semi-transparent (drawRect with that alpha).
+     */
+    public int mCellBackgroundAlpha = -1;
 
     public TerminalRenderer(int textSize, Typeface typeface) {
         mTextSize = textSize;
@@ -224,8 +233,17 @@ public final class TerminalRenderer {
 
         if (backColor != palette[TextStyle.COLOR_INDEX_BACKGROUND]) {
             // Only draw non-default background.
-            mTextPaint.setColor(backColor);
-            canvas.drawRect(left, y - mFontLineSpacingAndAscent + mFontAscent, right, y, mTextPaint);
+            if (mCellBackgroundAlpha >= 0 && !reverseVideoHere) {
+                if (mCellBackgroundAlpha > 0) {
+                    int alphaColor = Color.argb(mCellBackgroundAlpha, Color.red(backColor), Color.green(backColor), Color.blue(backColor));
+                    mTextPaint.setColor(alphaColor);
+                    canvas.drawRect(left, y - mFontLineSpacingAndAscent + mFontAscent, right, y, mTextPaint);
+                }
+                // If mCellBackgroundAlpha == 0: skip drawing rect completely to reveal background image!
+            } else {
+                mTextPaint.setColor(backColor);
+                canvas.drawRect(left, y - mFontLineSpacingAndAscent + mFontAscent, right, y, mTextPaint);
+            }
         }
 
         if (cursor != 0) {

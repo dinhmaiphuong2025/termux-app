@@ -180,6 +180,113 @@ public final class TermuxPreferenceConstants {
         public static final String KEY_CRASH_REPORT_NOTIFICATIONS_ENABLED = "crash_report_notifications_enabled";
         public static final boolean DEFAULT_VALUE_CRASH_REPORT_NOTIFICATIONS_ENABLED = true;
 
+        /**
+         * Tab Bar Preferences.
+         */
+        public static final String KEY_SHOW_TAB_BAR = "show_tab_bar";
+        public static final boolean DEFAULT_VALUE_SHOW_TAB_BAR = true;
+
+        public static final String KEY_TAB_CORNER_RADIUS = "tab_corner_radius";
+        public static final int DEFAULT_VALUE_TAB_CORNER_RADIUS = 16;
+
+        public static final String KEY_TAB_BORDER_WIDTH = "tab_border_width";
+        public static final int DEFAULT_VALUE_TAB_BORDER_WIDTH = 1;
+
+        public static final String KEY_TAB_BORDER_SYNC = "tab_border_sync";
+        public static final boolean DEFAULT_VALUE_TAB_BORDER_SYNC = true;
+
+        public static final String KEY_TAB_BORDER_COLOR = "tab_border_color";
+        public static final String DEFAULT_VALUE_TAB_BORDER_COLOR = "#3D82F6";
+
+        /**
+         * Niri Window Border Preferences.
+         */
+        public static final String KEY_TERMINAL_BORDER_ENABLED = "terminal_border_enabled";
+        public static final boolean DEFAULT_VALUE_TERMINAL_BORDER_ENABLED = true;
+
+        public static final String KEY_TERMINAL_BORDER_CORNER_RADIUS = "terminal_border_corner_radius";
+        public static final int DEFAULT_VALUE_TERMINAL_BORDER_CORNER_RADIUS = 12;
+
+        public static final String KEY_TERMINAL_BORDER_WIDTH = "terminal_border_width";
+        public static final int DEFAULT_VALUE_TERMINAL_BORDER_WIDTH = 2;
+
+        public static final String KEY_TERMINAL_BORDER_COLOR = "terminal_border_color";
+        public static final String DEFAULT_VALUE_TERMINAL_BORDER_COLOR = "#3D82F6";
+
+        public static final String KEY_TERMINAL_BORDER_GAPS = "terminal_border_gaps";
+        public static final int DEFAULT_VALUE_TERMINAL_BORDER_GAPS = 4;
+
+        /**
+         * Terminal Background Preferences.
+         */
+        public static final String KEY_TERMINAL_BACKGROUND_IMAGE_PATH = "terminal_background_image_path";
+        public static final String DEFAULT_VALUE_TERMINAL_BACKGROUND_IMAGE_PATH = "";
+
+        public static final String KEY_TERMINAL_BACKGROUND_OPACITY = "terminal_background_opacity";
+        public static final int DEFAULT_VALUE_TERMINAL_BACKGROUND_OPACITY = 60; // 0-100 (higher = darker overlay)
+
+        public static final String KEY_TERMINAL_CELL_BACKGROUND_TRANSPARENCY = "terminal_cell_background_transparency";
+        public static final boolean DEFAULT_VALUE_TERMINAL_CELL_BACKGROUND_TRANSPARENCY = false;
+
+        public static final String KEY_TERMINAL_CELL_BACKGROUND_OPACITY = "terminal_cell_background_opacity";
+        public static final int DEFAULT_VALUE_TERMINAL_CELL_BACKGROUND_OPACITY = 0; // 0-100 (0 = completely transparent, 100 = opaque)
+
+        /**
+         * Extra Keys Shape & Customizer Preferences.
+         */
+        public static final String KEY_EXTRA_KEYS_CORNER_RADIUS = "extra_keys_corner_radius";
+        public static final int DEFAULT_VALUE_EXTRA_KEYS_CORNER_RADIUS = 0;
+
+        public static final String KEY_EXTRA_KEYS_FLAT_KEYS = "extra_keys_flat_keys";
+        public static final boolean DEFAULT_VALUE_EXTRA_KEYS_FLAT_KEYS = true;
+
+        public static final String KEY_EXTRA_KEYS_MARGIN = "extra_keys_margin";
+        public static final int DEFAULT_VALUE_EXTRA_KEYS_MARGIN = 2;
+
+        public static final String KEY_EXTRA_KEYS_CUSTOM_JSON = "extra_keys_custom_json";
+        public static final String DEFAULT_VALUE_EXTRA_KEYS_CUSTOM_JSON = "";
+
+        public static final String KEY_EXTRA_KEYS_USE_CUSTOM = "extra_keys_use_custom";
+        public static final boolean DEFAULT_VALUE_EXTRA_KEYS_USE_CUSTOM = false;
+
+        public static final String KEY_EXTRA_KEYS_PRESET = "extra_keys_preset";
+        public static final String DEFAULT_VALUE_EXTRA_KEYS_PRESET = "";
+
+        public static final String KEY_EXTRA_KEYS_TEXT_SIZE = "extra_keys_text_size";
+        public static final int DEFAULT_VALUE_EXTRA_KEYS_TEXT_SIZE = 12;
+
+        public static final String KEY_EXTRA_KEYS_HEIGHT_SCALE = "extra_keys_height_scale";
+        public static final int DEFAULT_VALUE_EXTRA_KEYS_HEIGHT_SCALE = 115; // 80 - 160 (%)
+
+        public static final String KEY_EXTRA_KEYS_COLOR_THEME = "extra_keys_color_theme";
+        public static final String DEFAULT_VALUE_EXTRA_KEYS_COLOR_THEME = "default";
+
+        // Key Border (Disabled)
+        public static final String KEY_EXTRA_KEYS_KEY_BORDER_ENABLED = "extra_keys_key_border_enabled";
+        public static final boolean DEFAULT_VALUE_EXTRA_KEYS_KEY_BORDER_ENABLED = false;
+
+        public static final String KEY_EXTRA_KEYS_KEY_BORDER_WIDTH = "extra_keys_key_border_width";
+        public static final int DEFAULT_VALUE_EXTRA_KEYS_KEY_BORDER_WIDTH = 1;
+
+        public static final String KEY_EXTRA_KEYS_KEY_BORDER_SYNC = "extra_keys_key_border_sync";
+        public static final boolean DEFAULT_VALUE_EXTRA_KEYS_KEY_BORDER_SYNC = true;
+
+        public static final String KEY_EXTRA_KEYS_KEY_BORDER_COLOR = "extra_keys_key_border_color";
+        public static final String DEFAULT_VALUE_EXTRA_KEYS_KEY_BORDER_COLOR = "#3D82F6";
+
+        // Bar Border
+        public static final String KEY_EXTRA_KEYS_BAR_BORDER_ENABLED = "extra_keys_bar_border_enabled";
+        public static final boolean DEFAULT_VALUE_EXTRA_KEYS_BAR_BORDER_ENABLED = false;
+
+        public static final String KEY_EXTRA_KEYS_BAR_BORDER_WIDTH = "extra_keys_bar_border_width";
+        public static final int DEFAULT_VALUE_EXTRA_KEYS_BAR_BORDER_WIDTH = 1;
+
+        public static final String KEY_EXTRA_KEYS_BAR_BORDER_SYNC = "extra_keys_bar_border_sync";
+        public static final boolean DEFAULT_VALUE_EXTRA_KEYS_BAR_BORDER_SYNC = true;
+
+        public static final String KEY_EXTRA_KEYS_BAR_BORDER_COLOR = "extra_keys_bar_border_color";
+        public static final String DEFAULT_VALUE_EXTRA_KEYS_BAR_BORDER_COLOR = "#3D82F6";
+
     }
 
 

@@ -123,7 +123,7 @@ public final class ExtraKeysView extends GridLayout {
     /** Defines the default fallback value for {@link #mButtonActiveTextColor} if {@link #ATTR_BUTTON_ACTIVE_TEXT_COLOR} is undefined. */
     public static final int DEFAULT_BUTTON_ACTIVE_TEXT_COLOR = 0xFF80DEEA;
     /** Defines the default fallback value for {@link #mButtonBackgroundColor} if {@link #ATTR_BUTTON_BACKGROUND_COLOR} is undefined. */
-    public static final int DEFAULT_BUTTON_BACKGROUND_COLOR = 0x00000000;
+    public static final int DEFAULT_BUTTON_BACKGROUND_COLOR = 0xFF1C1C21;
     /** Defines the default fallback value for {@link #mButtonActiveBackgroundColor} if {@link #ATTR_BUTTON_ACTIVE_BACKGROUND_COLOR} is undefined. */
     public static final int DEFAULT_BUTTON_ACTIVE_BACKGROUND_COLOR = 0xFF7F7F7F;
 
@@ -179,6 +179,21 @@ public final class ExtraKeysView extends GridLayout {
 
     /** Defines whether text for the extra keys button should be all capitalized automatically. */
     protected boolean mButtonTextAllCaps = true;
+
+    /** Corner radius for extra keys buttons in pixels. */
+    protected int mButtonCornerRadius = 0;
+
+    /** Margin around extra keys buttons in pixels. */
+    protected int mButtonMargin = 0;
+
+    /** Stroke/Border width for extra keys buttons in pixels. */
+    protected int mButtonStrokeWidth = 0;
+
+    /** Stroke/Border color for extra keys buttons. */
+    protected int mButtonStrokeColor = 0xFF3D82F6;
+
+    /** Button text size in SP. Defaults to 12sp. */
+    protected float mButtonTextSizeSp = 12f;
 
 
     /**
@@ -332,6 +347,72 @@ public final class ExtraKeysView extends GridLayout {
         mButtonTextAllCaps = buttonTextAllCaps;
     }
 
+    /** Get {@link #mButtonCornerRadius}. */
+    public int getButtonCornerRadius() {
+        return mButtonCornerRadius;
+    }
+
+    /** Set {@link #mButtonCornerRadius}. */
+    public void setButtonCornerRadius(int buttonCornerRadius) {
+        mButtonCornerRadius = buttonCornerRadius;
+    }
+
+    /** Get {@link #mButtonMargin}. */
+    public int getButtonMargin() {
+        return mButtonMargin;
+    }
+
+    /** Set {@link #mButtonMargin}. */
+    public void setButtonMargin(int buttonMargin) {
+        mButtonMargin = buttonMargin;
+    }
+
+    /** Get {@link #mButtonStrokeWidth}. */
+    public int getButtonStrokeWidth() {
+        return mButtonStrokeWidth;
+    }
+
+    /** Set {@link #mButtonStrokeWidth}. */
+    public void setButtonStrokeWidth(int buttonStrokeWidth) {
+        mButtonStrokeWidth = buttonStrokeWidth;
+    }
+
+    /** Get {@link #mButtonStrokeColor}. */
+    public int getButtonStrokeColor() {
+        return mButtonStrokeColor;
+    }
+
+    /** Set {@link #mButtonStrokeColor}. */
+    public void setButtonStrokeColor(int buttonStrokeColor) {
+        mButtonStrokeColor = buttonStrokeColor;
+    }
+
+    /** Get {@link #mButtonTextSizeSp}. */
+    public float getButtonTextSizeSp() {
+        return mButtonTextSizeSp;
+    }
+
+    /** Set {@link #mButtonTextSizeSp}. */
+    public void setButtonTextSizeSp(float buttonTextSizeSp) {
+        mButtonTextSizeSp = buttonTextSizeSp;
+    }
+
+    /** Helper to apply consistent styling (corners, strokes, background, text size) to any extra key button. */
+    public void styleExtraKeyButton(MaterialButton button, int bgColor) {
+        if (button == null) return;
+        button.setBackgroundColor(bgColor);
+        if (mButtonTextSizeSp > 0) {
+            button.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, mButtonTextSizeSp);
+        }
+        button.setCornerRadius(mButtonCornerRadius);
+        if (mButtonStrokeWidth > 0) {
+            button.setStrokeWidth(mButtonStrokeWidth);
+            button.setStrokeColor(android.content.res.ColorStateList.valueOf(mButtonStrokeColor));
+        } else {
+            button.setStrokeWidth(0);
+        }
+    }
+
 
     /** Get {@link #mLongPressTimeout}. */
     public int getLongPressTimeout() {
@@ -412,7 +493,9 @@ public final class ExtraKeysView extends GridLayout {
                 button.setText(buttonInfo.getDisplay());
                 button.setTextColor(mButtonTextColor);
                 button.setAllCaps(mButtonTextAllCaps);
-                button.setPadding(0, 0, 0, 0);
+                float density = getResources().getDisplayMetrics().density;
+                button.setPadding((int) (4 * density), (int) (1 * density), (int) (4 * density), (int) (1 * density));
+                styleExtraKeyButton(button, mButtonBackgroundColor);
 
                 button.setOnClickListener(view -> {
                     performExtraKeyButtonHapticFeedback(view, buttonInfo, button);
@@ -422,7 +505,11 @@ public final class ExtraKeysView extends GridLayout {
                 button.setOnTouchListener((view, event) -> {
                     switch (event.getAction()) {
                         case MotionEvent.ACTION_DOWN:
-                            view.setBackgroundColor(mButtonActiveBackgroundColor);
+                            if (view instanceof MaterialButton) {
+                                styleExtraKeyButton((MaterialButton) view, mButtonActiveBackgroundColor);
+                            } else {
+                                view.setBackgroundColor(mButtonActiveBackgroundColor);
+                            }
                             // Start long press scheduled executors which will be stopped in next MotionEvent
                             startScheduledExecutors(view, buttonInfo, button);
                             return true;
@@ -432,23 +519,39 @@ public final class ExtraKeysView extends GridLayout {
                                 // Show popup on swipe up
                                 if (mPopupWindow == null && event.getY() < 0) {
                                     stopScheduledExecutors();
-                                    view.setBackgroundColor(mButtonBackgroundColor);
+                                    if (view instanceof MaterialButton) {
+                                        styleExtraKeyButton((MaterialButton) view, mButtonBackgroundColor);
+                                    } else {
+                                        view.setBackgroundColor(mButtonBackgroundColor);
+                                    }
                                     showPopup(view, buttonInfo.getPopup());
                                 }
                                 if (mPopupWindow != null && event.getY() > 0) {
-                                    view.setBackgroundColor(mButtonActiveBackgroundColor);
+                                    if (view instanceof MaterialButton) {
+                                        styleExtraKeyButton((MaterialButton) view, mButtonActiveBackgroundColor);
+                                    } else {
+                                        view.setBackgroundColor(mButtonActiveBackgroundColor);
+                                    }
                                     dismissPopup();
                                 }
                             }
                             return true;
 
                         case MotionEvent.ACTION_CANCEL:
-                            view.setBackgroundColor(mButtonBackgroundColor);
+                            if (view instanceof MaterialButton) {
+                                styleExtraKeyButton((MaterialButton) view, mButtonBackgroundColor);
+                            } else {
+                                view.setBackgroundColor(mButtonBackgroundColor);
+                            }
                             stopScheduledExecutors();
                             return true;
 
                         case MotionEvent.ACTION_UP:
-                            view.setBackgroundColor(mButtonBackgroundColor);
+                            if (view instanceof MaterialButton) {
+                                styleExtraKeyButton((MaterialButton) view, mButtonBackgroundColor);
+                            } else {
+                                view.setBackgroundColor(mButtonBackgroundColor);
+                            }
                             stopScheduledExecutors();
                             // If ACTION_UP up was not from a repetitive key or was with a key with a popup button
                             if (mLongPressCount == 0 || mPopupWindow != null) {
@@ -476,7 +579,7 @@ public final class ExtraKeysView extends GridLayout {
                 } else {
                     param.height = 0;
                 }
-                param.setMargins(0, 0, 0, 0);
+                param.setMargins(mButtonMargin, mButtonMargin, mButtonMargin, mButtonMargin);
                 param.columnSpec = GridLayout.spec(col, GridLayout.FILL, 1.f);
                 param.rowSpec = GridLayout.spec(row, GridLayout.FILL, 1.f);
                 button.setLayoutParams(param);
@@ -599,14 +702,15 @@ public final class ExtraKeysView extends GridLayout {
         }
         button.setText(extraButton.getDisplay());
         button.setAllCaps(mButtonTextAllCaps);
-        button.setPadding(0, 0, 0, 0);
+        float density = getResources().getDisplayMetrics().density;
+        button.setPadding((int) (4 * density), (int) (1 * density), (int) (4 * density), (int) (1 * density));
         button.setMinHeight(0);
         button.setMinWidth(0);
         button.setMinimumWidth(0);
         button.setMinimumHeight(0);
         button.setWidth(width);
         button.setHeight(height);
-        button.setBackgroundColor(mButtonActiveBackgroundColor);
+        styleExtraKeyButton(button, mButtonActiveBackgroundColor);
         mPopupWindow = new PopupWindow(this);
         mPopupWindow.setWidth(LayoutParams.WRAP_CONTENT);
         mPopupWindow.setHeight(LayoutParams.WRAP_CONTENT);
@@ -660,6 +764,7 @@ public final class ExtraKeysView extends GridLayout {
         state.setIsCreated(true);
         MaterialButton button = new MaterialButton(getContext(), null, android.R.attr.buttonBarButtonStyle);
         button.setTextColor(state.isActive ? mButtonActiveTextColor : mButtonTextColor);
+        styleExtraKeyButton(button, state.isActive ? mButtonActiveBackgroundColor : mButtonBackgroundColor);
         if (needUpdate) {
             state.buttons.add(button);
         }

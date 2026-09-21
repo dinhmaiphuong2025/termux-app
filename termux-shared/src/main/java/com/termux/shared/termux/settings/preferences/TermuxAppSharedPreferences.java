@@ -258,4 +258,288 @@ public class TermuxAppSharedPreferences extends AppSharedPreferences {
         SharedPreferenceUtils.setBoolean(mSharedPreferences, TERMUX_APP.KEY_CRASH_REPORT_NOTIFICATIONS_ENABLED, value, false);
     }
 
+    public boolean isTabBarEnabled() {
+        return SharedPreferenceUtils.getBoolean(mSharedPreferences, TERMUX_APP.KEY_SHOW_TAB_BAR, TERMUX_APP.DEFAULT_VALUE_SHOW_TAB_BAR);
+    }
+
+    public void setTabBarEnabled(boolean value) {
+        SharedPreferenceUtils.setBoolean(mSharedPreferences, TERMUX_APP.KEY_SHOW_TAB_BAR, value, false);
+    }
+
+    public int getTabCornerRadius() {
+        return SharedPreferenceUtils.getInt(mSharedPreferences, TERMUX_APP.KEY_TAB_CORNER_RADIUS, TERMUX_APP.DEFAULT_VALUE_TAB_CORNER_RADIUS);
+    }
+
+    public void setTabCornerRadius(int value) {
+        SharedPreferenceUtils.setInt(mSharedPreferences, TERMUX_APP.KEY_TAB_CORNER_RADIUS, value, false);
+    }
+
+    public int getTabBorderWidth() {
+        return SharedPreferenceUtils.getInt(mSharedPreferences, TERMUX_APP.KEY_TAB_BORDER_WIDTH, TERMUX_APP.DEFAULT_VALUE_TAB_BORDER_WIDTH);
+    }
+
+    public void setTabBorderWidth(int value) {
+        SharedPreferenceUtils.setInt(mSharedPreferences, TERMUX_APP.KEY_TAB_BORDER_WIDTH, value, false);
+    }
+
+    public boolean isTabBorderSync() {
+        return SharedPreferenceUtils.getBoolean(mSharedPreferences, TERMUX_APP.KEY_TAB_BORDER_SYNC, TERMUX_APP.DEFAULT_VALUE_TAB_BORDER_SYNC);
+    }
+
+    public void setTabBorderSync(boolean value) {
+        SharedPreferenceUtils.setBoolean(mSharedPreferences, TERMUX_APP.KEY_TAB_BORDER_SYNC, value, false);
+    }
+
+    public String getTabBorderColor() {
+        return SharedPreferenceUtils.getString(mSharedPreferences, TERMUX_APP.KEY_TAB_BORDER_COLOR, TERMUX_APP.DEFAULT_VALUE_TAB_BORDER_COLOR, false);
+    }
+
+    public void setTabBorderColor(String value) {
+        SharedPreferenceUtils.setString(mSharedPreferences, TERMUX_APP.KEY_TAB_BORDER_COLOR, value, false);
+    }
+
+    public boolean isTerminalBorderEnabled() {
+        return SharedPreferenceUtils.getBoolean(mSharedPreferences, TERMUX_APP.KEY_TERMINAL_BORDER_ENABLED, TERMUX_APP.DEFAULT_VALUE_TERMINAL_BORDER_ENABLED);
+    }
+
+    public void setTerminalBorderEnabled(boolean value) {
+        SharedPreferenceUtils.setBoolean(mSharedPreferences, TERMUX_APP.KEY_TERMINAL_BORDER_ENABLED, value, false);
+    }
+
+    public int getTerminalBorderCornerRadius() {
+        return SharedPreferenceUtils.getInt(mSharedPreferences, TERMUX_APP.KEY_TERMINAL_BORDER_CORNER_RADIUS, TERMUX_APP.DEFAULT_VALUE_TERMINAL_BORDER_CORNER_RADIUS);
+    }
+
+    public void setTerminalBorderCornerRadius(int value) {
+        SharedPreferenceUtils.setInt(mSharedPreferences, TERMUX_APP.KEY_TERMINAL_BORDER_CORNER_RADIUS, value, false);
+    }
+
+    public int getTerminalBorderWidth() {
+        return SharedPreferenceUtils.getInt(mSharedPreferences, TERMUX_APP.KEY_TERMINAL_BORDER_WIDTH, TERMUX_APP.DEFAULT_VALUE_TERMINAL_BORDER_WIDTH);
+    }
+
+    public void setTerminalBorderWidth(int value) {
+        SharedPreferenceUtils.setInt(mSharedPreferences, TERMUX_APP.KEY_TERMINAL_BORDER_WIDTH, value, false);
+    }
+
+    public String getTerminalBorderColor() {
+        return SharedPreferenceUtils.getString(mSharedPreferences, TERMUX_APP.KEY_TERMINAL_BORDER_COLOR, TERMUX_APP.DEFAULT_VALUE_TERMINAL_BORDER_COLOR, false);
+    }
+
+    public void setTerminalBorderColor(String value) {
+        SharedPreferenceUtils.setString(mSharedPreferences, TERMUX_APP.KEY_TERMINAL_BORDER_COLOR, value, false);
+    }
+
+    public int getTerminalBorderGaps() {
+        return SharedPreferenceUtils.getInt(mSharedPreferences, TERMUX_APP.KEY_TERMINAL_BORDER_GAPS, TERMUX_APP.DEFAULT_VALUE_TERMINAL_BORDER_GAPS);
+    }
+
+    public void setTerminalBorderGaps(int value) {
+        SharedPreferenceUtils.setInt(mSharedPreferences, TERMUX_APP.KEY_TERMINAL_BORDER_GAPS, value, false);
+    }
+
+    public String getTerminalBackgroundImagePath() {
+        return SharedPreferenceUtils.getString(mSharedPreferences, TERMUX_APP.KEY_TERMINAL_BACKGROUND_IMAGE_PATH, TERMUX_APP.DEFAULT_VALUE_TERMINAL_BACKGROUND_IMAGE_PATH, false);
+    }
+
+    public void setTerminalBackgroundImagePath(String value) {
+        SharedPreferenceUtils.setString(mSharedPreferences, TERMUX_APP.KEY_TERMINAL_BACKGROUND_IMAGE_PATH, value, false);
+    }
+
+    public int getTerminalBackgroundOpacity() {
+        return SharedPreferenceUtils.getInt(mSharedPreferences, TERMUX_APP.KEY_TERMINAL_BACKGROUND_OPACITY, TERMUX_APP.DEFAULT_VALUE_TERMINAL_BACKGROUND_OPACITY);
+    }
+
+    public void setTerminalBackgroundOpacity(int value) {
+        SharedPreferenceUtils.setInt(mSharedPreferences, TERMUX_APP.KEY_TERMINAL_BACKGROUND_OPACITY, value, false);
+    }
+
+    public boolean isTerminalCellBackgroundTransparencyEnabled() {
+        return SharedPreferenceUtils.getBoolean(mSharedPreferences, TERMUX_APP.KEY_TERMINAL_CELL_BACKGROUND_TRANSPARENCY, TERMUX_APP.DEFAULT_VALUE_TERMINAL_CELL_BACKGROUND_TRANSPARENCY);
+    }
+
+    public void setTerminalCellBackgroundTransparencyEnabled(boolean value) {
+        SharedPreferenceUtils.setBoolean(mSharedPreferences, TERMUX_APP.KEY_TERMINAL_CELL_BACKGROUND_TRANSPARENCY, value, false);
+    }
+
+    public int getTerminalCellBackgroundOpacity() {
+        return SharedPreferenceUtils.getInt(mSharedPreferences, TERMUX_APP.KEY_TERMINAL_CELL_BACKGROUND_OPACITY, TERMUX_APP.DEFAULT_VALUE_TERMINAL_CELL_BACKGROUND_OPACITY);
+    }
+
+    public void setTerminalCellBackgroundOpacity(int value) {
+        SharedPreferenceUtils.setInt(mSharedPreferences, TERMUX_APP.KEY_TERMINAL_CELL_BACKGROUND_OPACITY, value, false);
+    }
+
+    public int getExtraKeysCornerRadius() {
+        return SharedPreferenceUtils.getInt(mSharedPreferences, TERMUX_APP.KEY_EXTRA_KEYS_CORNER_RADIUS, TERMUX_APP.DEFAULT_VALUE_EXTRA_KEYS_CORNER_RADIUS);
+    }
+
+    public void setExtraKeysCornerRadius(int value) {
+        SharedPreferenceUtils.setInt(mSharedPreferences, TERMUX_APP.KEY_EXTRA_KEYS_CORNER_RADIUS, value, false);
+    }
+
+    public int getExtraKeysMargin() {
+        return SharedPreferenceUtils.getInt(mSharedPreferences, TERMUX_APP.KEY_EXTRA_KEYS_MARGIN, TERMUX_APP.DEFAULT_VALUE_EXTRA_KEYS_MARGIN);
+    }
+
+    public void setExtraKeysMargin(int value) {
+        SharedPreferenceUtils.setInt(mSharedPreferences, TERMUX_APP.KEY_EXTRA_KEYS_MARGIN, value, false);
+    }
+
+    public String getExtraKeysCustomJson() {
+        return SharedPreferenceUtils.getString(mSharedPreferences, TERMUX_APP.KEY_EXTRA_KEYS_CUSTOM_JSON, TERMUX_APP.DEFAULT_VALUE_EXTRA_KEYS_CUSTOM_JSON, false);
+    }
+
+    public void setExtraKeysCustomJson(String value) {
+        SharedPreferenceUtils.setString(mSharedPreferences, TERMUX_APP.KEY_EXTRA_KEYS_CUSTOM_JSON, value, false);
+    }
+
+    public boolean isExtraKeysUseCustom() {
+        return SharedPreferenceUtils.getBoolean(mSharedPreferences, TERMUX_APP.KEY_EXTRA_KEYS_USE_CUSTOM, TERMUX_APP.DEFAULT_VALUE_EXTRA_KEYS_USE_CUSTOM);
+    }
+
+    public void setExtraKeysUseCustom(boolean value) {
+        SharedPreferenceUtils.setBoolean(mSharedPreferences, TERMUX_APP.KEY_EXTRA_KEYS_USE_CUSTOM, value, false);
+    }
+
+    // Key Border
+    public boolean isExtraKeysKeyBorderEnabled() {
+        return SharedPreferenceUtils.getBoolean(mSharedPreferences, TERMUX_APP.KEY_EXTRA_KEYS_KEY_BORDER_ENABLED, TERMUX_APP.DEFAULT_VALUE_EXTRA_KEYS_KEY_BORDER_ENABLED);
+    }
+
+    public void setExtraKeysKeyBorderEnabled(boolean value) {
+        SharedPreferenceUtils.setBoolean(mSharedPreferences, TERMUX_APP.KEY_EXTRA_KEYS_KEY_BORDER_ENABLED, value, false);
+    }
+
+    public int getExtraKeysKeyBorderWidth() {
+        return SharedPreferenceUtils.getInt(mSharedPreferences, TERMUX_APP.KEY_EXTRA_KEYS_KEY_BORDER_WIDTH, TERMUX_APP.DEFAULT_VALUE_EXTRA_KEYS_KEY_BORDER_WIDTH);
+    }
+
+    public void setExtraKeysKeyBorderWidth(int value) {
+        SharedPreferenceUtils.setInt(mSharedPreferences, TERMUX_APP.KEY_EXTRA_KEYS_KEY_BORDER_WIDTH, value, false);
+    }
+
+    public boolean isExtraKeysKeyBorderSync() {
+        return SharedPreferenceUtils.getBoolean(mSharedPreferences, TERMUX_APP.KEY_EXTRA_KEYS_KEY_BORDER_SYNC, TERMUX_APP.DEFAULT_VALUE_EXTRA_KEYS_KEY_BORDER_SYNC);
+    }
+
+    public void setExtraKeysKeyBorderSync(boolean value) {
+        SharedPreferenceUtils.setBoolean(mSharedPreferences, TERMUX_APP.KEY_EXTRA_KEYS_KEY_BORDER_SYNC, value, false);
+    }
+
+    public String getExtraKeysKeyBorderColor() {
+        return SharedPreferenceUtils.getString(mSharedPreferences, TERMUX_APP.KEY_EXTRA_KEYS_KEY_BORDER_COLOR, TERMUX_APP.DEFAULT_VALUE_EXTRA_KEYS_KEY_BORDER_COLOR, false);
+    }
+
+    public void setExtraKeysKeyBorderColor(String value) {
+        SharedPreferenceUtils.setString(mSharedPreferences, TERMUX_APP.KEY_EXTRA_KEYS_KEY_BORDER_COLOR, value, false);
+    }
+
+    // Bar Border
+    public boolean isExtraKeysBarBorderEnabled() {
+        return SharedPreferenceUtils.getBoolean(mSharedPreferences, TERMUX_APP.KEY_EXTRA_KEYS_BAR_BORDER_ENABLED, TERMUX_APP.DEFAULT_VALUE_EXTRA_KEYS_BAR_BORDER_ENABLED);
+    }
+
+    public void setExtraKeysBarBorderEnabled(boolean value) {
+        SharedPreferenceUtils.setBoolean(mSharedPreferences, TERMUX_APP.KEY_EXTRA_KEYS_BAR_BORDER_ENABLED, value, false);
+    }
+
+    public int getExtraKeysBarBorderWidth() {
+        return SharedPreferenceUtils.getInt(mSharedPreferences, TERMUX_APP.KEY_EXTRA_KEYS_BAR_BORDER_WIDTH, TERMUX_APP.DEFAULT_VALUE_EXTRA_KEYS_BAR_BORDER_WIDTH);
+    }
+
+    public void setExtraKeysBarBorderWidth(int value) {
+        SharedPreferenceUtils.setInt(mSharedPreferences, TERMUX_APP.KEY_EXTRA_KEYS_BAR_BORDER_WIDTH, value, false);
+    }
+
+    public boolean isExtraKeysBarBorderSync() {
+        return SharedPreferenceUtils.getBoolean(mSharedPreferences, TERMUX_APP.KEY_EXTRA_KEYS_BAR_BORDER_SYNC, TERMUX_APP.DEFAULT_VALUE_EXTRA_KEYS_BAR_BORDER_SYNC);
+    }
+
+    public void setExtraKeysBarBorderSync(boolean value) {
+        SharedPreferenceUtils.setBoolean(mSharedPreferences, TERMUX_APP.KEY_EXTRA_KEYS_BAR_BORDER_SYNC, value, false);
+    }
+
+    public String getExtraKeysBarBorderColor() {
+        return SharedPreferenceUtils.getString(mSharedPreferences, TERMUX_APP.KEY_EXTRA_KEYS_BAR_BORDER_COLOR, TERMUX_APP.DEFAULT_VALUE_EXTRA_KEYS_BAR_BORDER_COLOR, false);
+    }
+
+    public void setExtraKeysBarBorderColor(String value) {
+        SharedPreferenceUtils.setString(mSharedPreferences, TERMUX_APP.KEY_EXTRA_KEYS_BAR_BORDER_COLOR, value, false);
+    }
+
+    public String getExtraKeysPreset() {
+        return SharedPreferenceUtils.getString(mSharedPreferences, TERMUX_APP.KEY_EXTRA_KEYS_PRESET, TERMUX_APP.DEFAULT_VALUE_EXTRA_KEYS_PRESET, false);
+    }
+
+    public void setExtraKeysPreset(String value) {
+        SharedPreferenceUtils.setString(mSharedPreferences, TERMUX_APP.KEY_EXTRA_KEYS_PRESET, value, false);
+    }
+
+    public int getExtraKeysTextSize() {
+        return SharedPreferenceUtils.getInt(mSharedPreferences, TERMUX_APP.KEY_EXTRA_KEYS_TEXT_SIZE, TERMUX_APP.DEFAULT_VALUE_EXTRA_KEYS_TEXT_SIZE);
+    }
+
+    public void setExtraKeysTextSize(int value) {
+        SharedPreferenceUtils.setInt(mSharedPreferences, TERMUX_APP.KEY_EXTRA_KEYS_TEXT_SIZE, value, false);
+    }
+
+    public int getExtraKeysHeightScale() {
+        return SharedPreferenceUtils.getInt(mSharedPreferences, TERMUX_APP.KEY_EXTRA_KEYS_HEIGHT_SCALE, TERMUX_APP.DEFAULT_VALUE_EXTRA_KEYS_HEIGHT_SCALE);
+    }
+
+    public void setExtraKeysHeightScale(int value) {
+        SharedPreferenceUtils.setInt(mSharedPreferences, TERMUX_APP.KEY_EXTRA_KEYS_HEIGHT_SCALE, value, false);
+    }
+
+    public String getExtraKeysColorTheme() {
+        return SharedPreferenceUtils.getString(mSharedPreferences, TERMUX_APP.KEY_EXTRA_KEYS_COLOR_THEME, TERMUX_APP.DEFAULT_VALUE_EXTRA_KEYS_COLOR_THEME, false);
+    }
+
+    public void setExtraKeysColorTheme(String value) {
+        SharedPreferenceUtils.setString(mSharedPreferences, TERMUX_APP.KEY_EXTRA_KEYS_COLOR_THEME, value, false);
+    }
+
+    public boolean isExtraKeysFlatKeys() {
+        return SharedPreferenceUtils.getBoolean(mSharedPreferences, TERMUX_APP.KEY_EXTRA_KEYS_FLAT_KEYS, TERMUX_APP.DEFAULT_VALUE_EXTRA_KEYS_FLAT_KEYS);
+    }
+
+    public void setExtraKeysFlatKeys(boolean value) {
+        SharedPreferenceUtils.setBoolean(mSharedPreferences, TERMUX_APP.KEY_EXTRA_KEYS_FLAT_KEYS, value, false);
+    }
+
+    /**
+     * Resets all custom UI settings (borders, colors, tab bar, extra keys, background) to their default values.
+     */
+    public void resetAllCustomUiSettingsToDefault() {
+        setTabBarEnabled(TERMUX_APP.DEFAULT_VALUE_SHOW_TAB_BAR);
+        setTabCornerRadius(TERMUX_APP.DEFAULT_VALUE_TAB_CORNER_RADIUS);
+        setTabBorderWidth(TERMUX_APP.DEFAULT_VALUE_TAB_BORDER_WIDTH);
+        setTabBorderColor(TERMUX_APP.DEFAULT_VALUE_TAB_BORDER_COLOR);
+
+        setTerminalBorderEnabled(TERMUX_APP.DEFAULT_VALUE_TERMINAL_BORDER_ENABLED);
+        setTerminalBorderCornerRadius(TERMUX_APP.DEFAULT_VALUE_TERMINAL_BORDER_CORNER_RADIUS);
+        setTerminalBorderWidth(TERMUX_APP.DEFAULT_VALUE_TERMINAL_BORDER_WIDTH);
+        setTerminalBorderColor(TERMUX_APP.DEFAULT_VALUE_TERMINAL_BORDER_COLOR);
+        setTerminalBorderGaps(TERMUX_APP.DEFAULT_VALUE_TERMINAL_BORDER_GAPS);
+
+        setTerminalBackgroundImagePath(TERMUX_APP.DEFAULT_VALUE_TERMINAL_BACKGROUND_IMAGE_PATH);
+        setTerminalBackgroundOpacity(TERMUX_APP.DEFAULT_VALUE_TERMINAL_BACKGROUND_OPACITY);
+        setTerminalCellBackgroundTransparencyEnabled(TERMUX_APP.DEFAULT_VALUE_TERMINAL_CELL_BACKGROUND_TRANSPARENCY);
+        setTerminalCellBackgroundOpacity(TERMUX_APP.DEFAULT_VALUE_TERMINAL_CELL_BACKGROUND_OPACITY);
+
+        setExtraKeysCornerRadius(TERMUX_APP.DEFAULT_VALUE_EXTRA_KEYS_CORNER_RADIUS);
+        setExtraKeysMargin(TERMUX_APP.DEFAULT_VALUE_EXTRA_KEYS_MARGIN);
+        setExtraKeysTextSize(TERMUX_APP.DEFAULT_VALUE_EXTRA_KEYS_TEXT_SIZE);
+        setExtraKeysHeightScale(TERMUX_APP.DEFAULT_VALUE_EXTRA_KEYS_HEIGHT_SCALE);
+        setExtraKeysColorTheme(TERMUX_APP.DEFAULT_VALUE_EXTRA_KEYS_COLOR_THEME);
+        setExtraKeysFlatKeys(TERMUX_APP.DEFAULT_VALUE_EXTRA_KEYS_FLAT_KEYS);
+        setExtraKeysBarBorderEnabled(TERMUX_APP.DEFAULT_VALUE_EXTRA_KEYS_BAR_BORDER_ENABLED);
+        setExtraKeysBarBorderWidth(TERMUX_APP.DEFAULT_VALUE_EXTRA_KEYS_BAR_BORDER_WIDTH);
+        setExtraKeysBarBorderColor(TERMUX_APP.DEFAULT_VALUE_EXTRA_KEYS_BAR_BORDER_COLOR);
+        setExtraKeysCustomJson(TERMUX_APP.DEFAULT_VALUE_EXTRA_KEYS_CUSTOM_JSON);
+        setExtraKeysPreset(TERMUX_APP.DEFAULT_VALUE_EXTRA_KEYS_PRESET);
+        setExtraKeysUseCustom(TERMUX_APP.DEFAULT_VALUE_EXTRA_KEYS_USE_CUSTOM);
+    }
+
 }

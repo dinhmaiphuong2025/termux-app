@@ -1,4 +1,124 @@
-<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory
+        app:key="tab_bar_category"
+        app:title="@string/termux_tab_bar_header">
+
+        <SwitchPreferenceCompat
+            app:key="show_tab_bar"
+            app:title="@string/termux_tab_bar_title"
+            app:summary="@string/termux_tab_bar_summary"
+            app:defaultValue="true" />
+
+        <SeekBarPreference
+            app:key="tab_corner_radius"
+            app:title="@string/termux_tab_bar_corner_radius_title"
+            app:min="0"
+            android:max="24"
+            app:showSeekBarValue="true"
+            app:defaultValue="16" />
+
+        <SeekBarPreference
+            app:key="tab_border_width"
+            app:title="@string/termux_tab_bar_border_width_title"
+            app:min="0"
+            android:max="4"
+            app:showSeekBarValue="true"
+            app:defaultValue="1" />
+
+        <Preference
+            app:key="tab_border_color"
+            app:title="@string/termux_tab_bar_border_color_title"
+            app:summary="@string/termux_tab_bar_border_color_summary" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:key="niri_border_category"
+        app:title="@string/termux_niri_border_header">
+
+        <SwitchPreferenceCompat
+            app:key="terminal_border_enabled"
+            app:title="@string/termux_niri_border_enable_title"
+            app:summary="@string/termux_niri_border_enable_summary"
+            app:defaultValue="true" />
+
+        <SeekBarPreference
+            app:key="terminal_border_corner_radius"
+            app:title="@string/termux_niri_border_corner_radius_title"
+            app:min="0"
+            android:max="32"
+            app:showSeekBarValue="true"
+            app:defaultValue="12" />
+
+        <SeekBarPreference
+            app:key="terminal_border_width"
+            app:title="@string/termux_niri_border_width_title"
+            app:min="1"
+            android:max="8"
+            app:showSeekBarValue="true"
+            app:defaultValue="2" />
+
+        <Preference
+            app:key="terminal_border_color"
+            app:title="@string/termux_niri_border_color_title"
+            app:summary="@string/termux_niri_border_color_summary" />
+
+        <SeekBarPreference
+            app:key="terminal_border_gaps"
+            app:title="@string/termux_niri_border_gaps_title"
+            app:min="0"
+            android:max="20"
+            app:showSeekBarValue="true"
+            app:defaultValue="4" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:key="background_category"
+        app:title="@string/termux_background_header">
+
+        <Preference
+            app:key="terminal_background_pick"
+            app:title="@string/termux_background_pick_title"
+            app:summary="@string/termux_background_pick_summary" />
+
+        <Preference
+            app:key="terminal_background_clear"
+            app:title="@string/termux_background_clear_title"
+            app:summary="@string/termux_background_clear_summary" />
+
+        <EditTextPreference
+            app:key="terminal_background_image_path"
+            app:title="@string/termux_background_image_path_title"
+            app:summary="@string/termux_background_image_path_summary"
+            app:useSimpleSummaryProvider="true"
+            app:defaultValue="" />
+
+        <SeekBarPreference
+            app:key="terminal_background_opacity"
+            app:title="@string/termux_background_opacity_title"
+            app:min="0"
+            android:max="100"
+            app:showSeekBarValue="true"
+            app:defaultValue="60" />
+
+        <SwitchPreferenceCompat
+            app:key="terminal_cell_background_transparency"
+            app:title="@string/termux_cell_background_transparency_title"
+            app:summary="@string/termux_cell_background_transparency_summary"
+            app:defaultValue="false" />
+
+        <SeekBarPreference
+            app:key="terminal_cell_background_opacity"
+            app:title="@string/termux_cell_background_opacity_title"
+            app:min="0"
+            android:max="100"
+            app:showSeekBarValue="true"
+            app:defaultValue="0" />
+
+    </PreferenceCategory>
 
     <PreferenceCategory
         app:key="view"

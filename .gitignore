@@ -37,3 +37,8 @@ local.properties
 .swp
 ehthumbs.db
 Thumbs.db
+
+# AndroidIDE & local build files
+.androidide/
+.nomedia
+build.log

@@ -9,6 +9,17 @@
 
 [Termux](https://termux.dev) is an Android terminal application and Linux environment.
 
+## Custom UI & Features
+
+| Pill Tab Bar & Niri Border | Transparent Editor (Neovim) | Custom Settings & Color Palette |
+| :---: | :---: | :---: |
+| <img src="image/Screenshot_20260921-115916_Termux~2.jpg" width="100%" alt="Pill Tab Bar & Niri Border" /> | <img src="image/Screenshot_20260921-115929_Termux~2.jpg" width="100%" alt="Transparent Neovim Background" /> | <img src="image/Screenshot_20260921-115951_Termux~2.jpg" width="100%" alt="Settings & Palette" /> |
+
+- **Material 3 Pill-shaped Tab Bar**: Multi-session management with compact inactive tabs, session numbering, close buttons, and quick add.
+- **Niri WM Window Border**: Customizable rounded window frame (corner radius, stroke width, gaps, and color picker).
+- **Background Wallpaper & Cell Transparency**: Custom wallpaper images with adjustable dim overlay and transparent cell backgrounds for TUI editors (Neovim, Vim, Htop).
+- **Extra Keys Themes & Presets**: Popular palettes (Catppuccin Mocha/Macchiato/Latte, Dracula, Nord, One Dark, Tokyo Night, Follow System Material You), flat keys, and quick presets.
+
 Note that this repository is for the app itself (the user interface and the terminal emulation). For the packages installable inside the app, see [termux/termux-packages](https://github.com/termux/termux-packages).
 
 Quick how-to about Termux package management is available at [Package Management](https://github.com/termux/termux-packages/wiki/Package-Management). It also has info on how to fix **`repository is under maintenance or down`** errors when running `apt` or `pkg` commands.

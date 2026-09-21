@@ -1,5 +1,6 @@
 package com.termux.app.terminal.io;
 
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,9 +47,35 @@ public class TerminalToolbarViewPager {
                 ExtraKeysView extraKeysView = (ExtraKeysView) layout;
                 extraKeysView.setExtraKeysViewClient(mActivity.getTermuxTerminalExtraKeys());
                 extraKeysView.setButtonTextAllCaps(mActivity.getProperties().shouldExtraKeysTextBeAllCaps());
+                if (mActivity.getPreferences() != null) {
+                    float density = mActivity.getResources().getDisplayMetrics().density;
+                    String themeName = mActivity.getPreferences().getExtraKeysColorTheme();
+                    com.termux.shared.termux.extrakeys.ExtraKeysTheme theme =
+                        com.termux.shared.termux.extrakeys.ExtraKeysTheme.getTheme(mActivity, themeName);
+
+                    int btnBg = theme.buttonBackgroundColor;
+                    if (mActivity.getPreferences().isExtraKeysFlatKeys()) {
+                        btnBg = theme.barBackgroundColor;
+                    }
+
+                    extraKeysView.setButtonColors(
+                        theme.buttonTextColor,
+                        theme.buttonActiveTextColor,
+                        btnBg,
+                        theme.buttonActiveBackgroundColor
+                    );
+                    extraKeysView.setBackgroundColor(theme.barBackgroundColor);
+                    extraKeysView.setButtonCornerRadius(0);
+                    extraKeysView.setButtonMargin((int) (mActivity.getPreferences().getExtraKeysMargin() * density));
+                    extraKeysView.setButtonTextSizeSp(mActivity.getPreferences().getExtraKeysTextSize());
+                    extraKeysView.setButtonStrokeWidth(0);
+                }
                 mActivity.setExtraKeysView(extraKeysView);
-                extraKeysView.reload(mActivity.getTermuxTerminalExtraKeys().getExtraKeysInfo(),
-                    mActivity.getTerminalToolbarDefaultHeight());
+                float toolbarHeight = mActivity.getTerminalToolbarDefaultHeight();
+                if (mActivity.getPreferences() != null) {
+                    toolbarHeight = toolbarHeight * (mActivity.getPreferences().getExtraKeysHeightScale() / 100.0f);
+                }
+                extraKeysView.reload(mActivity.getTermuxTerminalExtraKeys().getExtraKeysInfo(), toolbarHeight);
 
                 // apply extra keys fix if enabled in prefs
                 if (mActivity.getProperties().isUsingFullScreen() && mActivity.getProperties().isUsingFullScreenWorkAround()) {

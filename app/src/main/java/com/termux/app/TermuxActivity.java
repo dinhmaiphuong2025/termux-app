@@ -65,6 +65,16 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.viewpager.widget.ViewPager;
 
+import com.termux.app.terminal.TermuxTabBarController;
+import com.google.android.material.card.MaterialCardView;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.net.Uri;
+import android.text.TextUtils;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import java.io.File;
 import java.util.Arrays;
 
 /**
@@ -137,6 +147,12 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
      * The termux sessions list controller.
      */
     TermuxSessionsListViewController mTermuxSessionListViewController;
+
+    MaterialCardView mTerminalCardContainer;
+    MaterialCardView mTerminalToolbarCard;
+    ImageView mTerminalBackgroundImage;
+    View mTerminalBackgroundOverlay;
+    TermuxTabBarController mTermuxTabBarController;
 
     /**
      * The {@link TermuxActivity} broadcast receiver for various things like terminal style configuration changes.
@@ -315,6 +331,8 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         if (mTermuxTerminalViewClient != null)
             mTermuxTerminalViewClient.onResume();
 
+        updateTerminalAppearance();
+
         // Check if a crash happened on last run of the app or if a plugin crashed and show a
         // notification with the crash details if it did
         TermuxCrashUtils.notifyAppCrashFromCrashLogFile(this, LOG_TAG);
@@ -341,7 +359,8 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         removeTermuxActivityRootViewGlobalLayoutListener();
 
         unregisterTermuxActivityBroadcastReceiver();
-        getDrawer().closeDrawers();
+        DrawerLayout drawer = getDrawer();
+        if (drawer != null) drawer.closeDrawers();
     }
 
     @Override
@@ -427,6 +446,8 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
 
         // Update the {@link TerminalSession} and {@link TerminalEmulator} clients.
         mTermuxService.setTermuxTerminalSessionClient(mTermuxTerminalSessionActivityClient);
+
+        updateTerminalAppearance();
     }
 
     @Override
@@ -490,6 +511,16 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         mTerminalView = findViewById(R.id.terminal_view);
         mTerminalView.setTerminalViewClient(mTermuxTerminalViewClient);
 
+        mTerminalCardContainer = findViewById(R.id.terminal_card_container);
+        mTerminalBackgroundImage = findViewById(R.id.terminal_background_image);
+        mTerminalBackgroundOverlay = findViewById(R.id.terminal_background_overlay);
+        mTerminalToolbarCard = findViewById(R.id.terminal_toolbar_card);
+
+        View tabBarLayout = findViewById(R.id.terminal_tab_bar_layout);
+        if (tabBarLayout != null) {
+            mTermuxTabBarController = new TermuxTabBarController(this, tabBarLayout);
+        }
+
         if (mTermuxTerminalViewClient != null)
             mTermuxTerminalViewClient.onCreate();
 
@@ -499,10 +530,51 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
 
     private void setTermuxSessionsListView() {
         ListView termuxSessionsListView = findViewById(R.id.terminal_sessions_list);
-        mTermuxSessionListViewController = new TermuxSessionsListViewController(this, mTermuxService.getTermuxSessions());
-        termuxSessionsListView.setAdapter(mTermuxSessionListViewController);
-        termuxSessionsListView.setOnItemClickListener(mTermuxSessionListViewController);
-        termuxSessionsListView.setOnItemLongClickListener(mTermuxSessionListViewController);
+        if (termuxSessionsListView != null && mTermuxService != null) {
+            mTermuxSessionListViewController = new TermuxSessionsListViewController(this, mTermuxService.getTermuxSessions());
+            termuxSessionsListView.setAdapter(mTermuxSessionListViewController);
+            termuxSessionsListView.setOnItemClickListener(mTermuxSessionListViewController);
+            termuxSessionsListView.setOnItemLongClickListener(mTermuxSessionListViewController);
+        }
+    }
+
+    private void setSettingsButtonView() {
+        ImageButton settingsButton = findViewById(R.id.settings_button);
+        if (settingsButton != null) {
+            settingsButton.setOnClickListener(v -> {
+                ActivityUtils.startActivity(this, new Intent(this, SettingsActivity.class));
+            });
+        }
+    }
+
+    private void setNewSessionButtonView() {
+        View newSessionButton = findViewById(R.id.new_session_button);
+        if (newSessionButton != null) {
+            newSessionButton.setOnClickListener(v -> mTermuxTerminalSessionActivityClient.addNewSession(false, null));
+            newSessionButton.setOnLongClickListener(v -> {
+                TextInputDialogUtils.textInput(TermuxActivity.this, R.string.title_create_named_session, null,
+                    R.string.action_create_named_session_confirm, text -> mTermuxTerminalSessionActivityClient.addNewSession(false, text),
+                    R.string.action_new_session_failsafe, text -> mTermuxTerminalSessionActivityClient.addNewSession(true, text),
+                    -1, null, null);
+                return true;
+            });
+        }
+    }
+
+    private void setToggleKeyboardView() {
+        View toggleBtn = findViewById(R.id.toggle_keyboard_button);
+        if (toggleBtn != null) {
+            toggleBtn.setOnClickListener(v -> {
+                mTermuxTerminalViewClient.onToggleSoftKeyboardRequest();
+                DrawerLayout drawer = getDrawer();
+                if (drawer != null) drawer.closeDrawers();
+            });
+
+            toggleBtn.setOnLongClickListener(v -> {
+                toggleTerminalToolbar();
+                return true;
+            });
+        }
     }
 
 
@@ -531,10 +603,15 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         final ViewPager terminalToolbarViewPager = getTerminalToolbarViewPager();
         if (terminalToolbarViewPager == null) return;
 
+        float extraKeysScale = 1.0f;
+        if (getPreferences() != null) {
+            extraKeysScale = getPreferences().getExtraKeysHeightScale() / 100.0f;
+        }
+
         ViewGroup.LayoutParams layoutParams = terminalToolbarViewPager.getLayoutParams();
         layoutParams.height = Math.round(mTerminalToolbarDefaultHeight *
             (mTermuxTerminalExtraKeys.getExtraKeysInfo() == null ? 0 : mTermuxTerminalExtraKeys.getExtraKeysInfo().getMatrix().length) *
-            mProperties.getTerminalToolbarHeightScaleFactor());
+            mProperties.getTerminalToolbarHeightScaleFactor() * extraKeysScale);
         terminalToolbarViewPager.setLayoutParams(layoutParams);
     }
 
@@ -563,46 +640,12 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
 
 
 
-    private void setSettingsButtonView() {
-        ImageButton settingsButton = findViewById(R.id.settings_button);
-        settingsButton.setOnClickListener(v -> {
-            ActivityUtils.startActivity(this, new Intent(this, SettingsActivity.class));
-        });
-    }
-
-    private void setNewSessionButtonView() {
-        View newSessionButton = findViewById(R.id.new_session_button);
-        newSessionButton.setOnClickListener(v -> mTermuxTerminalSessionActivityClient.addNewSession(false, null));
-        newSessionButton.setOnLongClickListener(v -> {
-            TextInputDialogUtils.textInput(TermuxActivity.this, R.string.title_create_named_session, null,
-                R.string.action_create_named_session_confirm, text -> mTermuxTerminalSessionActivityClient.addNewSession(false, text),
-                R.string.action_new_session_failsafe, text -> mTermuxTerminalSessionActivityClient.addNewSession(true, text),
-                -1, null, null);
-            return true;
-        });
-    }
-
-    private void setToggleKeyboardView() {
-        findViewById(R.id.toggle_keyboard_button).setOnClickListener(v -> {
-            mTermuxTerminalViewClient.onToggleSoftKeyboardRequest();
-            getDrawer().closeDrawers();
-        });
-
-        findViewById(R.id.toggle_keyboard_button).setOnLongClickListener(v -> {
-            toggleTerminalToolbar();
-            return true;
-        });
-    }
-
-
-
-
-
     @SuppressLint("RtlHardcoded")
     @Override
     public void onBackPressed() {
-        if (getDrawer().isDrawerOpen(Gravity.LEFT)) {
-            getDrawer().closeDrawers();
+        DrawerLayout drawer = getDrawer();
+        if (drawer != null && drawer.isDrawerOpen(Gravity.LEFT)) {
+            drawer.closeDrawers();
         } else {
             finishActivityIfNotFinishing();
         }
@@ -856,7 +899,239 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
 
 
     public void termuxSessionListNotifyUpdated() {
-        mTermuxSessionListViewController.notifyDataSetChanged();
+        if (mTermuxSessionListViewController != null) {
+            mTermuxSessionListViewController.notifyDataSetChanged();
+        }
+        if (mTermuxTabBarController != null) {
+            mTermuxTabBarController.updateTabs();
+        }
+    }
+
+    public TermuxTabBarController getTermuxTabBarController() {
+        return mTermuxTabBarController;
+    }
+
+    public void updateTerminalAppearance() {
+        if (getPreferences() == null) return;
+        float density = getResources().getDisplayMetrics().density;
+
+        // 1. Niri WM Window Border Styling
+        if (mTerminalCardContainer != null) {
+            boolean borderEnabled = getPreferences().isTerminalBorderEnabled();
+            if (borderEnabled) {
+                int cornerRadius = (int) (getPreferences().getTerminalBorderCornerRadius() * density);
+                int strokeWidth = (int) (getPreferences().getTerminalBorderWidth() * density);
+                int gaps = (int) (getPreferences().getTerminalBorderGaps() * density);
+                String colorStr = getPreferences().getTerminalBorderColor();
+
+                int strokeColor;
+                try {
+                    strokeColor = Color.parseColor(colorStr);
+                } catch (Exception e) {
+                    strokeColor = 0xFF3D82F6; // Default accent blue
+                }
+
+                mTerminalCardContainer.setRadius(cornerRadius);
+                mTerminalCardContainer.setStrokeWidth(strokeWidth);
+                mTerminalCardContainer.setStrokeColor(strokeColor);
+                mTerminalCardContainer.setPreventCornerOverlap(true);
+                mTerminalCardContainer.setContentPadding(strokeWidth, strokeWidth, strokeWidth, strokeWidth);
+
+                ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) mTerminalCardContainer.getLayoutParams();
+                if (lp != null) {
+                    lp.setMargins(gaps, gaps, gaps, gaps);
+                    mTerminalCardContainer.setLayoutParams(lp);
+                }
+            } else {
+                mTerminalCardContainer.setRadius(0);
+                mTerminalCardContainer.setStrokeWidth(0);
+                mTerminalCardContainer.setContentPadding(0, 0, 0, 0);
+                ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) mTerminalCardContainer.getLayoutParams();
+                if (lp != null) {
+                    lp.setMargins(0, 0, 0, 0);
+                    mTerminalCardContainer.setLayoutParams(lp);
+                }
+            }
+        }
+
+        // 2. Terminal Background Image & Opacity Overlay
+        if (mTerminalBackgroundImage != null && mTerminalBackgroundOverlay != null) {
+            String imagePath = getPreferences().getTerminalBackgroundImagePath();
+            if (!TextUtils.isEmpty(imagePath)) {
+                final int opacity = getPreferences().getTerminalBackgroundOpacity();
+                final float alpha = Math.max(0.0f, Math.min(1.0f, opacity / 100.0f));
+                mTerminalBackgroundOverlay.setAlpha(alpha);
+                mTerminalBackgroundOverlay.setVisibility(View.VISIBLE);
+
+                final String targetPath = imagePath;
+                final ImageView bgView = mTerminalBackgroundImage;
+
+                new Thread(() -> {
+                    Bitmap loadedBitmap = null;
+                    try {
+                        Uri uri = Uri.parse(targetPath);
+                        BitmapFactory.Options opts = new BitmapFactory.Options();
+                        opts.inJustDecodeBounds = true;
+
+                        if (targetPath.startsWith("content://") || targetPath.startsWith("file://")) {
+                            try (java.io.InputStream is = getContentResolver().openInputStream(uri)) {
+                                BitmapFactory.decodeStream(is, null, opts);
+                            }
+                        } else {
+                            BitmapFactory.decodeFile(targetPath, opts);
+                        }
+
+                        // Downsample if image is excessively large (larger than 2048 in either dimension)
+                        int sampleSize = 1;
+                        int maxDim = Math.max(opts.outWidth, opts.outHeight);
+                        while (maxDim / sampleSize > 2048) {
+                            sampleSize *= 2;
+                        }
+
+                        BitmapFactory.Options decodeOpts = new BitmapFactory.Options();
+                        decodeOpts.inSampleSize = sampleSize;
+
+                        if (targetPath.startsWith("content://") || targetPath.startsWith("file://")) {
+                            try (java.io.InputStream is = getContentResolver().openInputStream(uri)) {
+                                loadedBitmap = BitmapFactory.decodeStream(is, null, decodeOpts);
+                            }
+                        } else {
+                            loadedBitmap = BitmapFactory.decodeFile(targetPath, decodeOpts);
+                        }
+                    } catch (Throwable t) {
+                        Logger.logStackTraceWithMessage(LOG_TAG, "Failed to decode background image in background thread", t);
+                    }
+
+                    final Bitmap finalBitmap = loadedBitmap;
+                    runOnUiThread(() -> {
+                        if (!isFinishing()) {
+                            if (finalBitmap != null) {
+                                bgView.setImageBitmap(finalBitmap);
+                                bgView.setVisibility(View.VISIBLE);
+                            } else {
+                                bgView.setVisibility(View.GONE);
+                                mTerminalBackgroundOverlay.setVisibility(View.GONE);
+                                showToast("Could not load background image", false);
+                            }
+                        }
+                    });
+                }).start();
+            } else {
+                mTerminalBackgroundImage.setImageDrawable(null);
+                mTerminalBackgroundImage.setVisibility(View.GONE);
+                mTerminalBackgroundOverlay.setVisibility(View.GONE);
+            }
+        }
+
+        // 2.5 Terminal Cell Background Transparency (for Neovim / TUI apps)
+        if (mTerminalView != null) {
+            if (getPreferences().isTerminalCellBackgroundTransparencyEnabled()) {
+                int opacityPercent = getPreferences().getTerminalCellBackgroundOpacity();
+                int alpha = Math.round(opacityPercent * 255f / 100f);
+                mTerminalView.setCellBackgroundAlpha(alpha);
+            } else {
+                mTerminalView.setCellBackgroundAlpha(-1);
+            }
+        }
+
+        // 3. Tab Bar
+        if (mTermuxTabBarController != null) {
+            mTermuxTabBarController.updateTabs();
+        }
+
+        // 4. Extra Keys Bar Border (Option 2)
+        if (mTerminalToolbarCard != null) {
+            boolean barBorderEnabled = getPreferences().isExtraKeysBarBorderEnabled();
+            if (barBorderEnabled) {
+                int barStrokeWidth = (int) (getPreferences().getExtraKeysBarBorderWidth() * density);
+                int cornerRadius = (int) (getPreferences().getTerminalBorderCornerRadius() * density);
+                int gaps = (int) (getPreferences().getTerminalBorderGaps() * density);
+
+                int barStrokeColor;
+                String barColor = getPreferences().getExtraKeysBarBorderColor();
+                try {
+                    barStrokeColor = Color.parseColor(barColor);
+                } catch (Exception e) {
+                    barStrokeColor = 0xFF3D82F6;
+                }
+                mTerminalToolbarCard.setRadius(cornerRadius);
+                mTerminalToolbarCard.setStrokeWidth(barStrokeWidth);
+                mTerminalToolbarCard.setStrokeColor(barStrokeColor);
+                mTerminalToolbarCard.setPreventCornerOverlap(true);
+                mTerminalToolbarCard.setCardBackgroundColor(Color.BLACK);
+
+                ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) mTerminalToolbarCard.getLayoutParams();
+                if (lp != null) {
+                    lp.setMargins(gaps, gaps, gaps, gaps);
+                    mTerminalToolbarCard.setLayoutParams(lp);
+                }
+            } else {
+                mTerminalToolbarCard.setRadius(0);
+                mTerminalToolbarCard.setStrokeWidth(0);
+                mTerminalToolbarCard.setCardBackgroundColor(Color.TRANSPARENT);
+                ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) mTerminalToolbarCard.getLayoutParams();
+                if (lp != null) {
+                    lp.setMargins(0, 0, 0, 0);
+                    mTerminalToolbarCard.setLayoutParams(lp);
+                }
+            }
+        }
+
+        // 5. Extra Keys Styling & Config
+        reloadExtraKeysStylingAndConfig();
+    }
+
+    public void reloadExtraKeysStylingAndConfig() {
+        if (mTermuxTerminalExtraKeys != null) {
+            mTermuxTerminalExtraKeys.reloadExtraKeys();
+        }
+        setTerminalToolbarHeight();
+        if (mExtraKeysView != null && getPreferences() != null) {
+            float density = getResources().getDisplayMetrics().density;
+            String themeName = getPreferences().getExtraKeysColorTheme();
+            com.termux.shared.termux.extrakeys.ExtraKeysTheme theme =
+                com.termux.shared.termux.extrakeys.ExtraKeysTheme.getTheme(this, themeName);
+
+            int btnBg = theme.buttonBackgroundColor;
+            if (getPreferences().isExtraKeysFlatKeys()) {
+                btnBg = theme.barBackgroundColor;
+            }
+
+            // Apply theme colors
+            mExtraKeysView.setButtonColors(
+                theme.buttonTextColor,
+                theme.buttonActiveTextColor,
+                btnBg,
+                theme.buttonActiveBackgroundColor
+            );
+            mExtraKeysView.setBackgroundColor(theme.barBackgroundColor);
+
+            final ViewPager terminalToolbarViewPager = getTerminalToolbarViewPager();
+            if (terminalToolbarViewPager != null) {
+                terminalToolbarViewPager.setBackgroundColor(theme.barBackgroundColor);
+            }
+
+            if (mTerminalToolbarCard != null && getPreferences().isExtraKeysBarBorderEnabled()) {
+                mTerminalToolbarCard.setCardBackgroundColor(theme.barBackgroundColor);
+            }
+
+            mExtraKeysView.setButtonCornerRadius(0);
+            mExtraKeysView.setButtonMargin((int) (getPreferences().getExtraKeysMargin() * density));
+            mExtraKeysView.setButtonTextSizeSp(getPreferences().getExtraKeysTextSize());
+            mExtraKeysView.setButtonStrokeWidth(0);
+
+            if (mProperties != null) {
+                mExtraKeysView.setButtonTextAllCaps(mProperties.shouldExtraKeysTextBeAllCaps());
+            }
+
+            float toolbarHeight = mTerminalToolbarDefaultHeight;
+            if (getPreferences() != null) {
+                toolbarHeight = mTerminalToolbarDefaultHeight * (getPreferences().getExtraKeysHeightScale() / 100.0f);
+            }
+            if (mTermuxTerminalExtraKeys != null) {
+                mExtraKeysView.reload(mTermuxTerminalExtraKeys.getExtraKeysInfo(), toolbarHeight);
+            }
+        }
     }
 
     public boolean isVisible() {
@@ -969,17 +1244,11 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         if (mProperties != null) {
             reloadProperties();
 
-            if (mExtraKeysView != null) {
-                mExtraKeysView.setButtonTextAllCaps(mProperties.shouldExtraKeysTextBeAllCaps());
-                mExtraKeysView.reload(mTermuxTerminalExtraKeys.getExtraKeysInfo(), mTerminalToolbarDefaultHeight);
-            }
-
             // Update NightMode.APP_NIGHT_MODE
             TermuxThemeUtils.setAppNightMode(mProperties.getNightMode());
         }
 
         setMargins();
-        setTerminalToolbarHeight();
 
         FileReceiverActivity.updateFileReceiverActivityComponentsState(this);
 
@@ -988,6 +1257,8 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
 
         if (mTermuxTerminalViewClient != null)
             mTermuxTerminalViewClient.onReloadActivityStyling();
+
+        updateTerminalAppearance();
 
         // To change the activity and drawer theme, activity needs to be recreated.
         // It will destroy the activity, including all stored variables and views, and onCreate()
