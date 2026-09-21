@@ -11,9 +11,11 @@
 
 ## Custom UI & Features
 
-| Pill Tab Bar & Niri Border | Transparent Editor (Neovim) | Custom Settings & Color Palette |
-| :---: | :---: | :---: |
-| <img src="image/Screenshot_20260921-115916_Termux~2.jpg" width="100%" alt="Pill Tab Bar & Niri Border" /> | <img src="image/Screenshot_20260921-115929_Termux~2.jpg" width="100%" alt="Transparent Neovim Background" /> | <img src="image/Screenshot_20260921-115951_Termux~2.jpg" width="100%" alt="Settings & Palette" /> |
+<p align="center">
+  <img src="image/Screenshot_20260921-115916_Termux~2.jpg" width="32%" />
+  <img src="image/Screenshot_20260921-115929_Termux~2.jpg" width="32%" />
+  <img src="image/Screenshot_20260921-115951_Termux~2.jpg" width="32%" />
+</p>
 
 - **Material 3 Pill-shaped Tab Bar**: Multi-session management with compact inactive tabs, session numbering, close buttons, and quick add.
 - **Niri WM Window Border**: Customizable rounded window frame (corner radius, stroke width, gaps, and color picker).
