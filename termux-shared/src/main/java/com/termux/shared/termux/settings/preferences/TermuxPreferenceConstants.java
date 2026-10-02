@@ -202,13 +202,13 @@ public final class TermuxPreferenceConstants {
          * Niri Window Border Preferences.
          */
         public static final String KEY_TERMINAL_BORDER_ENABLED = "terminal_border_enabled";
-        public static final boolean DEFAULT_VALUE_TERMINAL_BORDER_ENABLED = true;
+        public static final boolean DEFAULT_VALUE_TERMINAL_BORDER_ENABLED = false;
 
         public static final String KEY_TERMINAL_BORDER_CORNER_RADIUS = "terminal_border_corner_radius";
         public static final int DEFAULT_VALUE_TERMINAL_BORDER_CORNER_RADIUS = 12;
 
         public static final String KEY_TERMINAL_BORDER_WIDTH = "terminal_border_width";
-        public static final int DEFAULT_VALUE_TERMINAL_BORDER_WIDTH = 2;
+        public static final int DEFAULT_VALUE_TERMINAL_BORDER_WIDTH = 1;
 
         public static final String KEY_TERMINAL_BORDER_COLOR = "terminal_border_color";
         public static final String DEFAULT_VALUE_TERMINAL_BORDER_COLOR = "#3D82F6";

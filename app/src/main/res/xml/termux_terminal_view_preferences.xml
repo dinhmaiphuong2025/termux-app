@@ -42,7 +42,7 @@
             app:key="terminal_border_enabled"
             app:title="@string/termux_niri_border_enable_title"
             app:summary="@string/termux_niri_border_enable_summary"
-            app:defaultValue="true" />
+            app:defaultValue="false" />
 
         <SeekBarPreference
             app:key="terminal_border_corner_radius"
@@ -58,7 +58,7 @@
             app:min="1"
             android:max="8"
             app:showSeekBarValue="true"
-            app:defaultValue="2" />
+            app:defaultValue="1" />
 
         <Preference
             app:key="terminal_border_color"
