@@ -338,6 +338,38 @@ public class TermuxAppSharedPreferences extends AppSharedPreferences {
         SharedPreferenceUtils.setInt(mSharedPreferences, TERMUX_APP.KEY_TERMINAL_BORDER_GAPS, value, false);
     }
 
+    public int getTerminalBorderPadding() {
+        return SharedPreferenceUtils.getInt(mSharedPreferences, TERMUX_APP.KEY_TERMINAL_BORDER_PADDING, TERMUX_APP.DEFAULT_VALUE_TERMINAL_BORDER_PADDING);
+    }
+
+    public void setTerminalBorderPadding(int value) {
+        SharedPreferenceUtils.setInt(mSharedPreferences, TERMUX_APP.KEY_TERMINAL_BORDER_PADDING, value, false);
+    }
+
+    public String getTerminalBorderStyle() {
+        return SharedPreferenceUtils.getString(mSharedPreferences, TERMUX_APP.KEY_TERMINAL_BORDER_STYLE, TERMUX_APP.DEFAULT_VALUE_TERMINAL_BORDER_STYLE, false);
+    }
+
+    public void setTerminalBorderStyle(String value) {
+        SharedPreferenceUtils.setString(mSharedPreferences, TERMUX_APP.KEY_TERMINAL_BORDER_STYLE, value, false);
+    }
+
+    public String getTerminalBorderTitlePosition() {
+        return SharedPreferenceUtils.getString(mSharedPreferences, TERMUX_APP.KEY_TERMINAL_BORDER_TITLE_POSITION, TERMUX_APP.DEFAULT_VALUE_TERMINAL_BORDER_TITLE_POSITION, false);
+    }
+
+    public void setTerminalBorderTitlePosition(String value) {
+        SharedPreferenceUtils.setString(mSharedPreferences, TERMUX_APP.KEY_TERMINAL_BORDER_TITLE_POSITION, value, false);
+    }
+
+    public String getTerminalBorderTitleText() {
+        return SharedPreferenceUtils.getString(mSharedPreferences, TERMUX_APP.KEY_TERMINAL_BORDER_TITLE_TEXT, TERMUX_APP.DEFAULT_VALUE_TERMINAL_BORDER_TITLE_TEXT, false);
+    }
+
+    public void setTerminalBorderTitleText(String value) {
+        SharedPreferenceUtils.setString(mSharedPreferences, TERMUX_APP.KEY_TERMINAL_BORDER_TITLE_TEXT, value, false);
+    }
+
     public String getTerminalBackgroundImagePath() {
         return SharedPreferenceUtils.getString(mSharedPreferences, TERMUX_APP.KEY_TERMINAL_BACKGROUND_IMAGE_PATH, TERMUX_APP.DEFAULT_VALUE_TERMINAL_BACKGROUND_IMAGE_PATH, false);
     }

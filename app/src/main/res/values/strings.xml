@@ -247,6 +247,13 @@
     <string name="termux_niri_border_color_title">Border Color (Hex / Palette)</string>
     <string name="termux_niri_border_color_summary">Hex color code (click to choose from palette or type hex)</string>
     <string name="termux_niri_border_gaps_title">Window Gaps / Margins (dp)</string>
+    <string name="termux_niri_border_padding_title">Terminal Content Padding (dp)</string>
+    <string name="termux_niri_border_style_title">Border Style</string>
+    <string name="termux_niri_border_style_summary">Full box or Hermes brackets with cut-out sides</string>
+    <string name="termux_niri_border_title_position_title">Custom Title Position</string>
+    <string name="termux_niri_border_title_position_summary">Place text badge on Top or Bottom border</string>
+    <string name="termux_niri_border_title_text_title">Custom Title Text</string>
+    <string name="termux_niri_border_title_text_summary">Text to display on border (leave empty for none)</string>
 
     <!-- Background Wallpaper Preferences -->
     <string name="termux_background_header">Background Wallpaper</string>

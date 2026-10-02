@@ -28,6 +28,7 @@ import android.widget.Toast;
 
 import com.termux.R;
 import com.termux.app.api.file.FileReceiverActivity;
+import com.termux.app.terminal.TerminalBorderDrawable;
 import com.termux.app.terminal.TermuxActivityRootView;
 import com.termux.app.terminal.TermuxTerminalSessionActivityClient;
 import com.termux.app.terminal.io.TermuxTerminalExtraKeys;
@@ -152,6 +153,8 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
     MaterialCardView mTerminalToolbarCard;
     ImageView mTerminalBackgroundImage;
     View mTerminalBackgroundOverlay;
+    View mTerminalBorderOverlay;
+    TerminalBorderDrawable mTerminalBorderDrawable;
     TermuxTabBarController mTermuxTabBarController;
 
     /**
@@ -515,6 +518,11 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         mTerminalBackgroundImage = findViewById(R.id.terminal_background_image);
         mTerminalBackgroundOverlay = findViewById(R.id.terminal_background_overlay);
         mTerminalToolbarCard = findViewById(R.id.terminal_toolbar_card);
+        mTerminalBorderOverlay = findViewById(R.id.terminal_border_overlay);
+        mTerminalBorderDrawable = new TerminalBorderDrawable();
+        if (mTerminalBorderOverlay != null) {
+            mTerminalBorderOverlay.setBackground(mTerminalBorderDrawable);
+        }
 
         View tabBarLayout = findViewById(R.id.terminal_tab_bar_layout);
         if (tabBarLayout != null) {
@@ -923,7 +931,11 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
                 int cornerRadius = (int) (getPreferences().getTerminalBorderCornerRadius() * density);
                 int strokeWidth = (int) (getPreferences().getTerminalBorderWidth() * density);
                 int gaps = (int) (getPreferences().getTerminalBorderGaps() * density);
+                int padding = (int) (getPreferences().getTerminalBorderPadding() * density);
                 String colorStr = getPreferences().getTerminalBorderColor();
+                String borderStyle = getPreferences().getTerminalBorderStyle();
+                String titlePos = getPreferences().getTerminalBorderTitlePosition();
+                String titleText = getPreferences().getTerminalBorderTitleText();
 
                 int strokeColor;
                 try {
@@ -932,11 +944,28 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
                     strokeColor = 0xFF3D82F6; // Default accent blue
                 }
 
-                mTerminalCardContainer.setRadius(cornerRadius);
-                mTerminalCardContainer.setStrokeWidth(strokeWidth);
-                mTerminalCardContainer.setStrokeColor(strokeColor);
-                mTerminalCardContainer.setPreventCornerOverlap(true);
-                mTerminalCardContainer.setContentPadding(strokeWidth, strokeWidth, strokeWidth, strokeWidth);
+                // If TerminalBorderDrawable is available on overlay, use it to support Brackets and Title text
+                if (mTerminalBorderDrawable != null && mTerminalBorderOverlay != null) {
+                    mTerminalCardContainer.setRadius(cornerRadius);
+                    mTerminalCardContainer.setStrokeWidth(0); // Overlay handles drawing the border
+                    mTerminalCardContainer.setPreventCornerOverlap(true);
+
+                    // Add content padding so terminal text is not tight against the border
+                    int totalPadding = strokeWidth + padding;
+                    mTerminalCardContainer.setContentPadding(totalPadding, totalPadding, totalPadding, totalPadding);
+
+                    mTerminalBorderDrawable.setConfig(density, strokeWidth, cornerRadius, strokeColor,
+                        borderStyle, titlePos, titleText);
+                    mTerminalBorderOverlay.setVisibility(View.VISIBLE);
+                    mTerminalBorderOverlay.invalidate();
+                } else {
+                    mTerminalCardContainer.setRadius(cornerRadius);
+                    mTerminalCardContainer.setStrokeWidth(strokeWidth);
+                    mTerminalCardContainer.setStrokeColor(strokeColor);
+                    mTerminalCardContainer.setPreventCornerOverlap(true);
+                    int totalPadding = strokeWidth + padding;
+                    mTerminalCardContainer.setContentPadding(totalPadding, totalPadding, totalPadding, totalPadding);
+                }
 
                 ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) mTerminalCardContainer.getLayoutParams();
                 if (lp != null) {
@@ -947,6 +976,9 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
                 mTerminalCardContainer.setRadius(0);
                 mTerminalCardContainer.setStrokeWidth(0);
                 mTerminalCardContainer.setContentPadding(0, 0, 0, 0);
+                if (mTerminalBorderOverlay != null) {
+                    mTerminalBorderOverlay.setVisibility(View.GONE);
+                }
                 ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) mTerminalCardContainer.getLayoutParams();
                 if (lp != null) {
                     lp.setMargins(0, 0, 0, 0);

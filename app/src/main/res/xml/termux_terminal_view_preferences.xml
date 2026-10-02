@@ -73,6 +73,39 @@
             app:showSeekBarValue="true"
             app:defaultValue="4" />
 
+        <SeekBarPreference
+            app:key="terminal_border_padding"
+            app:title="@string/termux_niri_border_padding_title"
+            app:min="0"
+            android:max="24"
+            app:showSeekBarValue="true"
+            app:defaultValue="6" />
+
+        <ListPreference
+            app:key="terminal_border_style"
+            app:title="@string/termux_niri_border_style_title"
+            app:summary="@string/termux_niri_border_style_summary"
+            app:entries="@array/terminal_border_style_titles"
+            app:entryValues="@array/terminal_border_style_values"
+            app:useSimpleSummaryProvider="true"
+            app:defaultValue="full" />
+
+        <ListPreference
+            app:key="terminal_border_title_position"
+            app:title="@string/termux_niri_border_title_position_title"
+            app:summary="@string/termux_niri_border_title_position_summary"
+            app:entries="@array/terminal_border_title_position_titles"
+            app:entryValues="@array/terminal_border_title_position_values"
+            app:useSimpleSummaryProvider="true"
+            app:defaultValue="none" />
+
+        <EditTextPreference
+            app:key="terminal_border_title_text"
+            app:title="@string/termux_niri_border_title_text_title"
+            app:summary="@string/termux_niri_border_title_text_summary"
+            app:useSimpleSummaryProvider="true"
+            app:defaultValue="" />
+
     </PreferenceCategory>
 
     <PreferenceCategory

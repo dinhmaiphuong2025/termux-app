@@ -70,6 +70,14 @@
                             android:scrollbarThumbVertical="@drawable/terminal_scroll_shape"
                             android:scrollbars="vertical"
                             tools:ignore="UnusedAttribute" />
+
+                        <View
+                            android:id="@+id/terminal_border_overlay"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:clickable="false"
+                            android:focusable="false"
+                            android:visibility="gone" />
                     </FrameLayout>
                 </com.google.android.material.card.MaterialCardView>
             </LinearLayout>

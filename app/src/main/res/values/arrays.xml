@@ -37,4 +37,26 @@
         <item>one_dark</item>
         <item>tokyo_night</item>
     </string-array>
+
+    <string-array name="terminal_border_style_titles">
+        <item>Full Box (Khép kín)</item>
+        <item>Hermes Brackets (Cắt 2 cạnh bên, chừa góc)</item>
+    </string-array>
+
+    <string-array name="terminal_border_style_values">
+        <item>full</item>
+        <item>brackets</item>
+    </string-array>
+
+    <string-array name="terminal_border_title_position_titles">
+        <item>None (Không có chữ)</item>
+        <item>Top Center (Giữa cạnh trên)</item>
+        <item>Bottom Center (Giữa cạnh dưới)</item>
+    </string-array>
+
+    <string-array name="terminal_border_title_position_values">
+        <item>none</item>
+        <item>top_center</item>
+        <item>bottom_center</item>
+    </string-array>
 </resources>

@@ -253,6 +253,9 @@ class TerminalViewPreferencesDataStore extends PreferenceDataStore {
             case "terminal_border_gaps":
                 mPreferences.setTerminalBorderGaps(value);
                 break;
+            case "terminal_border_padding":
+                mPreferences.setTerminalBorderPadding(value);
+                break;
             case "terminal_background_opacity":
                 mPreferences.setTerminalBackgroundOpacity(value);
                 break;
@@ -279,6 +282,8 @@ class TerminalViewPreferencesDataStore extends PreferenceDataStore {
                 return mPreferences.getTerminalBorderWidth();
             case "terminal_border_gaps":
                 return mPreferences.getTerminalBorderGaps();
+            case "terminal_border_padding":
+                return mPreferences.getTerminalBorderPadding();
             case "terminal_background_opacity":
                 return mPreferences.getTerminalBackgroundOpacity();
             case "terminal_cell_background_opacity":
@@ -302,6 +307,15 @@ class TerminalViewPreferencesDataStore extends PreferenceDataStore {
             case "terminal_background_image_path":
                 mPreferences.setTerminalBackgroundImagePath(value != null ? value : "");
                 break;
+            case "terminal_border_style":
+                mPreferences.setTerminalBorderStyle(value != null ? value : "full");
+                break;
+            case "terminal_border_title_position":
+                mPreferences.setTerminalBorderTitlePosition(value != null ? value : "none");
+                break;
+            case "terminal_border_title_text":
+                mPreferences.setTerminalBorderTitleText(value != null ? value : "");
+                break;
             default:
                 break;
         }
@@ -319,6 +333,12 @@ class TerminalViewPreferencesDataStore extends PreferenceDataStore {
                 return mPreferences.getTabBorderColor();
             case "terminal_background_image_path":
                 return mPreferences.getTerminalBackgroundImagePath();
+            case "terminal_border_style":
+                return mPreferences.getTerminalBorderStyle();
+            case "terminal_border_title_position":
+                return mPreferences.getTerminalBorderTitlePosition();
+            case "terminal_border_title_text":
+                return mPreferences.getTerminalBorderTitleText();
             default:
                 return defValue;
         }
