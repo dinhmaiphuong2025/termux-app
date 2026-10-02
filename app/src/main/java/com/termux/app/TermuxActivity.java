@@ -934,8 +934,6 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
                 int padding = (int) (getPreferences().getTerminalBorderPadding() * density);
                 String colorStr = getPreferences().getTerminalBorderColor();
                 String borderStyle = getPreferences().getTerminalBorderStyle();
-                String titlePos = getPreferences().getTerminalBorderTitlePosition();
-                String titleText = getPreferences().getTerminalBorderTitleText();
 
                 int strokeColor;
                 try {
@@ -957,8 +955,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
                         mTerminalView.setPadding(pad, pad, pad, pad);
                     }
 
-                    mTerminalBorderDrawable.setConfig(density, strokeWidth, cornerRadius, strokeColor,
-                        borderStyle, titlePos, titleText);
+                    mTerminalBorderDrawable.setConfig(density, strokeWidth, cornerRadius, strokeColor, borderStyle);
                     mTerminalBorderOverlay.setVisibility(View.VISIBLE);
                     mTerminalBorderOverlay.invalidate();
                 } else {
@@ -1087,8 +1084,8 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
             boolean barBorderEnabled = getPreferences().isExtraKeysBarBorderEnabled();
             if (barBorderEnabled) {
                 int barStrokeWidth = (int) (getPreferences().getExtraKeysBarBorderWidth() * density);
-                int cornerRadius = (int) (getPreferences().getTerminalBorderCornerRadius() * density);
-                int gaps = (int) (getPreferences().getTerminalBorderGaps() * density);
+                int cornerRadius = (int) (getPreferences().getExtraKeysBarBorderCornerRadius() * density);
+                int gaps = (int) (getPreferences().getExtraKeysBarBorderGaps() * density);
 
                 int barStrokeColor;
                 String barColor = getPreferences().getExtraKeysBarBorderColor();

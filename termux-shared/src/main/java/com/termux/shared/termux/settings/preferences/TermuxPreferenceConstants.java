@@ -222,12 +222,6 @@ public final class TermuxPreferenceConstants {
         public static final String KEY_TERMINAL_BORDER_STYLE = "terminal_border_style";
         public static final String DEFAULT_VALUE_TERMINAL_BORDER_STYLE = "full"; // "full" or "brackets"
 
-        public static final String KEY_TERMINAL_BORDER_TITLE_POSITION = "terminal_border_title_position";
-        public static final String DEFAULT_VALUE_TERMINAL_BORDER_TITLE_POSITION = "none"; // "none", "top_center", "bottom_center"
-
-        public static final String KEY_TERMINAL_BORDER_TITLE_TEXT = "terminal_border_title_text";
-        public static final String DEFAULT_VALUE_TERMINAL_BORDER_TITLE_TEXT = "";
-
         /**
          * Terminal Background Preferences.
          */
@@ -298,6 +292,12 @@ public final class TermuxPreferenceConstants {
 
         public static final String KEY_EXTRA_KEYS_BAR_BORDER_COLOR = "extra_keys_bar_border_color";
         public static final String DEFAULT_VALUE_EXTRA_KEYS_BAR_BORDER_COLOR = "#3D82F6";
+
+        public static final String KEY_EXTRA_KEYS_BAR_BORDER_CORNER_RADIUS = "extra_keys_bar_border_corner_radius";
+        public static final int DEFAULT_VALUE_EXTRA_KEYS_BAR_BORDER_CORNER_RADIUS = 8;
+
+        public static final String KEY_EXTRA_KEYS_BAR_BORDER_GAPS = "extra_keys_bar_border_gaps";
+        public static final int DEFAULT_VALUE_EXTRA_KEYS_BAR_BORDER_GAPS = 4;
 
     }
 

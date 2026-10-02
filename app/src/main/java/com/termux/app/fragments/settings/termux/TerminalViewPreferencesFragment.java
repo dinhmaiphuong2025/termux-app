@@ -310,12 +310,6 @@ class TerminalViewPreferencesDataStore extends PreferenceDataStore {
             case "terminal_border_style":
                 mPreferences.setTerminalBorderStyle(value != null ? value : "full");
                 break;
-            case "terminal_border_title_position":
-                mPreferences.setTerminalBorderTitlePosition(value != null ? value : "none");
-                break;
-            case "terminal_border_title_text":
-                mPreferences.setTerminalBorderTitleText(value != null ? value : "");
-                break;
             default:
                 break;
         }
@@ -335,10 +329,6 @@ class TerminalViewPreferencesDataStore extends PreferenceDataStore {
                 return mPreferences.getTerminalBackgroundImagePath();
             case "terminal_border_style":
                 return mPreferences.getTerminalBorderStyle();
-            case "terminal_border_title_position":
-                return mPreferences.getTerminalBorderTitlePosition();
-            case "terminal_border_title_text":
-                return mPreferences.getTerminalBorderTitleText();
             default:
                 return defValue;
         }

@@ -354,22 +354,6 @@ public class TermuxAppSharedPreferences extends AppSharedPreferences {
         SharedPreferenceUtils.setString(mSharedPreferences, TERMUX_APP.KEY_TERMINAL_BORDER_STYLE, value, false);
     }
 
-    public String getTerminalBorderTitlePosition() {
-        return SharedPreferenceUtils.getString(mSharedPreferences, TERMUX_APP.KEY_TERMINAL_BORDER_TITLE_POSITION, TERMUX_APP.DEFAULT_VALUE_TERMINAL_BORDER_TITLE_POSITION, false);
-    }
-
-    public void setTerminalBorderTitlePosition(String value) {
-        SharedPreferenceUtils.setString(mSharedPreferences, TERMUX_APP.KEY_TERMINAL_BORDER_TITLE_POSITION, value, false);
-    }
-
-    public String getTerminalBorderTitleText() {
-        return SharedPreferenceUtils.getString(mSharedPreferences, TERMUX_APP.KEY_TERMINAL_BORDER_TITLE_TEXT, TERMUX_APP.DEFAULT_VALUE_TERMINAL_BORDER_TITLE_TEXT, false);
-    }
-
-    public void setTerminalBorderTitleText(String value) {
-        SharedPreferenceUtils.setString(mSharedPreferences, TERMUX_APP.KEY_TERMINAL_BORDER_TITLE_TEXT, value, false);
-    }
-
     public String getTerminalBackgroundImagePath() {
         return SharedPreferenceUtils.getString(mSharedPreferences, TERMUX_APP.KEY_TERMINAL_BACKGROUND_IMAGE_PATH, TERMUX_APP.DEFAULT_VALUE_TERMINAL_BACKGROUND_IMAGE_PATH, false);
     }
@@ -498,6 +482,22 @@ public class TermuxAppSharedPreferences extends AppSharedPreferences {
 
     public void setExtraKeysBarBorderColor(String value) {
         SharedPreferenceUtils.setString(mSharedPreferences, TERMUX_APP.KEY_EXTRA_KEYS_BAR_BORDER_COLOR, value, false);
+    }
+
+    public int getExtraKeysBarBorderCornerRadius() {
+        return SharedPreferenceUtils.getInt(mSharedPreferences, TERMUX_APP.KEY_EXTRA_KEYS_BAR_BORDER_CORNER_RADIUS, TERMUX_APP.DEFAULT_VALUE_EXTRA_KEYS_BAR_BORDER_CORNER_RADIUS);
+    }
+
+    public void setExtraKeysBarBorderCornerRadius(int value) {
+        SharedPreferenceUtils.setInt(mSharedPreferences, TERMUX_APP.KEY_EXTRA_KEYS_BAR_BORDER_CORNER_RADIUS, value, false);
+    }
+
+    public int getExtraKeysBarBorderGaps() {
+        return SharedPreferenceUtils.getInt(mSharedPreferences, TERMUX_APP.KEY_EXTRA_KEYS_BAR_BORDER_GAPS, TERMUX_APP.DEFAULT_VALUE_EXTRA_KEYS_BAR_BORDER_GAPS);
+    }
+
+    public void setExtraKeysBarBorderGaps(int value) {
+        SharedPreferenceUtils.setInt(mSharedPreferences, TERMUX_APP.KEY_EXTRA_KEYS_BAR_BORDER_GAPS, value, false);
     }
 
     public String getExtraKeysPreset() {

@@ -121,7 +121,9 @@ public class TerminalIOPreferencesFragment extends PreferenceFragmentCompat {
             "extra_keys_text_size",
             "extra_keys_height_scale",
             "extra_keys_bar_border_enabled",
-            "extra_keys_bar_border_width"
+            "extra_keys_bar_border_width",
+            "extra_keys_bar_border_corner_radius",
+            "extra_keys_bar_border_gaps"
         };
 
         for (String prefKey : reloadStyleKeys) {
@@ -223,6 +225,12 @@ class TerminalIOPreferencesDataStore extends PreferenceDataStore {
             case "extra_keys_bar_border_width":
                 mPreferences.setExtraKeysBarBorderWidth(value);
                 break;
+            case "extra_keys_bar_border_corner_radius":
+                mPreferences.setExtraKeysBarBorderCornerRadius(value);
+                break;
+            case "extra_keys_bar_border_gaps":
+                mPreferences.setExtraKeysBarBorderGaps(value);
+                break;
             default:
                 break;
         }
@@ -241,6 +249,10 @@ class TerminalIOPreferencesDataStore extends PreferenceDataStore {
                 return mPreferences.getExtraKeysHeightScale();
             case "extra_keys_bar_border_width":
                 return mPreferences.getExtraKeysBarBorderWidth();
+            case "extra_keys_bar_border_corner_radius":
+                return mPreferences.getExtraKeysBarBorderCornerRadius();
+            case "extra_keys_bar_border_gaps":
+                return mPreferences.getExtraKeysBarBorderGaps();
             default:
                 return defValue;
         }

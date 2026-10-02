@@ -69,6 +69,22 @@
             app:title="@string/termux_extra_keys_bar_border_color_title"
             app:summary="@string/termux_extra_keys_bar_border_color_summary" />
 
+        <SeekBarPreference
+            app:key="extra_keys_bar_border_corner_radius"
+            app:title="@string/termux_extra_keys_bar_border_corner_radius_title"
+            app:min="0"
+            android:max="32"
+            app:showSeekBarValue="true"
+            app:defaultValue="8" />
+
+        <SeekBarPreference
+            app:key="extra_keys_bar_border_gaps"
+            app:title="@string/termux_extra_keys_bar_border_gaps_title"
+            app:min="0"
+            android:max="20"
+            app:showSeekBarValue="true"
+            app:defaultValue="4" />
+
     </PreferenceCategory>
 
     <PreferenceCategory

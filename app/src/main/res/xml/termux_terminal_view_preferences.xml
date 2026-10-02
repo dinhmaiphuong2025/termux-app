@@ -90,22 +90,6 @@
             app:useSimpleSummaryProvider="true"
             app:defaultValue="full" />
 
-        <ListPreference
-            app:key="terminal_border_title_position"
-            app:title="@string/termux_niri_border_title_position_title"
-            app:summary="@string/termux_niri_border_title_position_summary"
-            app:entries="@array/terminal_border_title_position_titles"
-            app:entryValues="@array/terminal_border_title_position_values"
-            app:useSimpleSummaryProvider="true"
-            app:defaultValue="none" />
-
-        <EditTextPreference
-            app:key="terminal_border_title_text"
-            app:title="@string/termux_niri_border_title_text_title"
-            app:summary="@string/termux_niri_border_title_text_summary"
-            app:useSimpleSummaryProvider="true"
-            app:defaultValue="" />
-
     </PreferenceCategory>
 
     <PreferenceCategory
