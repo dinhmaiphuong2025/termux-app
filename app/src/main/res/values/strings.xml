@@ -247,7 +247,8 @@
     <string name="termux_niri_border_color_title">Border Color (Hex / Palette)</string>
     <string name="termux_niri_border_color_summary">Hex color code (click to choose from palette or type hex)</string>
     <string name="termux_niri_border_gaps_title">Window Gaps / Margins (dp)</string>
-    <string name="termux_niri_border_padding_title">Terminal Content Padding (dp)</string>
+    <string name="termux_niri_border_horizontal_margin_title">Terminal Horizontal Margin (dp)</string>
+    <string name="termux_niri_border_horizontal_margin_summary">Left and right padding for terminal text</string>
     <string name="termux_niri_border_style_title">Border Style</string>
     <string name="termux_niri_border_style_summary">Full box or Hermes brackets with cut-out sides</string>
 

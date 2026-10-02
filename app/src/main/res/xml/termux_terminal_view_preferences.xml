@@ -74,12 +74,13 @@
             app:defaultValue="4" />
 
         <SeekBarPreference
-            app:key="terminal_border_padding"
-            app:title="@string/termux_niri_border_padding_title"
+            app:key="terminal_horizontal_margin"
+            app:title="@string/termux_niri_border_horizontal_margin_title"
+            app:summary="@string/termux_niri_border_horizontal_margin_summary"
             app:min="0"
-            android:max="24"
+            android:max="30"
             app:showSeekBarValue="true"
-            app:defaultValue="6" />
+            app:defaultValue="3" />
 
         <ListPreference
             app:key="terminal_border_style"

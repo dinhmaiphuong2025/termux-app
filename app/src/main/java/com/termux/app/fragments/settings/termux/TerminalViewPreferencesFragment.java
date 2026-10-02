@@ -152,6 +152,8 @@ public class TerminalViewPreferencesFragment extends PreferenceFragmentCompat {
             "terminal_border_corner_radius",
             "terminal_border_width",
             "terminal_border_gaps",
+            "terminal_horizontal_margin",
+            "terminal_border_style",
             "terminal_background_opacity",
             "terminal_cell_background_transparency",
             "terminal_cell_background_opacity"
@@ -253,8 +255,8 @@ class TerminalViewPreferencesDataStore extends PreferenceDataStore {
             case "terminal_border_gaps":
                 mPreferences.setTerminalBorderGaps(value);
                 break;
-            case "terminal_border_padding":
-                mPreferences.setTerminalBorderPadding(value);
+            case "terminal_horizontal_margin":
+                mPreferences.setTerminalHorizontalMargin(value);
                 break;
             case "terminal_background_opacity":
                 mPreferences.setTerminalBackgroundOpacity(value);
@@ -282,8 +284,8 @@ class TerminalViewPreferencesDataStore extends PreferenceDataStore {
                 return mPreferences.getTerminalBorderWidth();
             case "terminal_border_gaps":
                 return mPreferences.getTerminalBorderGaps();
-            case "terminal_border_padding":
-                return mPreferences.getTerminalBorderPadding();
+            case "terminal_horizontal_margin":
+                return mPreferences.getTerminalHorizontalMargin();
             case "terminal_background_opacity":
                 return mPreferences.getTerminalBackgroundOpacity();
             case "terminal_cell_background_opacity":

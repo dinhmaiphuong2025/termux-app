@@ -216,8 +216,8 @@ public final class TermuxPreferenceConstants {
         public static final String KEY_TERMINAL_BORDER_GAPS = "terminal_border_gaps";
         public static final int DEFAULT_VALUE_TERMINAL_BORDER_GAPS = 4;
 
-        public static final String KEY_TERMINAL_BORDER_PADDING = "terminal_border_padding";
-        public static final int DEFAULT_VALUE_TERMINAL_BORDER_PADDING = 6;
+        public static final String KEY_TERMINAL_HORIZONTAL_MARGIN = "terminal_horizontal_margin";
+        public static final int DEFAULT_VALUE_TERMINAL_HORIZONTAL_MARGIN = 3;
 
         public static final String KEY_TERMINAL_BORDER_STYLE = "terminal_border_style";
         public static final String DEFAULT_VALUE_TERMINAL_BORDER_STYLE = "full"; // "full" or "brackets"

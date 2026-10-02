@@ -338,12 +338,12 @@ public class TermuxAppSharedPreferences extends AppSharedPreferences {
         SharedPreferenceUtils.setInt(mSharedPreferences, TERMUX_APP.KEY_TERMINAL_BORDER_GAPS, value, false);
     }
 
-    public int getTerminalBorderPadding() {
-        return SharedPreferenceUtils.getInt(mSharedPreferences, TERMUX_APP.KEY_TERMINAL_BORDER_PADDING, TERMUX_APP.DEFAULT_VALUE_TERMINAL_BORDER_PADDING);
+    public int getTerminalHorizontalMargin() {
+        return SharedPreferenceUtils.getInt(mSharedPreferences, TERMUX_APP.KEY_TERMINAL_HORIZONTAL_MARGIN, TERMUX_APP.DEFAULT_VALUE_TERMINAL_HORIZONTAL_MARGIN);
     }
 
-    public void setTerminalBorderPadding(int value) {
-        SharedPreferenceUtils.setInt(mSharedPreferences, TERMUX_APP.KEY_TERMINAL_BORDER_PADDING, value, false);
+    public void setTerminalHorizontalMargin(int value) {
+        SharedPreferenceUtils.setInt(mSharedPreferences, TERMUX_APP.KEY_TERMINAL_HORIZONTAL_MARGIN, value, false);
     }
 
     public String getTerminalBorderStyle() {
