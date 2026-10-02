@@ -68,7 +68,7 @@ public class TerminalBorderDrawable extends Drawable {
         mStrokePaint.setColor(mStrokeColor);
 
         mTextPaint.setColor(mStrokeColor);
-        mTextPaint.setTextSize(11 * mDensity);
+        mTextPaint.setTextSize(9 * mDensity); // Compact badge size to fit nicely in border
 
         invalidateSelf();
     }
@@ -90,11 +90,19 @@ public class TerminalBorderDrawable extends Drawable {
         boolean isBottomTitle = hasTitle && TITLE_POS_BOTTOM_CENTER.equals(mTitlePosition);
 
         float textWidth = hasTitle ? mTextPaint.measureText(mTitleText) : 0;
-        float badgePaddingH = 8 * mDensity;
+        float badgePaddingH = 6 * mDensity;
         float badgeWidth = textWidth + badgePaddingH * 2;
         float centerX = (left + right) / 2.0f;
         float badgeLeft = centerX - badgeWidth / 2.0f;
         float badgeRight = centerX + badgeWidth / 2.0f;
+
+        // Ensure top and bottom stroke inset slightly if title is present so badge is fully visible
+        float titleInset = hasTitle ? 4 * mDensity : 0;
+        if (isTopTitle) {
+            top += titleInset;
+        } else if (isBottomTitle) {
+            bottom -= titleInset;
+        }
 
         if (STYLE_BRACKETS.equals(mStyle)) {
             // Hermes / Bracket style:
@@ -252,6 +260,12 @@ public class TerminalBorderDrawable extends Drawable {
             } else {
                 textY = bottom + textBaselineOffset;
             }
+
+            // Draw clean background pill/badge cutout for text
+            float bgPadV = 2 * mDensity;
+            float bgTop = textY + fm.ascent - bgPadV;
+            float bgBottom = textY + fm.descent + bgPadV;
+            canvas.drawRect(badgeLeft, bgTop, badgeRight, bgBottom, mBadgeBgPaint);
 
             canvas.drawText(mTitleText, centerX, textY, mTextPaint);
         }

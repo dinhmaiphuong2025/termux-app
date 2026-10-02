@@ -949,10 +949,13 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
                     mTerminalCardContainer.setRadius(cornerRadius);
                     mTerminalCardContainer.setStrokeWidth(0); // Overlay handles drawing the border
                     mTerminalCardContainer.setPreventCornerOverlap(true);
+                    mTerminalCardContainer.setContentPadding(0, 0, 0, 0);
 
-                    // Add content padding so terminal text is not tight against the border
-                    int totalPadding = strokeWidth + padding;
-                    mTerminalCardContainer.setContentPadding(totalPadding, totalPadding, totalPadding, totalPadding);
+                    // Apply padding only to TerminalView so border stays in place
+                    if (mTerminalView != null) {
+                        int pad = strokeWidth + padding;
+                        mTerminalView.setPadding(pad, pad, pad, pad);
+                    }
 
                     mTerminalBorderDrawable.setConfig(density, strokeWidth, cornerRadius, strokeColor,
                         borderStyle, titlePos, titleText);
@@ -963,8 +966,12 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
                     mTerminalCardContainer.setStrokeWidth(strokeWidth);
                     mTerminalCardContainer.setStrokeColor(strokeColor);
                     mTerminalCardContainer.setPreventCornerOverlap(true);
-                    int totalPadding = strokeWidth + padding;
-                    mTerminalCardContainer.setContentPadding(totalPadding, totalPadding, totalPadding, totalPadding);
+                    mTerminalCardContainer.setContentPadding(0, 0, 0, 0);
+
+                    if (mTerminalView != null) {
+                        int pad = strokeWidth + padding;
+                        mTerminalView.setPadding(pad, pad, pad, pad);
+                    }
                 }
 
                 ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) mTerminalCardContainer.getLayoutParams();
@@ -976,6 +983,9 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
                 mTerminalCardContainer.setRadius(0);
                 mTerminalCardContainer.setStrokeWidth(0);
                 mTerminalCardContainer.setContentPadding(0, 0, 0, 0);
+                if (mTerminalView != null) {
+                    mTerminalView.setPadding(0, 0, 0, 0);
+                }
                 if (mTerminalBorderOverlay != null) {
                     mTerminalBorderOverlay.setVisibility(View.GONE);
                 }
