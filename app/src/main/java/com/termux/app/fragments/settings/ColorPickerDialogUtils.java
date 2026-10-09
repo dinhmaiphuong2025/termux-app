@@ -37,7 +37,7 @@ public class ColorPickerDialogUtils {
     public static void showColorPickerDialog(@NonNull Context context, String title, String initialHex,
                                             @NonNull OnColorSelectedListener listener) {
         float density = context.getResources().getDisplayMetrics().density;
-        final String currentHex = TextUtils.isEmpty(initialHex) ? "#3D82F6" : initialHex;
+        final String currentHex = TextUtils.isEmpty(initialHex) ? "#FFFFFF" : initialHex;
 
         LinearLayout root = new LinearLayout(context);
         root.setOrientation(LinearLayout.VERTICAL);

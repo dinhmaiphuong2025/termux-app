@@ -17,7 +17,7 @@
             app:min="0"
             android:max="24"
             app:showSeekBarValue="true"
-            app:defaultValue="16" />
+            app:defaultValue="1" />
 
         <SeekBarPreference
             app:key="tab_border_width"
@@ -50,7 +50,7 @@
             app:min="0"
             android:max="32"
             app:showSeekBarValue="true"
-            app:defaultValue="12" />
+            app:defaultValue="1" />
 
         <SeekBarPreference
             app:key="terminal_border_width"

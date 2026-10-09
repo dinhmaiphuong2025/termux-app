@@ -113,7 +113,7 @@ public class TerminalViewPreferencesFragment extends PreferenceFragmentCompat {
                 termColorPref.setSummary(prefs.getTerminalBorderColor());
             }
             termColorPref.setOnPreferenceClickListener(preference -> {
-                String current = prefs != null ? prefs.getTerminalBorderColor() : "#3D82F6";
+                String current = prefs != null ? prefs.getTerminalBorderColor() : "#FFFFFF";
                 ColorPickerDialogUtils.showColorPickerDialog(context, "Terminal Border Color", current, hexColor -> {
                     if (prefs != null) {
                         prefs.setTerminalBorderColor(hexColor);
@@ -132,7 +132,7 @@ public class TerminalViewPreferencesFragment extends PreferenceFragmentCompat {
                 tabColorPref.setSummary(prefs.getTabBorderColor());
             }
             tabColorPref.setOnPreferenceClickListener(preference -> {
-                String current = prefs != null ? prefs.getTabBorderColor() : "#3D82F6";
+                String current = prefs != null ? prefs.getTabBorderColor() : "#FFFFFF";
                 ColorPickerDialogUtils.showColorPickerDialog(context, "Tab Border Color", current, hexColor -> {
                     if (prefs != null) {
                         prefs.setTabBorderColor(hexColor);
@@ -301,10 +301,10 @@ class TerminalViewPreferencesDataStore extends PreferenceDataStore {
 
         switch (key) {
             case "terminal_border_color":
-                mPreferences.setTerminalBorderColor(value != null ? value : "#3D82F6");
+                mPreferences.setTerminalBorderColor(value != null ? value : "#FFFFFF");
                 break;
             case "tab_border_color":
-                mPreferences.setTabBorderColor(value != null ? value : "#3D82F6");
+                mPreferences.setTabBorderColor(value != null ? value : "#FFFFFF");
                 break;
             case "terminal_background_image_path":
                 mPreferences.setTerminalBackgroundImagePath(value != null ? value : "");

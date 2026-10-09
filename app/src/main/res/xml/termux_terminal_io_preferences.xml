@@ -75,7 +75,7 @@
             app:min="0"
             android:max="32"
             app:showSeekBarValue="true"
-            app:defaultValue="8" />
+            app:defaultValue="1" />
 
         <SeekBarPreference
             app:key="extra_keys_bar_border_gaps"

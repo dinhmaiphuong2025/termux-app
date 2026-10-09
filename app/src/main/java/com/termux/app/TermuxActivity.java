@@ -939,7 +939,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
                 try {
                     strokeColor = Color.parseColor(colorStr);
                 } catch (Exception e) {
-                    strokeColor = 0xFF3D82F6; // Default accent blue
+                    strokeColor = 0xFFFFFFFF; // Default white
                 }
 
                 // If TerminalBorderDrawable is available on overlay, use it to support Brackets and Title text
@@ -1078,7 +1078,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
                 try {
                     barStrokeColor = Color.parseColor(barColor);
                 } catch (Exception e) {
-                    barStrokeColor = 0xFF3D82F6;
+                    barStrokeColor = 0xFFFFFFFF;
                 }
                 mTerminalToolbarCard.setRadius(cornerRadius);
                 mTerminalToolbarCard.setStrokeWidth(barStrokeWidth);

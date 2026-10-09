@@ -136,9 +136,9 @@ public class TermuxTabBarController {
         LayoutInflater inflater = LayoutInflater.from(mActivity);
         float density = mActivity.getResources().getDisplayMetrics().density;
 
-        int cornerRadius = (int) (16 * density);
+        int cornerRadius = (int) (1 * density);
         int borderWidth = (int) (1 * density);
-        int borderColor = Color.parseColor("#3D82F6");
+        int borderColor = Color.parseColor("#FFFFFF");
 
         if (mActivity.getPreferences() != null) {
             cornerRadius = (int) (mActivity.getPreferences().getTabCornerRadius() * density);

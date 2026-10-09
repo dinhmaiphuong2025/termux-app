@@ -26,8 +26,8 @@ public class TerminalBorderDrawable extends Drawable {
     private final Paint mStrokePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
     private int mStrokeWidth = 1;
-    private int mCornerRadius = 12;
-    private int mStrokeColor = 0xFF3D82F6;
+    private int mCornerRadius = 1;
+    private int mStrokeColor = 0xFFFFFFFF;
     private String mStyle = STYLE_FULL;
 
     private float mDensity = 1.0f;

@@ -102,7 +102,7 @@ public class TerminalIOPreferencesFragment extends PreferenceFragmentCompat {
                 barColorPref.setSummary(prefs.getExtraKeysBarBorderColor());
             }
             barColorPref.setOnPreferenceClickListener(preference -> {
-                String current = prefs != null ? prefs.getExtraKeysBarBorderColor() : "#3D82F6";
+                String current = prefs != null ? prefs.getExtraKeysBarBorderColor() : "#FFFFFF";
                 ColorPickerDialogUtils.showColorPickerDialog(context, "Bar Border Color", current, hexColor -> {
                     if (prefs != null) {
                         prefs.setExtraKeysBarBorderColor(hexColor);
@@ -273,10 +273,10 @@ class TerminalIOPreferencesDataStore extends PreferenceDataStore {
                 mPreferences.setExtraKeysCustomJson(value != null ? value : "");
                 break;
             case "extra_keys_key_border_color":
-                mPreferences.setExtraKeysKeyBorderColor(value != null ? value : "#3D82F6");
+                mPreferences.setExtraKeysKeyBorderColor(value != null ? value : "#FFFFFF");
                 break;
             case "extra_keys_bar_border_color":
-                mPreferences.setExtraKeysBarBorderColor(value != null ? value : "#3D82F6");
+                mPreferences.setExtraKeysBarBorderColor(value != null ? value : "#FFFFFF");
                 break;
             default:
                 break;

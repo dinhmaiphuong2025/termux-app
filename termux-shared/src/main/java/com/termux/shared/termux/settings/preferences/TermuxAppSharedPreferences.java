@@ -569,6 +569,8 @@ public class TermuxAppSharedPreferences extends AppSharedPreferences {
         setExtraKeysBarBorderEnabled(TERMUX_APP.DEFAULT_VALUE_EXTRA_KEYS_BAR_BORDER_ENABLED);
         setExtraKeysBarBorderWidth(TERMUX_APP.DEFAULT_VALUE_EXTRA_KEYS_BAR_BORDER_WIDTH);
         setExtraKeysBarBorderColor(TERMUX_APP.DEFAULT_VALUE_EXTRA_KEYS_BAR_BORDER_COLOR);
+        setExtraKeysBarBorderCornerRadius(TERMUX_APP.DEFAULT_VALUE_EXTRA_KEYS_BAR_BORDER_CORNER_RADIUS);
+        setExtraKeysBarBorderGaps(TERMUX_APP.DEFAULT_VALUE_EXTRA_KEYS_BAR_BORDER_GAPS);
         setExtraKeysCustomJson(TERMUX_APP.DEFAULT_VALUE_EXTRA_KEYS_CUSTOM_JSON);
         setExtraKeysPreset(TERMUX_APP.DEFAULT_VALUE_EXTRA_KEYS_PRESET);
         setExtraKeysUseCustom(TERMUX_APP.DEFAULT_VALUE_EXTRA_KEYS_USE_CUSTOM);

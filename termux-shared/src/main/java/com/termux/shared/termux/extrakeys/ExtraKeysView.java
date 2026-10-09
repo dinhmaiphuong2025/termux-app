@@ -190,7 +190,7 @@ public final class ExtraKeysView extends GridLayout {
     protected int mButtonStrokeWidth = 0;
 
     /** Stroke/Border color for extra keys buttons. */
-    protected int mButtonStrokeColor = 0xFF3D82F6;
+    protected int mButtonStrokeColor = 0xFFFFFFFF;
 
     /** Button text size in SP. Defaults to 12sp. */
     protected float mButtonTextSizeSp = 12f;

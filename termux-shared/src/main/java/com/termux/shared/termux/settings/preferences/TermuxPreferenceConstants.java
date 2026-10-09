@@ -187,7 +187,7 @@ public final class TermuxPreferenceConstants {
         public static final boolean DEFAULT_VALUE_SHOW_TAB_BAR = true;
 
         public static final String KEY_TAB_CORNER_RADIUS = "tab_corner_radius";
-        public static final int DEFAULT_VALUE_TAB_CORNER_RADIUS = 16;
+        public static final int DEFAULT_VALUE_TAB_CORNER_RADIUS = 1;
 
         public static final String KEY_TAB_BORDER_WIDTH = "tab_border_width";
         public static final int DEFAULT_VALUE_TAB_BORDER_WIDTH = 1;
@@ -196,7 +196,7 @@ public final class TermuxPreferenceConstants {
         public static final boolean DEFAULT_VALUE_TAB_BORDER_SYNC = true;
 
         public static final String KEY_TAB_BORDER_COLOR = "tab_border_color";
-        public static final String DEFAULT_VALUE_TAB_BORDER_COLOR = "#3D82F6";
+        public static final String DEFAULT_VALUE_TAB_BORDER_COLOR = "#FFFFFF";
 
         /**
          * Niri Window Border Preferences.
@@ -205,13 +205,13 @@ public final class TermuxPreferenceConstants {
         public static final boolean DEFAULT_VALUE_TERMINAL_BORDER_ENABLED = false;
 
         public static final String KEY_TERMINAL_BORDER_CORNER_RADIUS = "terminal_border_corner_radius";
-        public static final int DEFAULT_VALUE_TERMINAL_BORDER_CORNER_RADIUS = 12;
+        public static final int DEFAULT_VALUE_TERMINAL_BORDER_CORNER_RADIUS = 1;
 
         public static final String KEY_TERMINAL_BORDER_WIDTH = "terminal_border_width";
         public static final int DEFAULT_VALUE_TERMINAL_BORDER_WIDTH = 1;
 
         public static final String KEY_TERMINAL_BORDER_COLOR = "terminal_border_color";
-        public static final String DEFAULT_VALUE_TERMINAL_BORDER_COLOR = "#3D82F6";
+        public static final String DEFAULT_VALUE_TERMINAL_BORDER_COLOR = "#FFFFFF";
 
         public static final String KEY_TERMINAL_BORDER_GAPS = "terminal_border_gaps";
         public static final int DEFAULT_VALUE_TERMINAL_BORDER_GAPS = 4;
@@ -278,7 +278,7 @@ public final class TermuxPreferenceConstants {
         public static final boolean DEFAULT_VALUE_EXTRA_KEYS_KEY_BORDER_SYNC = true;
 
         public static final String KEY_EXTRA_KEYS_KEY_BORDER_COLOR = "extra_keys_key_border_color";
-        public static final String DEFAULT_VALUE_EXTRA_KEYS_KEY_BORDER_COLOR = "#3D82F6";
+        public static final String DEFAULT_VALUE_EXTRA_KEYS_KEY_BORDER_COLOR = "#FFFFFF";
 
         // Bar Border
         public static final String KEY_EXTRA_KEYS_BAR_BORDER_ENABLED = "extra_keys_bar_border_enabled";
@@ -291,10 +291,10 @@ public final class TermuxPreferenceConstants {
         public static final boolean DEFAULT_VALUE_EXTRA_KEYS_BAR_BORDER_SYNC = true;
 
         public static final String KEY_EXTRA_KEYS_BAR_BORDER_COLOR = "extra_keys_bar_border_color";
-        public static final String DEFAULT_VALUE_EXTRA_KEYS_BAR_BORDER_COLOR = "#3D82F6";
+        public static final String DEFAULT_VALUE_EXTRA_KEYS_BAR_BORDER_COLOR = "#FFFFFF";
 
         public static final String KEY_EXTRA_KEYS_BAR_BORDER_CORNER_RADIUS = "extra_keys_bar_border_corner_radius";
-        public static final int DEFAULT_VALUE_EXTRA_KEYS_BAR_BORDER_CORNER_RADIUS = 8;
+        public static final int DEFAULT_VALUE_EXTRA_KEYS_BAR_BORDER_CORNER_RADIUS = 1;
 
         public static final String KEY_EXTRA_KEYS_BAR_BORDER_GAPS = "extra_keys_bar_border_gaps";
         public static final int DEFAULT_VALUE_EXTRA_KEYS_BAR_BORDER_GAPS = 4;
