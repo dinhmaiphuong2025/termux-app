@@ -12,15 +12,37 @@
 ## Custom UI & Features
 
 <p align="center">
-  <img src="image/Screenshot_20260921-115916_Termux~2.jpg" width="32%" />
-  <img src="image/Screenshot_20260921-115929_Termux~2.jpg" width="32%" />
-  <img src="image/Screenshot_20260921-115951_Termux~2.jpg" width="32%" />
+  <img src="image/Screenshot_20261010-194440_Termux~2.jpg" width="48%" />
+  <img src="image/Screenshot_20260921-115916_Termux~2.jpg" width="48%" />
+</p>
+<p align="center">
+  <img src="image/Screenshot_20260921-115929_Termux~2.jpg" width="48%" />
+  <img src="image/Screenshot_20260921-115951_Termux~2.jpg" width="48%" />
 </p>
 
 - **Material 3 Pill-shaped Tab Bar**: Multi-session management with compact inactive tabs, session numbering, close buttons, and quick add.
-- **Niri WM Window Border**: Customizable rounded window frame (corner radius, stroke width, gaps, and color picker).
+- **Niri WM Window Border**: Customizable rounded window frame with corner radius (default 1dp), stroke width (default 1dp), gaps, and color picker (default `#FFFFFF`). Supports both full box and Hermes brackets cutout styles.
+- **Dynamic Text Margin Symmetry**: Automatically balances terminal text margins with outer screen gaps when window border is active so text breathes comfortably and never collides with borders.
+- **Interactive Zoom Indicator**: Real-time terminal dimension and font size toast feedback (`columns × rows (pt)`) when pinch zooming.
+- **Extra Keys Themes & Isolated Border**: Popular palettes (Chalk Dark, Gruvbox Dark/Light, Rosé Pine, Solarized Dark, Catppuccin Mocha/Macchiato/Latte, Dracula, Nord, One Dark, Tokyo Night, Follow System Material You), isolated bar border customization, flat keys, and presets.
 - **Background Wallpaper & Cell Transparency**: Custom wallpaper images with adjustable dim overlay and transparent cell backgrounds for TUI editors (Neovim, Vim, Htop).
-- **Extra Keys Themes & Presets**: Popular palettes (Catppuccin Mocha/Macchiato/Latte, Dracula, Nord, One Dark, Tokyo Night, Follow System Material You), flat keys, and quick presets.
+
+## Changelog
+
+### v0.118.1 (Custom UI Edition)
+- **Extra Keys Bar Themes**: Added Chalk Dark, Gruvbox Dark, Gruvbox Light, Rosé Pine, and Solarized Dark color palettes.
+- **Zoom Size Toast**: Real-time toast feedback showing terminal dimensions and font size `columns × rows (pt)` with top-centered positioning matching tab switch notifications.
+- **Window Border Margin Symmetry**: Inset terminal text when window border is active to match the screen-to-border gap, eliminating border-to-text clipping and text collision.
+- **Default Border Styling**: Updated default border corner radius to 1dp, stroke width to 1dp, and default color to `#FFFFFF` (pure white) across tab bar, terminal border, and extra keys bar.
+- **Hermes Bracket Border Style**: Added cutout bracket borders with accent corners.
+- **Isolated Extra Keys Bar Border**: Dedicated settings for toolbar border radius, gaps, width, and color.
+- **Floating Toast Positioning**: Adjusted top toast gravity and vertical offset (20% from top) so notifications do not obscure the top tab bar.
+
+### v0.118.0 (Custom UI Edition)
+- Material 3 Pill-shaped Tab Bar (compact inactive tabs, session numbering, quick add, and rename).
+- Niri WM Window Border (customizable corner radius, stroke width, gaps, color palette).
+- Custom Background Wallpaper & Cell Transparency for TUI editors (Neovim/Vim/Htop).
+- Extra Keys Bar Themes (Catppuccin Mocha/Macchiato/Latte, Dracula, Nord, One Dark, Tokyo Night, Follow System Material You), flat keys, and presets.
 
 Note that this repository is for the app itself (the user interface and the terminal emulation). For the packages installable inside the app, see [termux/termux-packages](https://github.com/termux/termux-packages).
 
