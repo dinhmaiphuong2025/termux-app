@@ -965,6 +965,16 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
                     lp.setMargins(gaps, gaps, gaps, gaps);
                     mTerminalCardContainer.setLayoutParams(lp);
                 }
+
+                if (mTerminalView != null) {
+                    ViewGroup.MarginLayoutParams viewLp = (ViewGroup.MarginLayoutParams) mTerminalView.getLayoutParams();
+                    if (viewLp != null) {
+                        int outerGap = (int) ((getPreferences().getTerminalHorizontalMargin() + getPreferences().getTerminalBorderGaps()) * density);
+                        int borderToText = outerGap + strokeWidth;
+                        viewLp.setMargins(borderToText, borderToText, borderToText, borderToText);
+                        mTerminalView.setLayoutParams(viewLp);
+                    }
+                }
             } else {
                 mTerminalCardContainer.setRadius(0);
                 mTerminalCardContainer.setStrokeWidth(0);
@@ -976,6 +986,14 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
                 if (lp != null) {
                     lp.setMargins(0, 0, 0, 0);
                     mTerminalCardContainer.setLayoutParams(lp);
+                }
+
+                if (mTerminalView != null) {
+                    ViewGroup.MarginLayoutParams viewLp = (ViewGroup.MarginLayoutParams) mTerminalView.getLayoutParams();
+                    if (viewLp != null) {
+                        viewLp.setMargins(0, 0, 0, 0);
+                        mTerminalView.setLayoutParams(viewLp);
+                    }
                 }
             }
         }

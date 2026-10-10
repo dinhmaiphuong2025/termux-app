@@ -108,6 +108,56 @@ public class ExtraKeysTheme {
                     Color.parseColor("#7AA2F7")  // Blue
                 );
 
+            case "chalk_dark":
+                // Chalk Dark Theme
+                return new ExtraKeysTheme(
+                    Color.parseColor("#151515"), // Background
+                    Color.parseColor("#202020"), // Button Surface
+                    Color.parseColor("#D0D0D0"), // Text
+                    Color.parseColor("#303030"), // Active Button
+                    Color.parseColor("#7CAFC2")  // Cyan Accent
+                );
+
+            case "gruvbox_dark":
+                // Gruvbox Dark Theme
+                return new ExtraKeysTheme(
+                    Color.parseColor("#1D2021"), // Hard Dark BG
+                    Color.parseColor("#3C3836"), // Button Dark1
+                    Color.parseColor("#EBDBB2"), // Light1 Text
+                    Color.parseColor("#504945"), // Dark2 Active
+                    Color.parseColor("#FABD2F")  // Yellow Accent
+                );
+
+            case "gruvbox_light":
+                // Gruvbox Light Theme
+                return new ExtraKeysTheme(
+                    Color.parseColor("#FBF1C7"), // Light0 BG
+                    Color.parseColor("#EBDBB2"), // Light1 Button
+                    Color.parseColor("#3C3836"), // Dark1 Text
+                    Color.parseColor("#D5C4A1"), // Light2 Active
+                    Color.parseColor("#AF3A03")  // Dark Orange Accent
+                );
+
+            case "rose_pine":
+                // Rosé Pine Theme
+                return new ExtraKeysTheme(
+                    Color.parseColor("#191724"), // Base
+                    Color.parseColor("#26233A"), // Surface
+                    Color.parseColor("#E0DEF4"), // Text
+                    Color.parseColor("#403D52"), // Highlight Med
+                    Color.parseColor("#EB6F92")  // Love / Rose Accent
+                );
+
+            case "solarized_dark":
+                // Solarized Dark Theme
+                return new ExtraKeysTheme(
+                    Color.parseColor("#002B36"), // Base03 BG
+                    Color.parseColor("#073642"), // Base02 Button
+                    Color.parseColor("#93A1A1"), // Base1 Text
+                    Color.parseColor("#586E75"), // Base01 Active
+                    Color.parseColor("#2AA198")  // Cyan Accent
+                );
+
             case "default":
             default:
                 // Termux Classic Dark

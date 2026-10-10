@@ -8,6 +8,7 @@ import android.content.Context;
 import android.media.AudioManager;
 import android.os.Environment;
 import android.text.TextUtils;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.InputDevice;
 import android.view.KeyEvent;
@@ -523,7 +524,19 @@ public class TermuxTerminalViewClient extends TermuxTerminalViewClientBase {
 
     public void changeFontSize(boolean increase) {
         mActivity.getPreferences().changeFontSize(increase);
-        mActivity.getTerminalView().setTextSize(mActivity.getPreferences().getFontSize());
+        int fontSize = mActivity.getPreferences().getFontSize();
+        mActivity.getTerminalView().setTextSize(fontSize);
+
+        float dipInPixels = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, mActivity.getResources().getDisplayMetrics());
+        int fontPt = Math.round(fontSize / dipInPixels);
+        com.termux.terminal.TerminalSession session = mActivity.getCurrentSession();
+        if (session != null && session.getEmulator() != null) {
+            int cols = session.getEmulator().mColumns;
+            int rows = session.getEmulator().mRows;
+            mActivity.showToast(cols + " × " + rows + " (" + fontPt + "pt)", false);
+        } else {
+            mActivity.showToast(fontPt + "pt", false);
+        }
     }
 
 

@@ -17,6 +17,9 @@
     <string-array name="extra_keys_color_theme_titles">
         <item>Default (Termux Dark)</item>
         <item>Follow System (Material You)</item>
+        <item>Chalk Dark</item>
+        <item>Gruvbox Dark</item>
+        <item>Gruvbox Light</item>
         <item>Catppuccin Mocha</item>
         <item>Catppuccin Macchiato</item>
         <item>Catppuccin Latte (Light)</item>
@@ -24,11 +27,16 @@
         <item>Nord</item>
         <item>One Dark</item>
         <item>Tokyo Night</item>
+        <item>Rosé Pine</item>
+        <item>Solarized Dark</item>
     </string-array>
 
     <string-array name="extra_keys_color_theme_values">
         <item>default</item>
         <item>system</item>
+        <item>chalk_dark</item>
+        <item>gruvbox_dark</item>
+        <item>gruvbox_light</item>
         <item>catppuccin_mocha</item>
         <item>catppuccin_macchiato</item>
         <item>catppuccin_latte</item>
@@ -36,6 +44,8 @@
         <item>nord</item>
         <item>one_dark</item>
         <item>tokyo_night</item>
+        <item>rose_pine</item>
+        <item>solarized_dark</item>
     </string-array>
 
     <string-array name="terminal_border_style_titles">
