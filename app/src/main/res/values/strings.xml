@@ -237,6 +237,10 @@
     <string name="termux_tab_bar_border_width_title">Tab Border Stroke (dp)</string>
     <string name="termux_tab_bar_border_color_title">Tab Border Color</string>
     <string name="termux_tab_bar_border_color_summary">Hex color code (click to choose from palette or type hex)</string>
+    <string name="termux_tab_bar_button_width_title">Tab Button Width (dp)</string>
+    <string name="termux_tab_bar_button_width_summary">Width of inactive tab buttons and corner action buttons</string>
+    <string name="termux_tab_bar_active_title_length_title">Active Tab Title Length</string>
+    <string name="termux_tab_bar_active_title_length_summary">Number of leading characters shown for active tab title (0 = number only)</string>
 
     <!-- Niri WM Window Border Preferences -->
     <string name="termux_niri_border_header">Niri Window Border</string>

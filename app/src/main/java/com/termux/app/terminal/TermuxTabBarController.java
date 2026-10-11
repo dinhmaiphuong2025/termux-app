@@ -139,10 +139,14 @@ public class TermuxTabBarController {
         int cornerRadius = (int) (1 * density);
         int borderWidth = (int) (1 * density);
         int borderColor = Color.parseColor("#FFFFFF");
+        int buttonWidth = (int) (28 * density);
+        int activeTitleLength = 12;
 
         if (mActivity.getPreferences() != null) {
             cornerRadius = (int) (mActivity.getPreferences().getTabCornerRadius() * density);
             borderWidth = (int) (mActivity.getPreferences().getTabBorderWidth() * density);
+            buttonWidth = (int) (mActivity.getPreferences().getTabButtonWidth() * density);
+            activeTitleLength = mActivity.getPreferences().getTabActiveTitleLength();
             String customColor = mActivity.getPreferences().getTabBorderColor();
             try {
                 borderColor = Color.parseColor(customColor);
@@ -151,9 +155,19 @@ public class TermuxTabBarController {
 
         // Style the new-session and settings buttons
         if (mNewSessionBtn != null) {
+            ViewGroup.LayoutParams lp = mNewSessionBtn.getLayoutParams();
+            if (lp != null) {
+                lp.width = buttonWidth;
+                mNewSessionBtn.setLayoutParams(lp);
+            }
             mNewSessionBtn.setBackground(createTabDrawable(false, cornerRadius, borderWidth, borderColor));
         }
         if (mSettingsBtn != null) {
+            ViewGroup.LayoutParams lp = mSettingsBtn.getLayoutParams();
+            if (lp != null) {
+                lp.width = buttonWidth;
+                mSettingsBtn.setLayoutParams(lp);
+            }
             mSettingsBtn.setBackground(createTabDrawable(false, cornerRadius, borderWidth, borderColor));
         }
 
@@ -184,12 +198,13 @@ public class TermuxTabBarController {
                 activeTabView = tabItem;
                 tabItem.setBackground(createTabDrawable(true, cornerRadius, borderWidth, borderColor));
                 tabItem.setPadding((int) (10 * density), 0, (int) (6 * density), 0);
+                tabItem.setMinimumWidth(buttonWidth);
                 titleView.setTextColor(0xFFFFFFFF);
                 titleView.setTextSize(12);
 
                 String fullTitle;
-                if (!TextUtils.isEmpty(rawName)) {
-                    fullTitle = sessionNum + ". " + truncateCodePoints(rawName, 12);
+                if (!TextUtils.isEmpty(rawName) && activeTitleLength > 0) {
+                    fullTitle = sessionNum + ". " + truncateCodePoints(rawName, activeTitleLength);
                 } else {
                     fullTitle = String.valueOf(sessionNum);
                 }
@@ -200,6 +215,7 @@ public class TermuxTabBarController {
             } else {
                 tabItem.setBackground(createTabDrawable(false, cornerRadius, borderWidth, borderColor));
                 tabItem.setPadding((int) (8 * density), 0, (int) (8 * density), 0);
+                tabItem.setMinimumWidth(buttonWidth);
                 titleView.setTextColor(0xB3FFFFFF);
                 titleView.setTextSize(11);
 

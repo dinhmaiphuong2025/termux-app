@@ -32,6 +32,24 @@
             app:title="@string/termux_tab_bar_border_color_title"
             app:summary="@string/termux_tab_bar_border_color_summary" />
 
+        <SeekBarPreference
+            app:key="tab_button_width"
+            app:title="@string/termux_tab_bar_button_width_title"
+            app:summary="@string/termux_tab_bar_button_width_summary"
+            app:min="20"
+            android:max="72"
+            app:showSeekBarValue="true"
+            app:defaultValue="28" />
+
+        <SeekBarPreference
+            app:key="tab_active_title_length"
+            app:title="@string/termux_tab_bar_active_title_length_title"
+            app:summary="@string/termux_tab_bar_active_title_length_summary"
+            app:min="0"
+            android:max="30"
+            app:showSeekBarValue="true"
+            app:defaultValue="12" />
+
     </PreferenceCategory>
 
     <PreferenceCategory

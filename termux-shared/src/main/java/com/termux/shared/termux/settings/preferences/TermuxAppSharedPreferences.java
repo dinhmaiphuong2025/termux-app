@@ -298,6 +298,22 @@ public class TermuxAppSharedPreferences extends AppSharedPreferences {
         SharedPreferenceUtils.setString(mSharedPreferences, TERMUX_APP.KEY_TAB_BORDER_COLOR, value, false);
     }
 
+    public int getTabButtonWidth() {
+        return SharedPreferenceUtils.getInt(mSharedPreferences, TERMUX_APP.KEY_TAB_BUTTON_WIDTH, TERMUX_APP.DEFAULT_VALUE_TAB_BUTTON_WIDTH);
+    }
+
+    public void setTabButtonWidth(int value) {
+        SharedPreferenceUtils.setInt(mSharedPreferences, TERMUX_APP.KEY_TAB_BUTTON_WIDTH, value, false);
+    }
+
+    public int getTabActiveTitleLength() {
+        return SharedPreferenceUtils.getInt(mSharedPreferences, TERMUX_APP.KEY_TAB_ACTIVE_TITLE_LENGTH, TERMUX_APP.DEFAULT_VALUE_TAB_ACTIVE_TITLE_LENGTH);
+    }
+
+    public void setTabActiveTitleLength(int value) {
+        SharedPreferenceUtils.setInt(mSharedPreferences, TERMUX_APP.KEY_TAB_ACTIVE_TITLE_LENGTH, value, false);
+    }
+
     public boolean isTerminalBorderEnabled() {
         return SharedPreferenceUtils.getBoolean(mSharedPreferences, TERMUX_APP.KEY_TERMINAL_BORDER_ENABLED, TERMUX_APP.DEFAULT_VALUE_TERMINAL_BORDER_ENABLED);
     }
@@ -548,6 +564,8 @@ public class TermuxAppSharedPreferences extends AppSharedPreferences {
         setTabCornerRadius(TERMUX_APP.DEFAULT_VALUE_TAB_CORNER_RADIUS);
         setTabBorderWidth(TERMUX_APP.DEFAULT_VALUE_TAB_BORDER_WIDTH);
         setTabBorderColor(TERMUX_APP.DEFAULT_VALUE_TAB_BORDER_COLOR);
+        setTabButtonWidth(TERMUX_APP.DEFAULT_VALUE_TAB_BUTTON_WIDTH);
+        setTabActiveTitleLength(TERMUX_APP.DEFAULT_VALUE_TAB_ACTIVE_TITLE_LENGTH);
 
         setTerminalBorderEnabled(TERMUX_APP.DEFAULT_VALUE_TERMINAL_BORDER_ENABLED);
         setTerminalBorderCornerRadius(TERMUX_APP.DEFAULT_VALUE_TERMINAL_BORDER_CORNER_RADIUS);

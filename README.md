@@ -20,7 +20,7 @@
   <img src="image/Screenshot_20260921-115951_Termux~2.jpg" width="48%" />
 </p>
 
-- **Material 3 Pill-shaped Tab Bar**: Multi-session management with compact inactive tabs, session numbering, close buttons, and quick add.
+- **Material 3 Pill-shaped Tab Bar**: Multi-session management with compact inactive tabs, session numbering, close buttons, quick add, customizable tab button width, and configurable active tab title character length.
 - **Niri WM Window Border**: Customizable rounded window frame with corner radius (default 1dp), stroke width (default 1dp), gaps, and color picker (default `#FFFFFF`). Supports both full box and Hermes brackets cutout styles.
 - **Dynamic Text Margin Symmetry**: Automatically balances terminal text margins with outer screen gaps when window border is active so text breathes comfortably and never collides with borders.
 - **Interactive Zoom Indicator**: Real-time terminal dimension and font size toast feedback (`columns × rows (pt)`) when pinch zooming.
@@ -30,6 +30,9 @@
 ## Changelog
 
 ### v0.118.2 (Custom UI Edition)
+- **Tab Button Width & Active Title Length Customization**: Added settings to customize tab button width in dp (for inactive tabs and corner action buttons) and configure the number of leading characters displayed for active tab process names.
+- **Default Border Enabled**: Window border is enabled by default with pure white `#FFFFFF` stroke and 1dp corner radius.
+- **Silent Bootstrap Second Stage**: Bootstrap configuration scripts run quietly during initial install so the terminal opens clean and uncluttered like upstream Termux.
 - **Updated Bootstrap Packages**: Updated `apt-android-7` bootstrap archives to `bootstrap-2026.10.11-r1`. Fixes missing symbol `ngtcp2_crypto_get_path_challenge_data2_cb` in `libcurl.so`, ensuring `curl`, `pkg update`, and network scripts work out-of-the-box upon fresh install without needing manual repairs.
 
 ### v0.118.1 (Custom UI Edition)
