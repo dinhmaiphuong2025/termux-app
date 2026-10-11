@@ -201,6 +201,12 @@ public final class TermuxPreferenceConstants {
         public static final String KEY_TAB_BUTTON_WIDTH = "tab_button_width";
         public static final int DEFAULT_VALUE_TAB_BUTTON_WIDTH = 28;
 
+        public static final String KEY_TAB_NEW_BUTTON_WIDTH = "tab_new_button_width";
+        public static final int DEFAULT_VALUE_TAB_NEW_BUTTON_WIDTH = 28;
+
+        public static final String KEY_TAB_SETTINGS_BUTTON_WIDTH = "tab_settings_button_width";
+        public static final int DEFAULT_VALUE_TAB_SETTINGS_BUTTON_WIDTH = 28;
+
         public static final String KEY_TAB_ACTIVE_TITLE_LENGTH = "tab_active_title_length";
         public static final int DEFAULT_VALUE_TAB_ACTIVE_TITLE_LENGTH = 12;
 

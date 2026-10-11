@@ -149,6 +149,8 @@ public class TerminalViewPreferencesFragment extends PreferenceFragmentCompat {
             "tab_corner_radius",
             "tab_border_width",
             "tab_button_width",
+            "tab_new_button_width",
+            "tab_settings_button_width",
             "tab_active_title_length",
             "terminal_border_enabled",
             "terminal_border_corner_radius",
@@ -251,6 +253,12 @@ class TerminalViewPreferencesDataStore extends PreferenceDataStore {
             case "tab_button_width":
                 mPreferences.setTabButtonWidth(value);
                 break;
+            case "tab_new_button_width":
+                mPreferences.setTabNewButtonWidth(value);
+                break;
+            case "tab_settings_button_width":
+                mPreferences.setTabSettingsButtonWidth(value);
+                break;
             case "tab_active_title_length":
                 mPreferences.setTabActiveTitleLength(value);
                 break;
@@ -288,6 +296,10 @@ class TerminalViewPreferencesDataStore extends PreferenceDataStore {
                 return mPreferences.getTabBorderWidth();
             case "tab_button_width":
                 return mPreferences.getTabButtonWidth();
+            case "tab_new_button_width":
+                return mPreferences.getTabNewButtonWidth();
+            case "tab_settings_button_width":
+                return mPreferences.getTabSettingsButtonWidth();
             case "tab_active_title_length":
                 return mPreferences.getTabActiveTitleLength();
             case "terminal_border_corner_radius":
