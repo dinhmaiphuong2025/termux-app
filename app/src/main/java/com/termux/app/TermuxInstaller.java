@@ -30,6 +30,7 @@ import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -218,6 +219,9 @@ final class TermuxInstaller {
 
                     Logger.logInfo(LOG_TAG, "Bootstrap packages installed successfully.");
 
+                    // Run second stage package configurations silently during installation
+                    runBootstrapSecondStage();
+
                     // Recreate env file since termux prefix was wiped earlier
                     TermuxShellEnvironment.writeEnvironmentToFile(activity);
 
@@ -272,6 +276,43 @@ final class TermuxInstaller {
             title, null, "## " + title + "\n\n" + message + "\n\n" +
                 TermuxUtils.getTermuxDebugMarkdownString(activity),
             true, false, TermuxUtils.AppInfoMode.TERMUX_AND_PLUGIN_PACKAGES, true);
+    }
+
+    private static void runBootstrapSecondStage() {
+        File secondStageScript = new File(TERMUX_PREFIX_DIR_PATH + "/etc/termux/termux-bootstrap/second-stage/termux-bootstrap-second-stage.sh");
+        if (secondStageScript.exists()) {
+            try {
+                Logger.logInfo(LOG_TAG, "Running bootstrap second stage...");
+                Os.chmod(secondStageScript.getAbsolutePath(), 0700);
+                ProcessBuilder pb = new ProcessBuilder(
+                    TERMUX_PREFIX_DIR_PATH + "/bin/bash",
+                    secondStageScript.getAbsolutePath()
+                );
+                Map<String, String> env = pb.environment();
+                env.put("TERMUX_PREFIX", TERMUX_PREFIX_DIR_PATH);
+                env.put("PATH", TERMUX_PREFIX_DIR_PATH + "/bin:/system/bin");
+                env.put("TMPDIR", TERMUX_PREFIX_DIR_PATH + "/tmp");
+                pb.directory(new File(TERMUX_PREFIX_DIR_PATH));
+                pb.redirectErrorStream(true);
+                Process process = pb.start();
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        Logger.logDebug(LOG_TAG, "bootstrap second stage: " + line);
+                    }
+                }
+                int exitCode = process.waitFor();
+                Logger.logInfo(LOG_TAG, "Bootstrap second stage finished with exit code " + exitCode);
+            } catch (Exception e) {
+                Logger.logStackTraceWithMessage(LOG_TAG, "Failed to run bootstrap second stage", e);
+            }
+        }
+
+        // Delete fallback script so it never dumps logs in the user's interactive shell session
+        File fallbackScript = new File(TERMUX_PREFIX_DIR_PATH + "/etc/profile.d/01-termux-bootstrap-second-stage-fallback.sh");
+        if (fallbackScript.exists()) {
+            fallbackScript.delete();
+        }
     }
 
     static void setupStorageSymlinks(final Context context) {

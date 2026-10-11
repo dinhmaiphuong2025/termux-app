@@ -42,7 +42,7 @@
             app:key="terminal_border_enabled"
             app:title="@string/termux_niri_border_enable_title"
             app:summary="@string/termux_niri_border_enable_summary"
-            app:defaultValue="false" />
+            app:defaultValue="true" />
 
         <SeekBarPreference
             app:key="terminal_border_corner_radius"
