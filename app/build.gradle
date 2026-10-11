@@ -43,8 +43,8 @@ android {
     defaultConfig {
         minSdkVersion project.properties.minSdkVersion.toInteger()
         targetSdkVersion project.properties.targetSdkVersion.toInteger()
-        versionCode 119
-        versionName "0.118.1"
+        versionCode 120
+        versionName "0.118.2"
 
         if (appVersionName) versionName = appVersionName
         validateVersionName(versionName)
@@ -221,11 +221,11 @@ task downloadBootstraps() {
     doLast {
         def packageVariant = project.ext.packageVariant
         if (packageVariant == "apt-android-7") {
-            def version = "2026.02.12-r1" + "%2B" + "apt.android-7"
-            downloadBootstrap("aarch64", "ea2aeba8819e517db711f8c32369e89e7c52cee73e07930ff91185e1ab93f4f3", version)
-            downloadBootstrap("arm", "a38f4d3b2f735f83be2bf54eff463e86dc32a3e2f9f861c1557c4378d249c018", version)
-            downloadBootstrap("i686", "f5bc0b025b9f3b420b5fcaeefc064f888f5f22a0d6fd7090f4aac0c33eb3555b", version)
-            downloadBootstrap("x86_64", "b7fd0f2e3a4de534be3144f9f91acc768630fc463eaf134ab2e64c545e834f7a", version)
+            def version = "2026.10.11-r1" + "%2B" + "apt.android-7"
+            downloadBootstrap("aarch64", "b7827bc99710293d0e871df8b96d9d3a8ab6b22ee4b4a6f3ac076754818990ab", version)
+            downloadBootstrap("arm", "458afec87f02278f4d6b4ff83b4e88ceba5de21d76157032debe52cac424e94c", version)
+            downloadBootstrap("i686", "af0b6fddf8b546fe5282379d2355f428a23d9736083e4974d634b039c2cdc467", version)
+            downloadBootstrap("x86_64", "fd3a23238566dfa6464c7d01744a1dc662088884141296ca08e45c97482953e9", version)
         } else if (packageVariant == "apt-android-5") {
             def version = "2022.04.28-r6" + "+" + packageVariant
             downloadBootstrap("aarch64", "913609d439415c828c5640be1b0561467e539cb1c7080662decaaca2fb4820e7", version)

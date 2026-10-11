@@ -29,6 +29,9 @@
 
 ## Changelog
 
+### v0.118.2 (Custom UI Edition)
+- **Updated Bootstrap Packages**: Updated `apt-android-7` bootstrap archives to `bootstrap-2026.10.11-r1`. Fixes missing symbol `ngtcp2_crypto_get_path_challenge_data2_cb` in `libcurl.so`, ensuring `curl`, `pkg update`, and network scripts work out-of-the-box upon fresh install without needing manual repairs.
+
 ### v0.118.1 (Custom UI Edition)
 - **Extra Keys Bar Themes**: Added Chalk Dark, Gruvbox Dark, Gruvbox Light, Rosé Pine, and Solarized Dark color palettes.
 - **Zoom Size Toast**: Real-time toast feedback showing terminal dimensions and font size `columns × rows (pt)` with top-centered positioning matching tab switch notifications.
