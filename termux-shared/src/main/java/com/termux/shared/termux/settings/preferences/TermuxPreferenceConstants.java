@@ -201,6 +201,9 @@ public final class TermuxPreferenceConstants {
         public static final String KEY_TAB_BUTTON_WIDTH = "tab_button_width";
         public static final int DEFAULT_VALUE_TAB_BUTTON_WIDTH = 28;
 
+        public static final String KEY_TAB_ACTION_BUTTON_WIDTH = "tab_action_button_width";
+        public static final int DEFAULT_VALUE_TAB_ACTION_BUTTON_WIDTH = 28;
+
         public static final String KEY_TAB_NEW_BUTTON_WIDTH = "tab_new_button_width";
         public static final int DEFAULT_VALUE_TAB_NEW_BUTTON_WIDTH = 28;
 

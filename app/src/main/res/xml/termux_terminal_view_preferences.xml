@@ -42,18 +42,9 @@
             app:defaultValue="28" />
 
         <SeekBarPreference
-            app:key="tab_new_button_width"
-            app:title="@string/termux_tab_bar_new_button_width_title"
-            app:summary="@string/termux_tab_bar_new_button_width_summary"
-            app:min="20"
-            android:max="72"
-            app:showSeekBarValue="true"
-            app:defaultValue="28" />
-
-        <SeekBarPreference
-            app:key="tab_close_button_width"
-            app:title="@string/termux_tab_bar_close_button_width_title"
-            app:summary="@string/termux_tab_bar_close_button_width_summary"
+            app:key="tab_action_button_width"
+            app:title="@string/termux_tab_bar_action_button_width_title"
+            app:summary="@string/termux_tab_bar_action_button_width_summary"
             app:min="20"
             android:max="72"
             app:showSeekBarValue="true"

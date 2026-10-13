@@ -149,6 +149,7 @@ public class TerminalViewPreferencesFragment extends PreferenceFragmentCompat {
             "tab_corner_radius",
             "tab_border_width",
             "tab_button_width",
+            "tab_action_button_width",
             "tab_new_button_width",
             "tab_close_button_width",
             "tab_settings_button_width",
@@ -254,6 +255,9 @@ class TerminalViewPreferencesDataStore extends PreferenceDataStore {
             case "tab_button_width":
                 mPreferences.setTabButtonWidth(value);
                 break;
+            case "tab_action_button_width":
+                mPreferences.setTabActionButtonWidth(value);
+                break;
             case "tab_new_button_width":
                 mPreferences.setTabNewButtonWidth(value);
                 break;
@@ -300,6 +304,8 @@ class TerminalViewPreferencesDataStore extends PreferenceDataStore {
                 return mPreferences.getTabBorderWidth();
             case "tab_button_width":
                 return mPreferences.getTabButtonWidth();
+            case "tab_action_button_width":
+                return mPreferences.getTabActionButtonWidth();
             case "tab_new_button_width":
                 return mPreferences.getTabNewButtonWidth();
             case "tab_close_button_width":

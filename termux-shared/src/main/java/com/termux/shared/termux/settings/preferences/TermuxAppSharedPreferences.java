@@ -306,20 +306,37 @@ public class TermuxAppSharedPreferences extends AppSharedPreferences {
         SharedPreferenceUtils.setInt(mSharedPreferences, TERMUX_APP.KEY_TAB_BUTTON_WIDTH, value, false);
     }
 
+    public int getTabActionButtonWidth() {
+        if (mSharedPreferences.contains(TERMUX_APP.KEY_TAB_ACTION_BUTTON_WIDTH)) {
+            return SharedPreferenceUtils.getInt(mSharedPreferences, TERMUX_APP.KEY_TAB_ACTION_BUTTON_WIDTH, TERMUX_APP.DEFAULT_VALUE_TAB_ACTION_BUTTON_WIDTH);
+        }
+        if (mSharedPreferences.contains(TERMUX_APP.KEY_TAB_NEW_BUTTON_WIDTH)) {
+            return SharedPreferenceUtils.getInt(mSharedPreferences, TERMUX_APP.KEY_TAB_NEW_BUTTON_WIDTH, TERMUX_APP.DEFAULT_VALUE_TAB_ACTION_BUTTON_WIDTH);
+        }
+        if (mSharedPreferences.contains(TERMUX_APP.KEY_TAB_CLOSE_BUTTON_WIDTH)) {
+            return SharedPreferenceUtils.getInt(mSharedPreferences, TERMUX_APP.KEY_TAB_CLOSE_BUTTON_WIDTH, TERMUX_APP.DEFAULT_VALUE_TAB_ACTION_BUTTON_WIDTH);
+        }
+        return TERMUX_APP.DEFAULT_VALUE_TAB_ACTION_BUTTON_WIDTH;
+    }
+
+    public void setTabActionButtonWidth(int value) {
+        SharedPreferenceUtils.setInt(mSharedPreferences, TERMUX_APP.KEY_TAB_ACTION_BUTTON_WIDTH, value, false);
+    }
+
     public int getTabNewButtonWidth() {
-        return SharedPreferenceUtils.getInt(mSharedPreferences, TERMUX_APP.KEY_TAB_NEW_BUTTON_WIDTH, TERMUX_APP.DEFAULT_VALUE_TAB_NEW_BUTTON_WIDTH);
+        return getTabActionButtonWidth();
     }
 
     public void setTabNewButtonWidth(int value) {
-        SharedPreferenceUtils.setInt(mSharedPreferences, TERMUX_APP.KEY_TAB_NEW_BUTTON_WIDTH, value, false);
+        setTabActionButtonWidth(value);
     }
 
     public int getTabCloseButtonWidth() {
-        return SharedPreferenceUtils.getInt(mSharedPreferences, TERMUX_APP.KEY_TAB_CLOSE_BUTTON_WIDTH, TERMUX_APP.DEFAULT_VALUE_TAB_CLOSE_BUTTON_WIDTH);
+        return getTabActionButtonWidth();
     }
 
     public void setTabCloseButtonWidth(int value) {
-        SharedPreferenceUtils.setInt(mSharedPreferences, TERMUX_APP.KEY_TAB_CLOSE_BUTTON_WIDTH, value, false);
+        setTabActionButtonWidth(value);
     }
 
     public int getTabSettingsButtonWidth() {
@@ -589,8 +606,7 @@ public class TermuxAppSharedPreferences extends AppSharedPreferences {
         setTabBorderWidth(TERMUX_APP.DEFAULT_VALUE_TAB_BORDER_WIDTH);
         setTabBorderColor(TERMUX_APP.DEFAULT_VALUE_TAB_BORDER_COLOR);
         setTabButtonWidth(TERMUX_APP.DEFAULT_VALUE_TAB_BUTTON_WIDTH);
-        setTabNewButtonWidth(TERMUX_APP.DEFAULT_VALUE_TAB_NEW_BUTTON_WIDTH);
-        setTabCloseButtonWidth(TERMUX_APP.DEFAULT_VALUE_TAB_CLOSE_BUTTON_WIDTH);
+        setTabActionButtonWidth(TERMUX_APP.DEFAULT_VALUE_TAB_ACTION_BUTTON_WIDTH);
         setTabSettingsButtonWidth(TERMUX_APP.DEFAULT_VALUE_TAB_SETTINGS_BUTTON_WIDTH);
         setTabActiveTitleLength(TERMUX_APP.DEFAULT_VALUE_TAB_ACTIVE_TITLE_LENGTH);
 

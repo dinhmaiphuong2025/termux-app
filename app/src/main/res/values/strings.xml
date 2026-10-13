@@ -239,10 +239,8 @@
     <string name="termux_tab_bar_border_color_summary">Hex color code (click to choose from palette or type hex)</string>
     <string name="termux_tab_bar_button_width_title">Tab Button Width (dp)</string>
     <string name="termux_tab_bar_button_width_summary">Minimum width of session tab buttons</string>
-    <string name="termux_tab_bar_new_button_width_title">New Tab (+) Button Width (dp)</string>
-    <string name="termux_tab_bar_new_button_width_summary">Width of the plus (+) button at the corner</string>
-    <string name="termux_tab_bar_close_button_width_title">Close Tab (×) Button Width (dp)</string>
-    <string name="termux_tab_bar_close_button_width_summary">Width of the close (×) button at the corner</string>
+    <string name="termux_tab_bar_action_button_width_title">Action (+ / ×) Buttons Width (dp)</string>
+    <string name="termux_tab_bar_action_button_width_summary">Width of corner new (+) and close (×) buttons</string>
     <string name="termux_tab_bar_settings_button_width_title">Settings (⚙) Button Width (dp)</string>
     <string name="termux_tab_bar_settings_button_width_summary">Width of the settings button at the corner</string>
     <string name="action_close_session">Close Session</string>

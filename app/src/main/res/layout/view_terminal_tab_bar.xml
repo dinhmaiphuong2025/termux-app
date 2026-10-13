@@ -38,14 +38,11 @@
         android:focusable="true"
         android:contentDescription="@string/action_new_session">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+        <ImageView
+            android:layout_width="14dp"
+            android:layout_height="14dp"
             android:layout_gravity="center"
-            android:text="+"
-            android:textColor="#FFFFFFFF"
-            android:textSize="16sp"
-            android:textStyle="bold"
+            android:src="@drawable/ic_tab_plus"
             android:clickable="false"
             android:focusable="false" />
     </FrameLayout>
