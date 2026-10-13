@@ -8,7 +8,7 @@
     android:gravity="center"
     android:orientation="horizontal"
     android:paddingStart="8dp"
-    android:paddingEnd="6dp"
+    android:paddingEnd="8dp"
     android:background="@drawable/shape_tab_pill_inactive"
     android:clickable="true"
     android:focusable="true">
@@ -24,19 +24,5 @@
         android:clickable="false"
         android:focusable="false"
         tools:text="1. zsh" />
-
-    <ImageView
-        android:id="@+id/tab_item_close"
-        android:layout_width="16dp"
-        android:layout_height="16dp"
-        android:layout_marginStart="4dp"
-        android:padding="2dp"
-        android:contentDescription="Close Tab"
-        android:src="@drawable/ic_close_tab"
-        android:alpha="0.8"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:clickable="true"
-        android:focusable="true"
-        android:visibility="gone" />
 
 </LinearLayout>

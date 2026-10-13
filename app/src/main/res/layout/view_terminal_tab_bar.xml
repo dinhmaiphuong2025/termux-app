@@ -51,6 +51,26 @@
     </FrameLayout>
 
     <FrameLayout
+        android:id="@+id/tab_close_session_btn"
+        android:layout_width="28dp"
+        android:layout_height="28dp"
+        android:layout_marginStart="4dp"
+        android:background="@drawable/shape_tab_pill_inactive"
+        android:foreground="?attr/selectableItemBackgroundBorderless"
+        android:clickable="true"
+        android:focusable="true"
+        android:contentDescription="@string/action_close_session">
+
+        <ImageView
+            android:layout_width="14dp"
+            android:layout_height="14dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_close_tab"
+            android:clickable="false"
+            android:focusable="false" />
+    </FrameLayout>
+
+    <FrameLayout
         android:id="@+id/tab_settings_btn"
         android:layout_width="28dp"
         android:layout_height="28dp"

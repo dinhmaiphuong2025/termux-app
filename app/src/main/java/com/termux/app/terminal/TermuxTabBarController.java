@@ -39,6 +39,7 @@ public class TermuxTabBarController {
     private final HorizontalScrollView mScrollView;
     private final LinearLayout mTabsContainer;
     private final FrameLayout mNewSessionBtn;
+    private final FrameLayout mCloseSessionBtn;
     private final FrameLayout mSettingsBtn;
 
     public TermuxTabBarController(@NonNull TermuxActivity activity, @NonNull View rootView) {
@@ -47,6 +48,7 @@ public class TermuxTabBarController {
         this.mScrollView = rootView.findViewById(R.id.terminal_tabs_scroll_view);
         this.mTabsContainer = rootView.findViewById(R.id.terminal_tabs_container);
         this.mNewSessionBtn = rootView.findViewById(R.id.tab_new_session_btn);
+        this.mCloseSessionBtn = rootView.findViewById(R.id.tab_close_session_btn);
         this.mSettingsBtn = rootView.findViewById(R.id.tab_settings_btn);
 
         if (mNewSessionBtn != null) {
@@ -66,6 +68,37 @@ public class TermuxTabBarController {
                         -1, null, null);
                 }
                 return true;
+            });
+        }
+
+        if (mCloseSessionBtn != null) {
+            mCloseSessionBtn.setOnClickListener(v -> {
+                TermuxService service = mActivity.getTermuxService();
+                if (service == null) return;
+                TerminalSession currentSession = mActivity.getCurrentSession();
+                if (currentSession == null) return;
+                int sessionIndex = service.getIndexOfSession(currentSession);
+                if (sessionIndex < 0) return;
+
+                if (currentSession.isRunning()) {
+                    new AlertDialog.Builder(mActivity)
+                        .setTitle("Close Session")
+                        .setMessage("Close session " + (sessionIndex + 1) + "?")
+                        .setPositiveButton(android.R.string.ok, (dialog, which) -> {
+                            currentSession.finishIfRunning();
+                            if (mActivity.getTermuxTerminalSessionClient() != null) {
+                                mActivity.getTermuxTerminalSessionClient().removeFinishedSession(currentSession);
+                            }
+                            updateTabs();
+                        })
+                        .setNegativeButton(android.R.string.cancel, null)
+                        .show();
+                } else {
+                    if (mActivity.getTermuxTerminalSessionClient() != null) {
+                        mActivity.getTermuxTerminalSessionClient().removeFinishedSession(currentSession);
+                    }
+                    updateTabs();
+                }
             });
         }
 
@@ -142,6 +175,7 @@ public class TermuxTabBarController {
         int borderColor = Color.parseColor("#FFFFFF");
         int buttonWidth = (int) (28 * density);
         int newBtnWidth = (int) (28 * density);
+        int closeBtnWidth = (int) (28 * density);
         int settingsBtnWidth = (int) (28 * density);
         int activeTitleLength = 12;
 
@@ -150,6 +184,7 @@ public class TermuxTabBarController {
             borderWidth = (int) (mActivity.getPreferences().getTabBorderWidth() * density);
             buttonWidth = (int) (mActivity.getPreferences().getTabButtonWidth() * density);
             newBtnWidth = (int) (mActivity.getPreferences().getTabNewButtonWidth() * density);
+            closeBtnWidth = (int) (mActivity.getPreferences().getTabCloseButtonWidth() * density);
             settingsBtnWidth = (int) (mActivity.getPreferences().getTabSettingsButtonWidth() * density);
             activeTitleLength = mActivity.getPreferences().getTabActiveTitleLength();
             String customColor = mActivity.getPreferences().getTabBorderColor();
@@ -158,7 +193,7 @@ public class TermuxTabBarController {
             } catch (Exception ignored) {}
         }
 
-        // Style the new-session and settings buttons
+        // Style the new-session, close-session and settings buttons
         if (mNewSessionBtn != null) {
             ViewGroup.LayoutParams lp = mNewSessionBtn.getLayoutParams();
             if (lp != null) {
@@ -166,6 +201,14 @@ public class TermuxTabBarController {
                 mNewSessionBtn.setLayoutParams(lp);
             }
             mNewSessionBtn.setBackground(createTabDrawable(false, cornerRadius, borderWidth, borderColor));
+        }
+        if (mCloseSessionBtn != null) {
+            ViewGroup.LayoutParams lp = mCloseSessionBtn.getLayoutParams();
+            if (lp != null) {
+                lp.width = closeBtnWidth;
+                mCloseSessionBtn.setLayoutParams(lp);
+            }
+            mCloseSessionBtn.setBackground(createTabDrawable(false, cornerRadius, borderWidth, borderColor));
         }
         if (mSettingsBtn != null) {
             ViewGroup.LayoutParams lp = mSettingsBtn.getLayoutParams();
@@ -185,7 +228,6 @@ public class TermuxTabBarController {
 
             View tabItem = inflater.inflate(R.layout.item_terminal_tab, mTabsContainer, false);
             TextView titleView = tabItem.findViewById(R.id.tab_item_title);
-            ImageView closeBtn = tabItem.findViewById(R.id.tab_item_close);
 
             boolean isCurrent = (session == currentSession);
 
@@ -202,7 +244,7 @@ public class TermuxTabBarController {
             if (isCurrent) {
                 activeTabView = tabItem;
                 tabItem.setBackground(createTabDrawable(true, cornerRadius, borderWidth, borderColor));
-                tabItem.setPadding((int) (10 * density), 0, (int) (6 * density), 0);
+                tabItem.setPadding((int) (8 * density), 0, (int) (8 * density), 0);
                 tabItem.setMinimumWidth(buttonWidth);
                 titleView.setTextColor(0xFFFFFFFF);
                 titleView.setTextSize(12);
@@ -214,9 +256,6 @@ public class TermuxTabBarController {
                     fullTitle = String.valueOf(sessionNum);
                 }
                 titleView.setText(fullTitle);
-
-                // Active tab displays the close button
-                closeBtn.setVisibility(View.VISIBLE);
             } else {
                 tabItem.setBackground(createTabDrawable(false, cornerRadius, borderWidth, borderColor));
                 tabItem.setPadding((int) (8 * density), 0, (int) (8 * density), 0);
@@ -232,13 +271,9 @@ public class TermuxTabBarController {
                     compactTitle = String.valueOf(sessionNum);
                 }
                 titleView.setText(compactTitle);
-
-                // Inactive tabs hide the close button to save space
-                closeBtn.setVisibility(View.GONE);
             }
 
             // Tab click -> switch session
-            final int sessionIndex = i;
             tabItem.setOnClickListener(v -> {
                 if (mActivity.getTermuxTerminalSessionClient() != null) {
                     mActivity.getTermuxTerminalSessionClient().setCurrentSession(session);
@@ -251,29 +286,6 @@ public class TermuxTabBarController {
                     mActivity.getTermuxTerminalSessionClient().renameSession(session);
                 }
                 return true;
-            });
-
-            // Close button click (only visible on active tab)
-            closeBtn.setOnClickListener(v -> {
-                if (session.isRunning()) {
-                    new AlertDialog.Builder(mActivity)
-                        .setTitle(R.string.title_rename_session)
-                        .setMessage("Close session " + (sessionIndex + 1) + "?")
-                        .setPositiveButton(android.R.string.ok, (dialog, which) -> {
-                            session.finishIfRunning();
-                            if (mActivity.getTermuxTerminalSessionClient() != null) {
-                                mActivity.getTermuxTerminalSessionClient().removeFinishedSession(session);
-                            }
-                            updateTabs();
-                        })
-                        .setNegativeButton(android.R.string.cancel, null)
-                        .show();
-                } else {
-                    if (mActivity.getTermuxTerminalSessionClient() != null) {
-                        mActivity.getTermuxTerminalSessionClient().removeFinishedSession(session);
-                    }
-                    updateTabs();
-                }
             });
 
             mTabsContainer.addView(tabItem);

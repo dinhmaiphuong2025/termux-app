@@ -241,8 +241,11 @@
     <string name="termux_tab_bar_button_width_summary">Minimum width of session tab buttons</string>
     <string name="termux_tab_bar_new_button_width_title">New Tab (+) Button Width (dp)</string>
     <string name="termux_tab_bar_new_button_width_summary">Width of the plus (+) button at the corner</string>
+    <string name="termux_tab_bar_close_button_width_title">Close Tab (×) Button Width (dp)</string>
+    <string name="termux_tab_bar_close_button_width_summary">Width of the close (×) button at the corner</string>
     <string name="termux_tab_bar_settings_button_width_title">Settings (⚙) Button Width (dp)</string>
     <string name="termux_tab_bar_settings_button_width_summary">Width of the settings button at the corner</string>
+    <string name="action_close_session">Close Session</string>
     <string name="termux_tab_bar_active_title_length_title">Active Tab Title Length</string>
     <string name="termux_tab_bar_active_title_length_summary">Number of leading characters shown for active tab title (0 = number only)</string>
 

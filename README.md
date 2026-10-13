@@ -20,7 +20,7 @@
   <img src="image/Screenshot_20260921-115951_Termux~2.jpg" width="48%" />
 </p>
 
-- **Material 3 Pill-shaped Tab Bar**: Multi-session management with compact inactive tabs, session numbering, close buttons, quick add, customizable tab button width, and configurable active tab title character length.
+- **Material 3 Pill-shaped Tab Bar**: Multi-session management with clean, centered inactive/active tabs, session numbering, dedicated corner action buttons (New `+`, Close `×`, Settings `⚙`), independent button width controls, and configurable active tab title character length.
 - **Niri WM Window Border**: Customizable rounded window frame with corner radius (default 1dp), stroke width (default 1dp), gaps, and color picker (default `#FFFFFF`). Supports both full box and Hermes brackets cutout styles.
 - **Dynamic Text Margin Symmetry**: Automatically balances terminal text margins with outer screen gaps when window border is active so text breathes comfortably and never collides with borders.
 - **Interactive Zoom Indicator**: Real-time terminal dimension and font size toast feedback (`columns × rows (pt)`) when pinch zooming.
