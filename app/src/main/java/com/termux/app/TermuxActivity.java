@@ -67,6 +67,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.viewpager.widget.ViewPager;
 
 import com.termux.app.terminal.TermuxTabBarController;
+import com.termux.app.terminal.TermuxGesturePillView;
 import com.google.android.material.card.MaterialCardView;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
