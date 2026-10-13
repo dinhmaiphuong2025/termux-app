@@ -270,7 +270,6 @@ public class TermuxTabBarController {
 
         TerminalSession currentSession = mActivity.getCurrentSession();
         LayoutInflater inflater = LayoutInflater.from(mActivity);
-        float density = mActivity.getResources().getDisplayMetrics().density;
 
         int cornerRadius = (int) (1 * density);
         int borderWidth = (int) (1 * density);
