@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="termux_custom_ui_preferences_title">Giao diện Custom &amp; Niri WM</string>
+    <string name="termux_custom_ui_preferences_summary">Thanh tab bar, nút cử chỉ nổi, viền Niri, theme phím phụ &amp; hình nền</string>
     <string name="termux_tab_animation_title">Hiệu ứng chuyển tab Niri Ribbon</string>
     <string name="termux_tab_animation_summary">Hiệu ứng cuộn ngang mượt mà giữa các tab giống Niri WM</string>
     <string name="termux_tab_bar_show_session_name_without_tab_bar_title">Ghim tên session khi tắt tab bar</string>

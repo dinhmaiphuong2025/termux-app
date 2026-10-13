@@ -142,6 +142,10 @@
     <string name="termux_preferences_title">&TERMUX_APP_NAME;</string>
     <string name="termux_preferences_summary">Preferences for &TERMUX_APP_NAME; app</string>
 
+    <!-- Custom UI Preferences -->
+    <string name="termux_custom_ui_preferences_title">Custom UI &amp; Niri WM</string>
+    <string name="termux_custom_ui_preferences_summary">Pill tab bar, gesture pill, Niri window borders, extra keys styling &amp; wallpaper</string>
+
         <!-- Debugging Preferences -->
         <string name="termux_debugging_preferences_title">Debugging</string>
         <string name="termux_debugging_preferences_summary">Preferences for debugging</string>
