@@ -2,8 +2,9 @@
 <resources>
     <string name="termux_tab_animation_title">Hiệu ứng chuyển tab Niri Ribbon</string>
     <string name="termux_tab_animation_summary">Hiệu ứng cuộn ngang mượt mà giữa các tab giống Niri WM</string>
-    <string name="termux_tab_bar_show_session_name_without_tab_bar_title">Hiện tên session khi tắt tab bar</string>
-    <string name="termux_tab_bar_show_session_name_without_tab_bar_summary">Hiển thị thông báo tên phiên làm việc khi tắt thanh tab bar</string>
+    <string name="termux_tab_bar_show_session_name_without_tab_bar_title">Ghim tên session khi tắt tab bar</string>
+    <string name="termux_tab_bar_show_session_name_without_tab_bar_summary">Hiển thị thẻ tên phiên làm việc phía trên viền terminal khi tắt thanh tab</string>
+    <string name="termux_session_name_alignment_title">Vị trí căn chỉnh tên session</string>
 
     <!-- Floating Gesture Pill Preferences -->
     <string name="termux_gesture_pill_header">Nút cử chỉ nổi (Gesture Pill)</string>

@@ -89,6 +89,15 @@
             app:summary="@string/termux_tab_bar_show_session_name_without_tab_bar_summary"
             app:defaultValue="true" />
 
+        <ListPreference
+            app:key="session_name_alignment"
+            app:title="@string/termux_session_name_alignment_title"
+            app:entries="@array/session_name_alignment_titles"
+            app:entryValues="@array/session_name_alignment_values"
+            app:useSimpleSummaryProvider="true"
+            app:dependency="show_session_name_without_tab_bar"
+            app:defaultValue="center" />
+
     </PreferenceCategory>
 
     <PreferenceCategory

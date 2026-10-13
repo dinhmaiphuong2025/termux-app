@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,20 +37,47 @@ public class TermuxTabBarController {
 
     private final TermuxActivity mActivity;
     private final View mRootView;
+    private final View mFullTabBarContainer;
     private final HorizontalScrollView mScrollView;
     private final LinearLayout mTabsContainer;
     private final FrameLayout mNewSessionBtn;
     private final FrameLayout mCloseSessionBtn;
     private final FrameLayout mSettingsBtn;
 
+    private final View mSessionTitleContainer;
+    private final View mSessionTitlePill;
+    private final TextView mSessionTitleText;
+
     public TermuxTabBarController(@NonNull TermuxActivity activity, @NonNull View rootView) {
         this.mActivity = activity;
         this.mRootView = rootView;
+        this.mFullTabBarContainer = rootView.findViewById(R.id.terminal_tab_bar_full_container);
         this.mScrollView = rootView.findViewById(R.id.terminal_tabs_scroll_view);
         this.mTabsContainer = rootView.findViewById(R.id.terminal_tabs_container);
         this.mNewSessionBtn = rootView.findViewById(R.id.tab_new_session_btn);
         this.mCloseSessionBtn = rootView.findViewById(R.id.tab_close_session_btn);
         this.mSettingsBtn = rootView.findViewById(R.id.tab_settings_btn);
+
+        this.mSessionTitleContainer = rootView.findViewById(R.id.terminal_session_title_container);
+        this.mSessionTitlePill = rootView.findViewById(R.id.terminal_session_title_pill);
+        this.mSessionTitleText = rootView.findViewById(R.id.terminal_session_title_text);
+
+        if (mSessionTitlePill != null) {
+            // Short click: switch to next session
+            mSessionTitlePill.setOnClickListener(v -> {
+                if (mActivity.getTermuxTerminalSessionClient() != null) {
+                    mActivity.getTermuxTerminalSessionClient().switchToSession(true);
+                }
+            });
+            // Long click: rename current session
+            mSessionTitlePill.setOnLongClickListener(v -> {
+                TerminalSession currentSession = mActivity.getCurrentSession();
+                if (currentSession != null && mActivity.getTermuxTerminalSessionClient() != null) {
+                    mActivity.getTermuxTerminalSessionClient().renameSession(currentSession);
+                }
+                return true;
+            });
+        }
 
         if (mNewSessionBtn != null) {
             // Short click: create a regular new session
@@ -148,16 +176,89 @@ public class TermuxTabBarController {
 
     @SuppressLint("SetTextI18n")
     public void updateTabs() {
-        if (mTabsContainer == null || !mActivity.isVisible()) return;
+        if (mRootView == null || !mActivity.isVisible()) return;
 
         // Check if tab bar is enabled in preferences
         boolean isEnabled = mActivity.getPreferences() != null && mActivity.getPreferences().isTabBarEnabled();
+        boolean isShowSessionTitleWithoutTabBar = mActivity.getPreferences() != null && mActivity.getPreferences().isShowSessionNameWithoutTabBar();
+
         if (!isEnabled) {
-            setVisibility(View.GONE);
+            if (!isShowSessionTitleWithoutTabBar) {
+                setVisibility(View.GONE);
+                return;
+            }
+
+            // Show pinned session title header
+            setVisibility(View.VISIBLE);
+            if (mFullTabBarContainer != null) mFullTabBarContainer.setVisibility(View.GONE);
+            if (mSessionTitleContainer != null) mSessionTitleContainer.setVisibility(View.VISIBLE);
+
+            TermuxService service = mActivity.getTermuxService();
+            TerminalSession currentSession = mActivity.getCurrentSession();
+            if (service == null || currentSession == null) return;
+
+            int indexOfSession = service.getIndexOfSession(currentSession);
+            int sessionNum = (indexOfSession >= 0 ? indexOfSession : 0) + 1;
+
+            String rawName = currentSession.mSessionName;
+            if (TextUtils.isEmpty(rawName)) {
+                rawName = currentSession.getTitle();
+            }
+            if (rawName != null) {
+                rawName = rawName.trim();
+            }
+
+            int activeTitleLength = 12;
+            float density = mActivity.getResources().getDisplayMetrics().density;
+            int cornerRadius = (int) (1 * density);
+            int borderWidth = (int) (1 * density);
+            int borderColor = Color.parseColor("#FFFFFF");
+            String alignment = "center";
+
+            if (mActivity.getPreferences() != null) {
+                cornerRadius = (int) (mActivity.getPreferences().getTabCornerRadius() * density);
+                borderWidth = (int) (mActivity.getPreferences().getTabBorderWidth() * density);
+                activeTitleLength = mActivity.getPreferences().getTabActiveTitleLength();
+                alignment = mActivity.getPreferences().getSessionNameAlignment();
+                String customColor = mActivity.getPreferences().getTabBorderColor();
+                try {
+                    borderColor = Color.parseColor(customColor);
+                } catch (Exception ignored) {}
+            }
+
+            String fullTitle;
+            if (!TextUtils.isEmpty(rawName) && activeTitleLength > 0) {
+                fullTitle = sessionNum + ". " + truncateCodePoints(rawName, activeTitleLength);
+            } else {
+                fullTitle = String.valueOf(sessionNum);
+            }
+
+            if (mSessionTitleText != null) {
+                mSessionTitleText.setText(fullTitle);
+            }
+
+            if (mSessionTitlePill != null) {
+                mSessionTitlePill.setBackground(createTabDrawable(true, cornerRadius, borderWidth, borderColor));
+                FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) mSessionTitlePill.getLayoutParams();
+                if (lp != null) {
+                    if ("left".equalsIgnoreCase(alignment)) {
+                        lp.gravity = Gravity.CENTER_VERTICAL | Gravity.START;
+                    } else if ("right".equalsIgnoreCase(alignment)) {
+                        lp.gravity = Gravity.CENTER_VERTICAL | Gravity.END;
+                    } else {
+                        lp.gravity = Gravity.CENTER;
+                    }
+                    mSessionTitlePill.setLayoutParams(lp);
+                }
+            }
             return;
         }
 
+        // Full Tab Bar Mode
         setVisibility(View.VISIBLE);
+        if (mFullTabBarContainer != null) mFullTabBarContainer.setVisibility(View.VISIBLE);
+        if (mSessionTitleContainer != null) mSessionTitleContainer.setVisibility(View.GONE);
+        if (mTabsContainer == null) return;
         mTabsContainer.removeAllViews();
 
         TermuxService service = mActivity.getTermuxService();

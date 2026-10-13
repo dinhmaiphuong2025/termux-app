@@ -58,6 +58,18 @@
         <item>brackets</item>
     </string-array>
 
+    <string-array name="session_name_alignment_titles">
+        <item>Center</item>
+        <item>Left</item>
+        <item>Right</item>
+    </string-array>
+
+    <string-array name="session_name_alignment_values">
+        <item>center</item>
+        <item>left</item>
+        <item>right</item>
+    </string-array>
+
     <string-array name="gesture_pill_action_titles">
         <item>Switch to Previous Tab</item>
         <item>Switch to Next Tab</item>

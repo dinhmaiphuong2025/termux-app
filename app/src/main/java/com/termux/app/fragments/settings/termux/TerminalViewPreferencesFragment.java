@@ -175,6 +175,7 @@ public class TerminalViewPreferencesFragment extends PreferenceFragmentCompat {
             "tab_active_title_length",
             "tab_animation_enabled",
             "show_session_name_without_tab_bar",
+            "session_name_alignment",
             "gesture_pill_enabled",
             "gesture_pill_width",
             "gesture_pill_height",
@@ -403,6 +404,9 @@ class TerminalViewPreferencesDataStore extends PreferenceDataStore {
             case "terminal_border_style":
                 mPreferences.setTerminalBorderStyle(value != null ? value : "full");
                 break;
+            case "session_name_alignment":
+                mPreferences.setSessionNameAlignment(value != null ? value : "center");
+                break;
             case "gesture_pill_color":
                 mPreferences.setGesturePillColor(value != null ? value : "#80FFFFFF");
                 break;
@@ -440,6 +444,8 @@ class TerminalViewPreferencesDataStore extends PreferenceDataStore {
                 return mPreferences.getTerminalBackgroundImagePath();
             case "terminal_border_style":
                 return mPreferences.getTerminalBorderStyle();
+            case "session_name_alignment":
+                return mPreferences.getSessionNameAlignment();
             case "gesture_pill_color":
                 return mPreferences.getGesturePillColor();
             case "gesture_pill_swipe_left":

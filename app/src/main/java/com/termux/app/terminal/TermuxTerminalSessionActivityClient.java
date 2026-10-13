@@ -327,13 +327,6 @@ public class TermuxTerminalSessionActivityClient extends TermuxTerminalSessionCl
     void notifyOfSessionChange() {
         if (!mActivity.isVisible()) return;
 
-        boolean isTabBarEnabled = mActivity.getPreferences() != null && mActivity.getPreferences().isTabBarEnabled();
-        if (!isTabBarEnabled) {
-            if (mActivity.getPreferences() != null && !mActivity.getPreferences().isShowSessionNameWithoutTabBar()) {
-                return;
-            }
-        }
-
         if (!mActivity.getProperties().areTerminalSessionChangeToastsDisabled()) {
             TerminalSession session = mActivity.getCurrentSession();
             mActivity.showToast(toToastTitle(session), false);

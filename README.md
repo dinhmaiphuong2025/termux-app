@@ -21,6 +21,7 @@
 </p>
 
 - **Material 3 Pill-shaped Tab Bar**: Multi-session management with clean, centered inactive/active tabs, session numbering, matching corner action buttons (New `+`, Close `×`, Settings `⚙`) with synced stroke weight and size, independent button width controls, and configurable active tab title character length.
+- **Pinned Session Name Header**: Dedicated session title badge pinned above the top terminal border when the full tab bar is disabled, with configurable alignment (Center, Left, Right) and click/long-click actions to switch or rename sessions.
 - **Niri Ribbon Tab Transition Animation**: Smooth horizontal sliding ribbon transition animation when switching between tabs, bringing Niri Wayland compositor's horizontal window ribbon experience to Termux.
 - **Floating Gesture Pill**: Customizable floating gesture bar with draggable free positioning, adjustable size, corner radius, color, and assignable gestures (swipe left/right to switch tabs, swipe up to open keyboard, swipe down to close keyboard, tap to toggle).
 - **Niri WM Window Border**: Customizable rounded window frame with corner radius (default 1dp), stroke width (default 1dp), gaps, and color picker (default `#FFFFFF`). Supports both full box and Hermes brackets cutout styles.

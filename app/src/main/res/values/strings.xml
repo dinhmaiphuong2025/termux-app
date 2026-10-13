@@ -250,8 +250,9 @@
     <string name="termux_tab_bar_active_title_length_summary">Number of leading characters shown for active tab title (0 = number only)</string>
     <string name="termux_tab_animation_title">Niri Ribbon Tab Animation</string>
     <string name="termux_tab_animation_summary">Smooth horizontal sliding transition between tabs like Niri WM</string>
-    <string name="termux_tab_bar_show_session_name_without_tab_bar_title">Show Session Name Without Tab Bar</string>
-    <string name="termux_tab_bar_show_session_name_without_tab_bar_summary">Display session name toast when pill tab bar is disabled</string>
+    <string name="termux_tab_bar_show_session_name_without_tab_bar_title">Show Pinned Session Name</string>
+    <string name="termux_tab_bar_show_session_name_without_tab_bar_summary">Pin current session title above terminal border when tab bar is disabled</string>
+    <string name="termux_session_name_alignment_title">Pinned Session Name Alignment</string>
 
     <!-- Floating Gesture Pill Preferences -->
     <string name="termux_gesture_pill_header">Floating Gesture Pill</string>

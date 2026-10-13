@@ -354,6 +354,14 @@ public class TermuxAppSharedPreferences extends AppSharedPreferences {
         SharedPreferenceUtils.setBoolean(mSharedPreferences, TERMUX_APP.KEY_SHOW_SESSION_NAME_WITHOUT_TAB_BAR, value, false);
     }
 
+    public String getSessionNameAlignment() {
+        return SharedPreferenceUtils.getString(mSharedPreferences, TERMUX_APP.KEY_SESSION_NAME_ALIGNMENT, TERMUX_APP.DEFAULT_VALUE_SESSION_NAME_ALIGNMENT, false);
+    }
+
+    public void setSessionNameAlignment(String value) {
+        SharedPreferenceUtils.setString(mSharedPreferences, TERMUX_APP.KEY_SESSION_NAME_ALIGNMENT, value, false);
+    }
+
     public boolean isGesturePillEnabled() {
         return SharedPreferenceUtils.getBoolean(mSharedPreferences, TERMUX_APP.KEY_GESTURE_PILL_ENABLED, TERMUX_APP.DEFAULT_VALUE_GESTURE_PILL_ENABLED);
     }
@@ -707,6 +715,7 @@ public class TermuxAppSharedPreferences extends AppSharedPreferences {
         setTabActiveTitleLength(TERMUX_APP.DEFAULT_VALUE_TAB_ACTIVE_TITLE_LENGTH);
         setTabAnimationEnabled(TERMUX_APP.DEFAULT_VALUE_TAB_ANIMATION_ENABLED);
         setShowSessionNameWithoutTabBar(TERMUX_APP.DEFAULT_VALUE_SHOW_SESSION_NAME_WITHOUT_TAB_BAR);
+        setSessionNameAlignment(TERMUX_APP.DEFAULT_VALUE_SESSION_NAME_ALIGNMENT);
 
         setGesturePillEnabled(TERMUX_APP.DEFAULT_VALUE_GESTURE_PILL_ENABLED);
         setGesturePillWidth(TERMUX_APP.DEFAULT_VALUE_GESTURE_PILL_WIDTH);

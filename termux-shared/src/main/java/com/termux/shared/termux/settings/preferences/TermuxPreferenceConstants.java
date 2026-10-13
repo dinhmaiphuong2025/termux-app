@@ -219,6 +219,9 @@ public final class TermuxPreferenceConstants {
         public static final String KEY_SHOW_SESSION_NAME_WITHOUT_TAB_BAR = "show_session_name_without_tab_bar";
         public static final boolean DEFAULT_VALUE_SHOW_SESSION_NAME_WITHOUT_TAB_BAR = true;
 
+        public static final String KEY_SESSION_NAME_ALIGNMENT = "session_name_alignment";
+        public static final String DEFAULT_VALUE_SESSION_NAME_ALIGNMENT = "center";
+
         /**
          * Floating Gesture Pill Preferences.
          */

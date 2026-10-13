@@ -5,6 +5,12 @@
         <item>Dấu ngoặc Hermes</item>
     </string-array>
 
+    <string-array name="session_name_alignment_titles">
+        <item>Căn giữa</item>
+        <item>Căn trái</item>
+        <item>Căn phải</item>
+    </string-array>
+
     <string-array name="gesture_pill_action_titles">
         <item>Chuyển sang tab trước</item>
         <item>Chuyển sang tab tiếp theo</item>
