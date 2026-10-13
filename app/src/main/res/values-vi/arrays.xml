@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="terminal_border_style_titles">
+        <item>Khép kín</item>
+        <item>Dấu ngoặc Hermes</item>
+    </string-array>
+
+    <string-array name="gesture_pill_action_titles">
+        <item>Chuyển sang tab trước</item>
+        <item>Chuyển sang tab tiếp theo</item>
+        <item>Mở bàn phím ảo</item>
+        <item>Tắt bàn phím ảo</item>
+        <item>Bật/tắt bàn phím ảo</item>
+        <item>Phóng to chữ terminal</item>
+        <item>Thu nhỏ chữ terminal</item>
+        <item>Tạo tab mới</item>
+        <item>Đóng tab hiện tại</item>
+        <item>Bật/tắt hàng phím phụ</item>
+        <item>Không thao tác</item>
+    </string-array>
+</resources>

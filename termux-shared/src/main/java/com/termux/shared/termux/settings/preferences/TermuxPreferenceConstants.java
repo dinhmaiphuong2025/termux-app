@@ -216,6 +216,9 @@ public final class TermuxPreferenceConstants {
         public static final String KEY_TAB_ANIMATION_ENABLED = "tab_animation_enabled";
         public static final boolean DEFAULT_VALUE_TAB_ANIMATION_ENABLED = true;
 
+        public static final String KEY_SHOW_SESSION_NAME_WITHOUT_TAB_BAR = "show_session_name_without_tab_bar";
+        public static final boolean DEFAULT_VALUE_SHOW_SESSION_NAME_WITHOUT_TAB_BAR = true;
+
         /**
          * Floating Gesture Pill Preferences.
          */

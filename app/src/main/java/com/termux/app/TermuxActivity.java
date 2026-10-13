@@ -648,6 +648,9 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
             // Focus the text input view if just revealed.
             findViewById(R.id.terminal_toolbar_text_input).requestFocus();
         }
+        if (mTermuxGesturePillView != null) {
+            mTermuxGesturePillView.post(() -> mTermuxGesturePillView.applyPosition());
+        }
     }
 
     private void saveTerminalToolbarTextInput(Bundle savedInstanceState) {
@@ -1383,13 +1386,25 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
             mTabTransitionAnimator.cancel();
             mTabTransitionAnimator = null;
         }
-        if (mTransitionSnapshotBitmap != null && !mTransitionSnapshotBitmap.isRecycled()) {
-            mTransitionSnapshotBitmap.recycle();
-            mTransitionSnapshotBitmap = null;
+
+        // Reuse bitmap to prevent memory churn and GC freezes
+        if (mTransitionSnapshotBitmap == null || mTransitionSnapshotBitmap.isRecycled()
+                || mTransitionSnapshotBitmap.getWidth() != width || mTransitionSnapshotBitmap.getHeight() != height) {
+            if (mTransitionSnapshotBitmap != null && !mTransitionSnapshotBitmap.isRecycled()) {
+                mTransitionSnapshotBitmap.recycle();
+            }
+            try {
+                mTransitionSnapshotBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+            } catch (Throwable t) {
+                Logger.logStackTraceWithMessage(LOG_TAG, "Failed to allocate transition snapshot bitmap", t);
+                mTransitionSnapshotBitmap = null;
+                onAttachSession.run();
+                return;
+            }
         }
 
+        mTransitionSnapshotBitmap.eraseColor(Color.TRANSPARENT);
         try {
-            mTransitionSnapshotBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
             android.graphics.Canvas canvas = new android.graphics.Canvas(mTransitionSnapshotBitmap);
             mTerminalCardContainer.draw(canvas);
         } catch (Throwable t) {
@@ -1407,6 +1422,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         }
 
         mTerminalCardSnapshot.setTranslationX(0f);
+        mTerminalCardSnapshot.setAlpha(1.0f);
         mTerminalCardSnapshot.setVisibility(View.VISIBLE);
 
         onAttachSession.run();
@@ -1417,14 +1433,21 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         final float endOldX = forward ? -slideDistance : slideDistance;
 
         mTerminalCardContainer.setTranslationX(startNewX);
+        mTerminalCardContainer.setAlpha(1.0f);
+
+        // Hardware layers for butter-smooth GPU composited sliding
+        mTerminalCardContainer.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+        mTerminalCardSnapshot.setLayerType(View.LAYER_TYPE_HARDWARE, null);
 
         android.animation.ValueAnimator animator = android.animation.ValueAnimator.ofFloat(0f, 1f);
-        animator.setDuration(260);
-        animator.setInterpolator(new android.view.animation.DecelerateInterpolator(1.6f));
+        animator.setDuration(280);
+        // Modern cubic bezier ease-out for Niri ribbon tiling feel
+        animator.setInterpolator(new android.view.animation.PathInterpolator(0.18f, 0.9f, 0.2f, 1.0f));
         animator.addUpdateListener(animation -> {
             float fraction = (float) animation.getAnimatedValue();
             if (mTerminalCardSnapshot != null) {
                 mTerminalCardSnapshot.setTranslationX(endOldX * fraction);
+                mTerminalCardSnapshot.setAlpha(1.0f - (fraction * 0.2f));
             }
             if (mTerminalCardContainer != null) {
                 mTerminalCardContainer.setTranslationX(startNewX * (1f - fraction));
@@ -1451,13 +1474,13 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
             mTerminalCardSnapshot.setVisibility(View.GONE);
             mTerminalCardSnapshot.setImageBitmap(null);
             mTerminalCardSnapshot.setTranslationX(0f);
+            mTerminalCardSnapshot.setAlpha(1.0f);
+            mTerminalCardSnapshot.setLayerType(View.LAYER_TYPE_NONE, null);
         }
         if (mTerminalCardContainer != null) {
             mTerminalCardContainer.setTranslationX(0f);
-        }
-        if (mTransitionSnapshotBitmap != null && !mTransitionSnapshotBitmap.isRecycled()) {
-            mTransitionSnapshotBitmap.recycle();
-            mTransitionSnapshotBitmap = null;
+            mTerminalCardContainer.setAlpha(1.0f);
+            mTerminalCardContainer.setLayerType(View.LAYER_TYPE_NONE, null);
         }
         mTabTransitionAnimator = null;
     }

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="termux_tab_animation_title">Hiệu ứng chuyển tab Niri Ribbon</string>
+    <string name="termux_tab_animation_summary">Hiệu ứng cuộn ngang mượt mà giữa các tab giống Niri WM</string>
+    <string name="termux_tab_bar_show_session_name_without_tab_bar_title">Hiện tên session khi tắt tab bar</string>
+    <string name="termux_tab_bar_show_session_name_without_tab_bar_summary">Hiển thị thông báo tên phiên làm việc khi tắt thanh tab bar</string>
+
+    <!-- Floating Gesture Pill Preferences -->
+    <string name="termux_gesture_pill_header">Nút cử chỉ nổi (Gesture Pill)</string>
+    <string name="termux_gesture_pill_enable_title">Bật nút cử chỉ nổi</string>
+    <string name="termux_gesture_pill_enable_summary">Nút cử chỉ điều khiển chuyển tab và bật/tắt bàn phím</string>
+    <string name="termux_gesture_pill_width_title">Chiều rộng nút (dp)</string>
+    <string name="termux_gesture_pill_height_title">Chiều cao / độ dày nút (dp)</string>
+    <string name="termux_gesture_pill_corner_radius_title">Độ bo góc nút (dp)</string>
+    <string name="termux_gesture_pill_color_title">Màu sắc nút cử chỉ</string>
+    <string name="termux_gesture_pill_color_summary">Mã màu Hex hoặc độ trong suốt</string>
+    <string name="termux_gesture_pill_swipe_left_title">Cử chỉ vuốt sang trái</string>
+    <string name="termux_gesture_pill_swipe_right_title">Cử chỉ vuốt sang phải</string>
+    <string name="termux_gesture_pill_swipe_up_title">Cử chỉ vuốt lên trên</string>
+    <string name="termux_gesture_pill_swipe_down_title">Cử chỉ vuốt xuống dưới</string>
+    <string name="termux_gesture_pill_tap_title">Cử chỉ chạm (Tap)</string>
+</resources>

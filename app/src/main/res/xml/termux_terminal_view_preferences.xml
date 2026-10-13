@@ -83,6 +83,12 @@
             app:summary="@string/termux_tab_animation_summary"
             app:defaultValue="true" />
 
+        <SwitchPreferenceCompat
+            app:key="show_session_name_without_tab_bar"
+            app:title="@string/termux_tab_bar_show_session_name_without_tab_bar_title"
+            app:summary="@string/termux_tab_bar_show_session_name_without_tab_bar_summary"
+            app:defaultValue="true" />
+
     </PreferenceCategory>
 
     <PreferenceCategory
@@ -163,11 +169,6 @@
             app:entryValues="@array/gesture_pill_action_values"
             app:useSimpleSummaryProvider="true"
             app:defaultValue="toggle_keyboard" />
-
-        <Preference
-            app:key="gesture_pill_reset_position"
-            app:title="@string/termux_gesture_pill_reset_position_title"
-            app:summary="@string/termux_gesture_pill_reset_position_summary" />
 
     </PreferenceCategory>
 

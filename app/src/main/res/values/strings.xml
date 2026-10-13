@@ -250,6 +250,8 @@
     <string name="termux_tab_bar_active_title_length_summary">Number of leading characters shown for active tab title (0 = number only)</string>
     <string name="termux_tab_animation_title">Niri Ribbon Tab Animation</string>
     <string name="termux_tab_animation_summary">Smooth horizontal sliding transition between tabs like Niri WM</string>
+    <string name="termux_tab_bar_show_session_name_without_tab_bar_title">Show Session Name Without Tab Bar</string>
+    <string name="termux_tab_bar_show_session_name_without_tab_bar_summary">Display session name toast when pill tab bar is disabled</string>
 
     <!-- Floating Gesture Pill Preferences -->
     <string name="termux_gesture_pill_header">Floating Gesture Pill</string>
@@ -265,8 +267,6 @@
     <string name="termux_gesture_pill_swipe_up_title">Swipe Up Action</string>
     <string name="termux_gesture_pill_swipe_down_title">Swipe Down Action</string>
     <string name="termux_gesture_pill_tap_title">Tap Action</string>
-    <string name="termux_gesture_pill_reset_position_title">Reset Pill Position</string>
-    <string name="termux_gesture_pill_reset_position_summary">Move gesture pill back to center-bottom of screen (hold &amp; drag pill to reposition anywhere)</string>
 
     <!-- Niri WM Window Border Preferences -->
     <string name="termux_niri_border_header">Niri Window Border</string>

@@ -138,10 +138,13 @@ public class TermuxGesturePillView extends View {
                     float dy = curRawY - mLastTouchRawY;
                     View parent = (View) getParent();
                     if (parent != null) {
+                        int extraReserved = getExtraKeysReservedHeight();
+                        int maxW = Math.max(0, parent.getWidth() - getWidth());
+                        int maxH = Math.max(0, parent.getHeight() - getHeight() - extraReserved);
                         float newX = getX() + dx;
                         float newY = getY() + dy;
-                        newX = Math.max(0, Math.min(parent.getWidth() - getWidth(), newX));
-                        newY = Math.max(0, Math.min(parent.getHeight() - getHeight(), newY));
+                        newX = Math.max(0, Math.min(maxW, newX));
+                        newY = Math.max(0, Math.min(maxH, newY));
                         setX(newX);
                         setY(newY);
                     }
@@ -196,11 +199,35 @@ public class TermuxGesturePillView extends View {
         return super.onTouchEvent(event);
     }
 
+    private int getExtraKeysReservedHeight() {
+        if (mActivity == null) return 0;
+        View toolbarCard = mActivity.findViewById(com.termux.R.id.terminal_toolbar_card);
+        if (toolbarCard != null && toolbarCard.getVisibility() == View.VISIBLE) {
+            int h = toolbarCard.getHeight();
+            if (h <= 0) {
+                View viewPager = mActivity.findViewById(com.termux.R.id.terminal_toolbar_view_pager);
+                if (viewPager != null && viewPager.getVisibility() == View.VISIBLE) {
+                    ViewGroup.LayoutParams lp = viewPager.getLayoutParams();
+                    if (lp != null && lp.height > 0) {
+                        h = lp.height;
+                    }
+                }
+            }
+            ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) toolbarCard.getLayoutParams();
+            if (lp != null && h > 0) {
+                h += lp.bottomMargin;
+            }
+            return h;
+        }
+        return 0;
+    }
+
     private void savePosition() {
         View parent = (View) getParent();
         if (parent == null || parent.getWidth() <= 0 || parent.getHeight() <= 0) return;
+        int extraReserved = getExtraKeysReservedHeight();
         int maxW = parent.getWidth() - getWidth();
-        int maxH = parent.getHeight() - getHeight();
+        int maxH = parent.getHeight() - getHeight() - extraReserved;
         if (maxW <= 0 || maxH <= 0) return;
 
         float xRatio = Math.max(0f, Math.min(1f, getX() / (float) maxW));
@@ -223,6 +250,7 @@ public class TermuxGesturePillView extends View {
             int pillH = getHeight();
             if (parentW <= 0 || parentH <= 0 || pillW <= 0 || pillH <= 0) return;
 
+            int extraReserved = getExtraKeysReservedHeight();
             float xRatio = -1f;
             float yRatio = -1f;
             if (mActivity != null && mActivity.getPreferences() != null) {
@@ -231,7 +259,7 @@ public class TermuxGesturePillView extends View {
             }
 
             int maxW = Math.max(1, parentW - pillW);
-            int maxH = Math.max(1, parentH - pillH);
+            int maxH = Math.max(1, parentH - pillH - extraReserved);
 
             float targetX;
             float targetY;
@@ -246,7 +274,7 @@ public class TermuxGesturePillView extends View {
                 targetY = yRatio * maxH;
             } else {
                 float density = getResources().getDisplayMetrics().density;
-                targetY = parentH - pillH - (18 * density);
+                targetY = maxH - (8 * density);
             }
 
             setX(Math.max(0, Math.min(maxW, targetX)));
@@ -327,6 +355,16 @@ public class TermuxGesturePillView extends View {
             case "toggle_keyboard":
                 if (mActivity.getTermuxTerminalViewClient() != null) {
                     mActivity.getTermuxTerminalViewClient().onToggleSoftKeyboardRequest();
+                }
+                break;
+            case "zoom_in":
+                if (mActivity.getTermuxTerminalViewClient() != null) {
+                    mActivity.getTermuxTerminalViewClient().changeFontSize(true);
+                }
+                break;
+            case "zoom_out":
+                if (mActivity.getTermuxTerminalViewClient() != null) {
+                    mActivity.getTermuxTerminalViewClient().changeFontSize(false);
                 }
                 break;
             case "new_tab":

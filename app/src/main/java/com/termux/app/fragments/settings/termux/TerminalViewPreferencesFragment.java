@@ -164,20 +164,6 @@ public class TerminalViewPreferencesFragment extends PreferenceFragmentCompat {
             });
         }
 
-        Preference resetPosPref = findPreference("gesture_pill_reset_position");
-        if (resetPosPref != null) {
-            resetPosPref.setOnPreferenceClickListener(preference -> {
-                TermuxAppSharedPreferences prefs = TermuxAppSharedPreferences.build(context, true);
-                if (prefs != null) {
-                    prefs.setGesturePillPosXRatio(-1f);
-                    prefs.setGesturePillPosYRatio(-1f);
-                }
-                TermuxActivity.updateTermuxActivityStyling(context, false);
-                Toast.makeText(context, "Reset gesture pill position", Toast.LENGTH_SHORT).show();
-                return true;
-            });
-        }
-
         String[] reloadStyleKeys = new String[]{
             "show_tab_bar",
             "tab_corner_radius",
@@ -188,6 +174,7 @@ public class TerminalViewPreferencesFragment extends PreferenceFragmentCompat {
             "tab_settings_button_width",
             "tab_active_title_length",
             "tab_animation_enabled",
+            "show_session_name_without_tab_bar",
             "gesture_pill_enabled",
             "gesture_pill_width",
             "gesture_pill_height",
@@ -262,6 +249,9 @@ class TerminalViewPreferencesDataStore extends PreferenceDataStore {
             case "tab_animation_enabled":
                 mPreferences.setTabAnimationEnabled(value);
                 break;
+            case "show_session_name_without_tab_bar":
+                mPreferences.setShowSessionNameWithoutTabBar(value);
+                break;
             case "gesture_pill_enabled":
                 mPreferences.setGesturePillEnabled(value);
                 break;
@@ -287,6 +277,8 @@ class TerminalViewPreferencesDataStore extends PreferenceDataStore {
                 return mPreferences.isTerminalCellBackgroundTransparencyEnabled();
             case "tab_animation_enabled":
                 return mPreferences.isTabAnimationEnabled();
+            case "show_session_name_without_tab_bar":
+                return mPreferences.isShowSessionNameWithoutTabBar();
             case "gesture_pill_enabled":
                 return mPreferences.isGesturePillEnabled();
             default:
