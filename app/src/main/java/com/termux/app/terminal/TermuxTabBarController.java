@@ -174,7 +174,8 @@ public class TermuxTabBarController {
         int borderWidth = (int) (1 * density);
         int borderColor = Color.parseColor("#FFFFFF");
         int buttonWidth = (int) (28 * density);
-        int actionBtnWidth = (int) (28 * density);
+        int newBtnWidth = (int) (28 * density);
+        int closeBtnWidth = (int) (28 * density);
         int settingsBtnWidth = (int) (28 * density);
         int activeTitleLength = 12;
 
@@ -182,7 +183,8 @@ public class TermuxTabBarController {
             cornerRadius = (int) (mActivity.getPreferences().getTabCornerRadius() * density);
             borderWidth = (int) (mActivity.getPreferences().getTabBorderWidth() * density);
             buttonWidth = (int) (mActivity.getPreferences().getTabButtonWidth() * density);
-            actionBtnWidth = (int) (mActivity.getPreferences().getTabActionButtonWidth() * density);
+            newBtnWidth = (int) (mActivity.getPreferences().getTabNewButtonWidth() * density);
+            closeBtnWidth = (int) (mActivity.getPreferences().getTabCloseButtonWidth() * density);
             settingsBtnWidth = (int) (mActivity.getPreferences().getTabSettingsButtonWidth() * density);
             activeTitleLength = mActivity.getPreferences().getTabActiveTitleLength();
             String customColor = mActivity.getPreferences().getTabBorderColor();
@@ -195,7 +197,7 @@ public class TermuxTabBarController {
         if (mNewSessionBtn != null) {
             ViewGroup.LayoutParams lp = mNewSessionBtn.getLayoutParams();
             if (lp != null) {
-                lp.width = actionBtnWidth;
+                lp.width = newBtnWidth;
                 mNewSessionBtn.setLayoutParams(lp);
             }
             mNewSessionBtn.setBackground(createTabDrawable(false, cornerRadius, borderWidth, borderColor));
@@ -203,7 +205,7 @@ public class TermuxTabBarController {
         if (mCloseSessionBtn != null) {
             ViewGroup.LayoutParams lp = mCloseSessionBtn.getLayoutParams();
             if (lp != null) {
-                lp.width = actionBtnWidth;
+                lp.width = closeBtnWidth;
                 mCloseSessionBtn.setLayoutParams(lp);
             }
             mCloseSessionBtn.setBackground(createTabDrawable(false, cornerRadius, borderWidth, borderColor));
