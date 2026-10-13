@@ -45,7 +45,6 @@ public class TermuxTabBarController {
     private final FrameLayout mSettingsBtn;
 
     private final View mSessionTitleContainer;
-    private final View mSessionTitlePill;
     private final TextView mSessionTitleText;
 
     public TermuxTabBarController(@NonNull TermuxActivity activity, @NonNull View rootView) {
@@ -59,18 +58,17 @@ public class TermuxTabBarController {
         this.mSettingsBtn = rootView.findViewById(R.id.tab_settings_btn);
 
         this.mSessionTitleContainer = rootView.findViewById(R.id.terminal_session_title_container);
-        this.mSessionTitlePill = rootView.findViewById(R.id.terminal_session_title_pill);
         this.mSessionTitleText = rootView.findViewById(R.id.terminal_session_title_text);
 
-        if (mSessionTitlePill != null) {
+        if (mSessionTitleText != null) {
             // Short click: switch to next session
-            mSessionTitlePill.setOnClickListener(v -> {
+            mSessionTitleText.setOnClickListener(v -> {
                 if (mActivity.getTermuxTerminalSessionClient() != null) {
                     mActivity.getTermuxTerminalSessionClient().switchToSession(true);
                 }
             });
             // Long click: rename current session
-            mSessionTitlePill.setOnLongClickListener(v -> {
+            mSessionTitleText.setOnLongClickListener(v -> {
                 TerminalSession currentSession = mActivity.getCurrentSession();
                 if (currentSession != null && mActivity.getTermuxTerminalSessionClient() != null) {
                     mActivity.getTermuxTerminalSessionClient().renameSession(currentSession);
@@ -178,6 +176,8 @@ public class TermuxTabBarController {
     public void updateTabs() {
         if (mRootView == null || !mActivity.isVisible()) return;
 
+        float density = mActivity.getResources().getDisplayMetrics().density;
+
         // Check if tab bar is enabled in preferences
         boolean isEnabled = mActivity.getPreferences() != null && mActivity.getPreferences().isTabBarEnabled();
         boolean isShowSessionTitleWithoutTabBar = mActivity.getPreferences() != null && mActivity.getPreferences().isShowSessionNameWithoutTabBar();
@@ -188,7 +188,14 @@ public class TermuxTabBarController {
                 return;
             }
 
-            // Show pinned session title header
+            // Compact text-only mode: shrink height to 20dp
+            ViewGroup.LayoutParams rootLp = mRootView.getLayoutParams();
+            if (rootLp != null) {
+                rootLp.height = (int) (20 * density);
+                mRootView.setLayoutParams(rootLp);
+                mRootView.setPadding((int) (6 * density), (int) (1 * density), (int) (6 * density), (int) (1 * density));
+            }
+
             setVisibility(View.VISIBLE);
             if (mFullTabBarContainer != null) mFullTabBarContainer.setVisibility(View.GONE);
             if (mSessionTitleContainer != null) mSessionTitleContainer.setVisibility(View.VISIBLE);
@@ -209,21 +216,11 @@ public class TermuxTabBarController {
             }
 
             int activeTitleLength = 12;
-            float density = mActivity.getResources().getDisplayMetrics().density;
-            int cornerRadius = (int) (1 * density);
-            int borderWidth = (int) (1 * density);
-            int borderColor = Color.parseColor("#FFFFFF");
             String alignment = "center";
 
             if (mActivity.getPreferences() != null) {
-                cornerRadius = (int) (mActivity.getPreferences().getTabCornerRadius() * density);
-                borderWidth = (int) (mActivity.getPreferences().getTabBorderWidth() * density);
                 activeTitleLength = mActivity.getPreferences().getTabActiveTitleLength();
                 alignment = mActivity.getPreferences().getSessionNameAlignment();
-                String customColor = mActivity.getPreferences().getTabBorderColor();
-                try {
-                    borderColor = Color.parseColor(customColor);
-                } catch (Exception ignored) {}
             }
 
             String fullTitle;
@@ -235,11 +232,7 @@ public class TermuxTabBarController {
 
             if (mSessionTitleText != null) {
                 mSessionTitleText.setText(fullTitle);
-            }
-
-            if (mSessionTitlePill != null) {
-                mSessionTitlePill.setBackground(createTabDrawable(true, cornerRadius, borderWidth, borderColor));
-                FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) mSessionTitlePill.getLayoutParams();
+                FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) mSessionTitleText.getLayoutParams();
                 if (lp != null) {
                     if ("left".equalsIgnoreCase(alignment)) {
                         lp.gravity = Gravity.CENTER_VERTICAL | Gravity.START;
@@ -248,13 +241,21 @@ public class TermuxTabBarController {
                     } else {
                         lp.gravity = Gravity.CENTER;
                     }
-                    mSessionTitlePill.setLayoutParams(lp);
+                    mSessionTitleText.setLayoutParams(lp);
                 }
             }
             return;
         }
 
-        // Full Tab Bar Mode
+        // Full Tab Bar Mode: reset height to 36dp and standard padding
+        ViewGroup.LayoutParams rootLp = mRootView.getLayoutParams();
+        if (rootLp != null) {
+            rootLp.height = (int) (36 * density);
+            mRootView.setLayoutParams(rootLp);
+            int pad = (int) (4 * density);
+            mRootView.setPadding(pad, pad, pad, pad);
+        }
+
         setVisibility(View.VISIBLE);
         if (mFullTabBarContainer != null) mFullTabBarContainer.setVisibility(View.VISIBLE);
         if (mSessionTitleContainer != null) mSessionTitleContainer.setVisibility(View.GONE);
