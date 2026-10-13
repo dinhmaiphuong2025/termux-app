@@ -152,10 +152,15 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
     MaterialCardView mTerminalCardContainer;
     MaterialCardView mTerminalToolbarCard;
     ImageView mTerminalBackgroundImage;
+    ImageView mTerminalCardSnapshot;
     View mTerminalBackgroundOverlay;
     View mTerminalBorderOverlay;
     TerminalBorderDrawable mTerminalBorderDrawable;
     TermuxTabBarController mTermuxTabBarController;
+    TermuxGesturePillView mTermuxGesturePillView;
+
+    private android.animation.ValueAnimator mTabTransitionAnimator;
+    private Bitmap mTransitionSnapshotBitmap;
 
     /**
      * The {@link TermuxActivity} broadcast receiver for various things like terminal style configuration changes.
@@ -372,6 +377,8 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
 
         Logger.logDebug(LOG_TAG, "onDestroy");
 
+        cleanupTransitionSnapshot();
+
         if (mIsInvalidState) return;
 
         if (mTermuxService != null) {
@@ -515,6 +522,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         mTerminalView.setTerminalViewClient(mTermuxTerminalViewClient);
 
         mTerminalCardContainer = findViewById(R.id.terminal_card_container);
+        mTerminalCardSnapshot = findViewById(R.id.terminal_card_snapshot);
         mTerminalBackgroundImage = findViewById(R.id.terminal_background_image);
         mTerminalBackgroundOverlay = findViewById(R.id.terminal_background_overlay);
         mTerminalToolbarCard = findViewById(R.id.terminal_toolbar_card);
@@ -522,6 +530,11 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         mTerminalBorderDrawable = new TerminalBorderDrawable();
         if (mTerminalBorderOverlay != null) {
             mTerminalBorderOverlay.setBackground(mTerminalBorderDrawable);
+        }
+
+        mTermuxGesturePillView = findViewById(R.id.terminal_gesture_pill);
+        if (mTermuxGesturePillView != null) {
+            mTermuxGesturePillView.setActivity(this);
         }
 
         View tabBarLayout = findViewById(R.id.terminal_tab_bar_layout);
@@ -965,6 +978,13 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
                     lp.setMargins(gaps, gaps, gaps, gaps);
                     mTerminalCardContainer.setLayoutParams(lp);
                 }
+                if (mTerminalCardSnapshot != null) {
+                    ViewGroup.MarginLayoutParams snapLp = (ViewGroup.MarginLayoutParams) mTerminalCardSnapshot.getLayoutParams();
+                    if (snapLp != null) {
+                        snapLp.setMargins(gaps, gaps, gaps, gaps);
+                        mTerminalCardSnapshot.setLayoutParams(snapLp);
+                    }
+                }
 
                 if (mTerminalView != null) {
                     ViewGroup.MarginLayoutParams viewLp = (ViewGroup.MarginLayoutParams) mTerminalView.getLayoutParams();
@@ -986,6 +1006,13 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
                 if (lp != null) {
                     lp.setMargins(0, 0, 0, 0);
                     mTerminalCardContainer.setLayoutParams(lp);
+                }
+                if (mTerminalCardSnapshot != null) {
+                    ViewGroup.MarginLayoutParams snapLp = (ViewGroup.MarginLayoutParams) mTerminalCardSnapshot.getLayoutParams();
+                    if (snapLp != null) {
+                        snapLp.setMargins(0, 0, 0, 0);
+                        mTerminalCardSnapshot.setLayoutParams(snapLp);
+                    }
                 }
 
                 if (mTerminalView != null) {
@@ -1123,6 +1150,11 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
 
         // 5. Extra Keys Styling & Config
         reloadExtraKeysStylingAndConfig();
+
+        // 6. Floating Gesture Pill
+        if (mTermuxGesturePillView != null) {
+            mTermuxGesturePillView.applyConfig();
+        }
     }
 
     public void reloadExtraKeysStylingAndConfig() {
@@ -1323,6 +1355,110 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         Intent intent = new Intent(context, TermuxActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         return intent;
+    }
+
+    public boolean isTabAnimationEnabled() {
+        return getPreferences() != null && getPreferences().isTabAnimationEnabled();
+    }
+
+    public TermuxGesturePillView getGesturePillView() {
+        return mTermuxGesturePillView;
+    }
+
+    public void animateTabTransition(boolean forward, Runnable onAttachSession) {
+        if (!isTabAnimationEnabled() || mTerminalCardContainer == null || mTerminalCardSnapshot == null || !mIsVisible) {
+            onAttachSession.run();
+            return;
+        }
+
+        int width = mTerminalCardContainer.getWidth();
+        int height = mTerminalCardContainer.getHeight();
+        if (width <= 0 || height <= 0) {
+            onAttachSession.run();
+            return;
+        }
+
+        if (mTabTransitionAnimator != null) {
+            mTabTransitionAnimator.cancel();
+            mTabTransitionAnimator = null;
+        }
+        if (mTransitionSnapshotBitmap != null && !mTransitionSnapshotBitmap.isRecycled()) {
+            mTransitionSnapshotBitmap.recycle();
+            mTransitionSnapshotBitmap = null;
+        }
+
+        try {
+            mTransitionSnapshotBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+            android.graphics.Canvas canvas = new android.graphics.Canvas(mTransitionSnapshotBitmap);
+            mTerminalCardContainer.draw(canvas);
+        } catch (Throwable t) {
+            Logger.logStackTraceWithMessage(LOG_TAG, "Failed to capture transition snapshot", t);
+            onAttachSession.run();
+            return;
+        }
+
+        mTerminalCardSnapshot.setImageBitmap(mTransitionSnapshotBitmap);
+        ViewGroup.MarginLayoutParams cardLp = (ViewGroup.MarginLayoutParams) mTerminalCardContainer.getLayoutParams();
+        ViewGroup.MarginLayoutParams snapLp = (ViewGroup.MarginLayoutParams) mTerminalCardSnapshot.getLayoutParams();
+        if (cardLp != null && snapLp != null) {
+            snapLp.setMargins(cardLp.leftMargin, cardLp.topMargin, cardLp.rightMargin, cardLp.bottomMargin);
+            mTerminalCardSnapshot.setLayoutParams(snapLp);
+        }
+
+        mTerminalCardSnapshot.setTranslationX(0f);
+        mTerminalCardSnapshot.setVisibility(View.VISIBLE);
+
+        onAttachSession.run();
+
+        int marginHorizontal = cardLp != null ? (cardLp.leftMargin + cardLp.rightMargin) : 0;
+        final float slideDistance = width + marginHorizontal;
+        final float startNewX = forward ? slideDistance : -slideDistance;
+        final float endOldX = forward ? -slideDistance : slideDistance;
+
+        mTerminalCardContainer.setTranslationX(startNewX);
+
+        android.animation.ValueAnimator animator = android.animation.ValueAnimator.ofFloat(0f, 1f);
+        animator.setDuration(260);
+        animator.setInterpolator(new android.view.animation.DecelerateInterpolator(1.6f));
+        animator.addUpdateListener(animation -> {
+            float fraction = (float) animation.getAnimatedValue();
+            if (mTerminalCardSnapshot != null) {
+                mTerminalCardSnapshot.setTranslationX(endOldX * fraction);
+            }
+            if (mTerminalCardContainer != null) {
+                mTerminalCardContainer.setTranslationX(startNewX * (1f - fraction));
+            }
+        });
+        animator.addListener(new android.animation.AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(android.animation.Animator animation) {
+                cleanupTransitionSnapshot();
+            }
+
+            @Override
+            public void onAnimationCancel(android.animation.Animator animation) {
+                cleanupTransitionSnapshot();
+            }
+        });
+
+        mTabTransitionAnimator = animator;
+        animator.start();
+    }
+
+    private void cleanupTransitionSnapshot() {
+        if (mTerminalCardSnapshot != null) {
+            mTerminalCardSnapshot.setVisibility(View.GONE);
+            mTerminalCardSnapshot.setImageBitmap(null);
+            mTerminalCardSnapshot.setTranslationX(0f);
+        }
+        if (mTerminalCardContainer != null) {
+            mTerminalCardContainer.setTranslationX(0f);
+        }
+        if (mTransitionSnapshotBitmap != null && !mTransitionSnapshotBitmap.isRecycled()) {
+            mTransitionSnapshotBitmap.recycle();
+            mTransitionSnapshotBitmap = null;
+        }
+        mTabTransitionAnimator = null;
     }
 
 }

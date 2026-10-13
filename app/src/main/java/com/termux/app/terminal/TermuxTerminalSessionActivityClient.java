@@ -294,6 +294,25 @@ public class TermuxTerminalSessionActivityClient extends TermuxTerminalSessionCl
     public void setCurrentSession(TerminalSession session) {
         if (session == null) return;
 
+        TerminalSession current = mActivity.getCurrentSession();
+        if (current != null && current != session && mActivity.isVisible() && mActivity.isTabAnimationEnabled()) {
+            TermuxService service = mActivity.getTermuxService();
+            int curIndex = service != null ? service.getIndexOfSession(current) : 0;
+            int newIndex = service != null ? service.getIndexOfSession(session) : 0;
+            boolean forward = newIndex > curIndex;
+            int total = service != null ? service.getTermuxSessionsSize() : 0;
+            if (curIndex == total - 1 && newIndex == 0) forward = true;
+            else if (curIndex == 0 && newIndex == total - 1) forward = false;
+
+            mActivity.animateTabTransition(forward, () -> {
+                doAttachSession(session);
+            });
+        } else {
+            doAttachSession(session);
+        }
+    }
+
+    private void doAttachSession(TerminalSession session) {
         if (mActivity.getTerminalView().attachSession(session)) {
             // notify about switched session if not already displaying the session
             notifyOfSessionChange();
@@ -321,6 +340,7 @@ public class TermuxTerminalSessionActivityClient extends TermuxTerminalSessionCl
         TerminalSession currentTerminalSession = mActivity.getCurrentSession();
         int index = service.getIndexOfSession(currentTerminalSession);
         int size = service.getTermuxSessionsSize();
+        if (size <= 1) return;
         if (forward) {
             if (++index >= size) index = 0;
         } else {
@@ -328,8 +348,16 @@ public class TermuxTerminalSessionActivityClient extends TermuxTerminalSessionCl
         }
 
         TermuxSession termuxSession = service.getTermuxSession(index);
-        if (termuxSession != null)
-            setCurrentSession(termuxSession.getTerminalSession());
+        if (termuxSession != null) {
+            TerminalSession nextSession = termuxSession.getTerminalSession();
+            if (currentTerminalSession != null && currentTerminalSession != nextSession && mActivity.isVisible() && mActivity.isTabAnimationEnabled()) {
+                mActivity.animateTabTransition(forward, () -> {
+                    doAttachSession(nextSession);
+                });
+            } else {
+                doAttachSession(nextSession);
+            }
+        }
     }
 
     public void switchToSession(int index) {

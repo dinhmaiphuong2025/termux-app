@@ -144,6 +144,39 @@ public class TerminalViewPreferencesFragment extends PreferenceFragmentCompat {
             });
         }
 
+        Preference pillColorPref = findPreference("gesture_pill_color");
+        if (pillColorPref != null) {
+            TermuxAppSharedPreferences prefs = TermuxAppSharedPreferences.build(context, true);
+            if (prefs != null) {
+                pillColorPref.setSummary(prefs.getGesturePillColor());
+            }
+            pillColorPref.setOnPreferenceClickListener(preference -> {
+                String current = prefs != null ? prefs.getGesturePillColor() : "#80FFFFFF";
+                ColorPickerDialogUtils.showColorPickerDialog(context, "Gesture Pill Color", current, hexColor -> {
+                    if (prefs != null) {
+                        prefs.setGesturePillColor(hexColor);
+                    }
+                    pillColorPref.setSummary(hexColor);
+                    TermuxActivity.updateTermuxActivityStyling(context, false);
+                });
+                return true;
+            });
+        }
+
+        Preference resetPosPref = findPreference("gesture_pill_reset_position");
+        if (resetPosPref != null) {
+            resetPosPref.setOnPreferenceClickListener(preference -> {
+                TermuxAppSharedPreferences prefs = TermuxAppSharedPreferences.build(context, true);
+                if (prefs != null) {
+                    prefs.setGesturePillPosXRatio(-1f);
+                    prefs.setGesturePillPosYRatio(-1f);
+                }
+                TermuxActivity.updateTermuxActivityStyling(context, false);
+                Toast.makeText(context, "Reset gesture pill position", Toast.LENGTH_SHORT).show();
+                return true;
+            });
+        }
+
         String[] reloadStyleKeys = new String[]{
             "show_tab_bar",
             "tab_corner_radius",
@@ -153,6 +186,16 @@ public class TerminalViewPreferencesFragment extends PreferenceFragmentCompat {
             "tab_close_button_width",
             "tab_settings_button_width",
             "tab_active_title_length",
+            "tab_animation_enabled",
+            "gesture_pill_enabled",
+            "gesture_pill_width",
+            "gesture_pill_height",
+            "gesture_pill_corner_radius",
+            "gesture_pill_swipe_left",
+            "gesture_pill_swipe_right",
+            "gesture_pill_swipe_up",
+            "gesture_pill_swipe_down",
+            "gesture_pill_tap",
             "terminal_border_enabled",
             "terminal_border_corner_radius",
             "terminal_border_width",
@@ -215,6 +258,12 @@ class TerminalViewPreferencesDataStore extends PreferenceDataStore {
             case "terminal_cell_background_transparency":
                 mPreferences.setTerminalCellBackgroundTransparencyEnabled(value);
                 break;
+            case "tab_animation_enabled":
+                mPreferences.setTabAnimationEnabled(value);
+                break;
+            case "gesture_pill_enabled":
+                mPreferences.setGesturePillEnabled(value);
+                break;
             default:
                 break;
         }
@@ -235,6 +284,10 @@ class TerminalViewPreferencesDataStore extends PreferenceDataStore {
                 return mPreferences.isTabBorderSync();
             case "terminal_cell_background_transparency":
                 return mPreferences.isTerminalCellBackgroundTransparencyEnabled();
+            case "tab_animation_enabled":
+                return mPreferences.isTabAnimationEnabled();
+            case "gesture_pill_enabled":
+                return mPreferences.isGesturePillEnabled();
             default:
                 return defValue;
         }
@@ -284,6 +337,15 @@ class TerminalViewPreferencesDataStore extends PreferenceDataStore {
             case "terminal_cell_background_opacity":
                 mPreferences.setTerminalCellBackgroundOpacity(value);
                 break;
+            case "gesture_pill_width":
+                mPreferences.setGesturePillWidth(value);
+                break;
+            case "gesture_pill_height":
+                mPreferences.setGesturePillHeight(value);
+                break;
+            case "gesture_pill_corner_radius":
+                mPreferences.setGesturePillCornerRadius(value);
+                break;
             default:
                 break;
         }
@@ -320,6 +382,12 @@ class TerminalViewPreferencesDataStore extends PreferenceDataStore {
                 return mPreferences.getTerminalBackgroundOpacity();
             case "terminal_cell_background_opacity":
                 return mPreferences.getTerminalCellBackgroundOpacity();
+            case "gesture_pill_width":
+                return mPreferences.getGesturePillWidth();
+            case "gesture_pill_height":
+                return mPreferences.getGesturePillHeight();
+            case "gesture_pill_corner_radius":
+                return mPreferences.getGesturePillCornerRadius();
             default:
                 return defValue;
         }
@@ -342,6 +410,24 @@ class TerminalViewPreferencesDataStore extends PreferenceDataStore {
             case "terminal_border_style":
                 mPreferences.setTerminalBorderStyle(value != null ? value : "full");
                 break;
+            case "gesture_pill_color":
+                mPreferences.setGesturePillColor(value != null ? value : "#80FFFFFF");
+                break;
+            case "gesture_pill_swipe_left":
+                mPreferences.setGesturePillSwipeLeft(value != null ? value : "prev_tab");
+                break;
+            case "gesture_pill_swipe_right":
+                mPreferences.setGesturePillSwipeRight(value != null ? value : "next_tab");
+                break;
+            case "gesture_pill_swipe_up":
+                mPreferences.setGesturePillSwipeUp(value != null ? value : "open_keyboard");
+                break;
+            case "gesture_pill_swipe_down":
+                mPreferences.setGesturePillSwipeDown(value != null ? value : "close_keyboard");
+                break;
+            case "gesture_pill_tap":
+                mPreferences.setGesturePillTap(value != null ? value : "toggle_keyboard");
+                break;
             default:
                 break;
         }
@@ -361,6 +447,18 @@ class TerminalViewPreferencesDataStore extends PreferenceDataStore {
                 return mPreferences.getTerminalBackgroundImagePath();
             case "terminal_border_style":
                 return mPreferences.getTerminalBorderStyle();
+            case "gesture_pill_color":
+                return mPreferences.getGesturePillColor();
+            case "gesture_pill_swipe_left":
+                return mPreferences.getGesturePillSwipeLeft();
+            case "gesture_pill_swipe_right":
+                return mPreferences.getGesturePillSwipeRight();
+            case "gesture_pill_swipe_up":
+                return mPreferences.getGesturePillSwipeUp();
+            case "gesture_pill_swipe_down":
+                return mPreferences.getGesturePillSwipeDown();
+            case "gesture_pill_tap":
+                return mPreferences.getGesturePillTap();
             default:
                 return defValue;
         }

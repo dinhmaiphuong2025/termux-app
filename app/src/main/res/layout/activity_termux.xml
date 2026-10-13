@@ -31,55 +31,70 @@
 
                 <include layout="@layout/view_terminal_tab_bar" />
 
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/terminal_card_container"
+                <FrameLayout
+                    android:id="@+id/terminal_card_wrapper"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
-                    android:layout_weight="1"
-                    app:cardElevation="0dp"
-                    app:cardPreventCornerOverlap="true"
-                    app:strokeWidth="0dp"
-                    app:cardBackgroundColor="@android:color/transparent">
+                    android:layout_weight="1">
 
-                    <FrameLayout
-                        android:id="@+id/terminal_frame_layer"
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/terminal_card_container"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent">
+                        android:layout_height="match_parent"
+                        app:cardElevation="0dp"
+                        app:cardPreventCornerOverlap="true"
+                        app:strokeWidth="0dp"
+                        app:cardBackgroundColor="@android:color/transparent">
 
-                        <ImageView
-                            android:id="@+id/terminal_background_image"
+                        <FrameLayout
+                            android:id="@+id/terminal_frame_layer"
                             android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:scaleType="centerCrop"
-                            android:visibility="gone"
-                            tools:ignore="ContentDescription" />
+                            android:layout_height="match_parent">
 
-                        <View
-                            android:id="@+id/terminal_background_overlay"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:background="#000000"
-                            android:visibility="gone" />
+                            <ImageView
+                                android:id="@+id/terminal_background_image"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:scaleType="centerCrop"
+                                android:visibility="gone"
+                                tools:ignore="ContentDescription" />
 
-                        <com.termux.view.TerminalView
-                            android:id="@+id/terminal_view"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:defaultFocusHighlightEnabled="false"
-                            android:focusableInTouchMode="true"
-                            android:scrollbarThumbVertical="@drawable/terminal_scroll_shape"
-                            android:scrollbars="vertical"
-                            tools:ignore="UnusedAttribute" />
+                            <View
+                                android:id="@+id/terminal_background_overlay"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:background="#000000"
+                                android:visibility="gone" />
 
-                        <View
-                            android:id="@+id/terminal_border_overlay"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:clickable="false"
-                            android:focusable="false"
-                            android:visibility="gone" />
-                    </FrameLayout>
-                </com.google.android.material.card.MaterialCardView>
+                            <com.termux.view.TerminalView
+                                android:id="@+id/terminal_view"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:defaultFocusHighlightEnabled="false"
+                                android:focusableInTouchMode="true"
+                                android:scrollbarThumbVertical="@drawable/terminal_scroll_shape"
+                                android:scrollbars="vertical"
+                                tools:ignore="UnusedAttribute" />
+
+                            <View
+                                android:id="@+id/terminal_border_overlay"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:clickable="false"
+                                android:focusable="false"
+                                android:visibility="gone" />
+                        </FrameLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <ImageView
+                        android:id="@+id/terminal_card_snapshot"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scaleType="fitXY"
+                        android:clickable="false"
+                        android:focusable="false"
+                        android:visibility="gone" />
+                </FrameLayout>
             </LinearLayout>
 
             <LinearLayout
@@ -161,6 +176,15 @@
                 android:layout_height="37.5dp"
                 android:background="@color/black" />
         </com.google.android.material.card.MaterialCardView>
+
+        <com.termux.app.terminal.TermuxGesturePillView
+            android:id="@+id/terminal_gesture_pill"
+            android:layout_width="90dp"
+            android:layout_height="14dp"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="18dp"
+            android:visibility="gone" />
 
     </RelativeLayout>
 

@@ -213,6 +213,48 @@ public final class TermuxPreferenceConstants {
         public static final String KEY_TAB_ACTIVE_TITLE_LENGTH = "tab_active_title_length";
         public static final int DEFAULT_VALUE_TAB_ACTIVE_TITLE_LENGTH = 12;
 
+        public static final String KEY_TAB_ANIMATION_ENABLED = "tab_animation_enabled";
+        public static final boolean DEFAULT_VALUE_TAB_ANIMATION_ENABLED = true;
+
+        /**
+         * Floating Gesture Pill Preferences.
+         */
+        public static final String KEY_GESTURE_PILL_ENABLED = "gesture_pill_enabled";
+        public static final boolean DEFAULT_VALUE_GESTURE_PILL_ENABLED = true;
+
+        public static final String KEY_GESTURE_PILL_WIDTH = "gesture_pill_width";
+        public static final int DEFAULT_VALUE_GESTURE_PILL_WIDTH = 90;
+
+        public static final String KEY_GESTURE_PILL_HEIGHT = "gesture_pill_height";
+        public static final int DEFAULT_VALUE_GESTURE_PILL_HEIGHT = 14;
+
+        public static final String KEY_GESTURE_PILL_CORNER_RADIUS = "gesture_pill_corner_radius";
+        public static final int DEFAULT_VALUE_GESTURE_PILL_CORNER_RADIUS = 20;
+
+        public static final String KEY_GESTURE_PILL_COLOR = "gesture_pill_color";
+        public static final String DEFAULT_VALUE_GESTURE_PILL_COLOR = "#80FFFFFF";
+
+        public static final String KEY_GESTURE_PILL_POS_X_RATIO = "gesture_pill_pos_x_ratio";
+        public static final float DEFAULT_VALUE_GESTURE_PILL_POS_X_RATIO = -1.0f;
+
+        public static final String KEY_GESTURE_PILL_POS_Y_RATIO = "gesture_pill_pos_y_ratio";
+        public static final float DEFAULT_VALUE_GESTURE_PILL_POS_Y_RATIO = -1.0f;
+
+        public static final String KEY_GESTURE_PILL_SWIPE_LEFT = "gesture_pill_swipe_left";
+        public static final String DEFAULT_VALUE_GESTURE_PILL_SWIPE_LEFT = "prev_tab";
+
+        public static final String KEY_GESTURE_PILL_SWIPE_RIGHT = "gesture_pill_swipe_right";
+        public static final String DEFAULT_VALUE_GESTURE_PILL_SWIPE_RIGHT = "next_tab";
+
+        public static final String KEY_GESTURE_PILL_SWIPE_UP = "gesture_pill_swipe_up";
+        public static final String DEFAULT_VALUE_GESTURE_PILL_SWIPE_UP = "open_keyboard";
+
+        public static final String KEY_GESTURE_PILL_SWIPE_DOWN = "gesture_pill_swipe_down";
+        public static final String DEFAULT_VALUE_GESTURE_PILL_SWIPE_DOWN = "close_keyboard";
+
+        public static final String KEY_GESTURE_PILL_TAP = "gesture_pill_tap";
+        public static final String DEFAULT_VALUE_GESTURE_PILL_TAP = "toggle_keyboard";
+
         /**
          * Niri Window Border Preferences.
          */

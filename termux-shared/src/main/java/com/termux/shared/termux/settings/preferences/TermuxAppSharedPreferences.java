@@ -338,6 +338,110 @@ public class TermuxAppSharedPreferences extends AppSharedPreferences {
         SharedPreferenceUtils.setInt(mSharedPreferences, TERMUX_APP.KEY_TAB_ACTIVE_TITLE_LENGTH, value, false);
     }
 
+    public boolean isTabAnimationEnabled() {
+        return SharedPreferenceUtils.getBoolean(mSharedPreferences, TERMUX_APP.KEY_TAB_ANIMATION_ENABLED, TERMUX_APP.DEFAULT_VALUE_TAB_ANIMATION_ENABLED);
+    }
+
+    public void setTabAnimationEnabled(boolean value) {
+        SharedPreferenceUtils.setBoolean(mSharedPreferences, TERMUX_APP.KEY_TAB_ANIMATION_ENABLED, value, false);
+    }
+
+    public boolean isGesturePillEnabled() {
+        return SharedPreferenceUtils.getBoolean(mSharedPreferences, TERMUX_APP.KEY_GESTURE_PILL_ENABLED, TERMUX_APP.DEFAULT_VALUE_GESTURE_PILL_ENABLED);
+    }
+
+    public void setGesturePillEnabled(boolean value) {
+        SharedPreferenceUtils.setBoolean(mSharedPreferences, TERMUX_APP.KEY_GESTURE_PILL_ENABLED, value, false);
+    }
+
+    public int getGesturePillWidth() {
+        return SharedPreferenceUtils.getInt(mSharedPreferences, TERMUX_APP.KEY_GESTURE_PILL_WIDTH, TERMUX_APP.DEFAULT_VALUE_GESTURE_PILL_WIDTH);
+    }
+
+    public void setGesturePillWidth(int value) {
+        SharedPreferenceUtils.setInt(mSharedPreferences, TERMUX_APP.KEY_GESTURE_PILL_WIDTH, value, false);
+    }
+
+    public int getGesturePillHeight() {
+        return SharedPreferenceUtils.getInt(mSharedPreferences, TERMUX_APP.KEY_GESTURE_PILL_HEIGHT, TERMUX_APP.DEFAULT_VALUE_GESTURE_PILL_HEIGHT);
+    }
+
+    public void setGesturePillHeight(int value) {
+        SharedPreferenceUtils.setInt(mSharedPreferences, TERMUX_APP.KEY_GESTURE_PILL_HEIGHT, value, false);
+    }
+
+    public int getGesturePillCornerRadius() {
+        return SharedPreferenceUtils.getInt(mSharedPreferences, TERMUX_APP.KEY_GESTURE_PILL_CORNER_RADIUS, TERMUX_APP.DEFAULT_VALUE_GESTURE_PILL_CORNER_RADIUS);
+    }
+
+    public void setGesturePillCornerRadius(int value) {
+        SharedPreferenceUtils.setInt(mSharedPreferences, TERMUX_APP.KEY_GESTURE_PILL_CORNER_RADIUS, value, false);
+    }
+
+    public String getGesturePillColor() {
+        return SharedPreferenceUtils.getString(mSharedPreferences, TERMUX_APP.KEY_GESTURE_PILL_COLOR, TERMUX_APP.DEFAULT_VALUE_GESTURE_PILL_COLOR, false);
+    }
+
+    public void setGesturePillColor(String value) {
+        SharedPreferenceUtils.setString(mSharedPreferences, TERMUX_APP.KEY_GESTURE_PILL_COLOR, value, false);
+    }
+
+    public float getGesturePillPosXRatio() {
+        return SharedPreferenceUtils.getFloat(mSharedPreferences, TERMUX_APP.KEY_GESTURE_PILL_POS_X_RATIO, TERMUX_APP.DEFAULT_VALUE_GESTURE_PILL_POS_X_RATIO);
+    }
+
+    public void setGesturePillPosXRatio(float value) {
+        SharedPreferenceUtils.setFloat(mSharedPreferences, TERMUX_APP.KEY_GESTURE_PILL_POS_X_RATIO, value, false);
+    }
+
+    public float getGesturePillPosYRatio() {
+        return SharedPreferenceUtils.getFloat(mSharedPreferences, TERMUX_APP.KEY_GESTURE_PILL_POS_Y_RATIO, TERMUX_APP.DEFAULT_VALUE_GESTURE_PILL_POS_Y_RATIO);
+    }
+
+    public void setGesturePillPosYRatio(float value) {
+        SharedPreferenceUtils.setFloat(mSharedPreferences, TERMUX_APP.KEY_GESTURE_PILL_POS_Y_RATIO, value, false);
+    }
+
+    public String getGesturePillSwipeLeft() {
+        return SharedPreferenceUtils.getString(mSharedPreferences, TERMUX_APP.KEY_GESTURE_PILL_SWIPE_LEFT, TERMUX_APP.DEFAULT_VALUE_GESTURE_PILL_SWIPE_LEFT, false);
+    }
+
+    public void setGesturePillSwipeLeft(String value) {
+        SharedPreferenceUtils.setString(mSharedPreferences, TERMUX_APP.KEY_GESTURE_PILL_SWIPE_LEFT, value, false);
+    }
+
+    public String getGesturePillSwipeRight() {
+        return SharedPreferenceUtils.getString(mSharedPreferences, TERMUX_APP.KEY_GESTURE_PILL_SWIPE_RIGHT, TERMUX_APP.DEFAULT_VALUE_GESTURE_PILL_SWIPE_RIGHT, false);
+    }
+
+    public void setGesturePillSwipeRight(String value) {
+        SharedPreferenceUtils.setString(mSharedPreferences, TERMUX_APP.KEY_GESTURE_PILL_SWIPE_RIGHT, value, false);
+    }
+
+    public String getGesturePillSwipeUp() {
+        return SharedPreferenceUtils.getString(mSharedPreferences, TERMUX_APP.KEY_GESTURE_PILL_SWIPE_UP, TERMUX_APP.DEFAULT_VALUE_GESTURE_PILL_SWIPE_UP, false);
+    }
+
+    public void setGesturePillSwipeUp(String value) {
+        SharedPreferenceUtils.setString(mSharedPreferences, TERMUX_APP.KEY_GESTURE_PILL_SWIPE_UP, value, false);
+    }
+
+    public String getGesturePillSwipeDown() {
+        return SharedPreferenceUtils.getString(mSharedPreferences, TERMUX_APP.KEY_GESTURE_PILL_SWIPE_DOWN, TERMUX_APP.DEFAULT_VALUE_GESTURE_PILL_SWIPE_DOWN, false);
+    }
+
+    public void setGesturePillSwipeDown(String value) {
+        SharedPreferenceUtils.setString(mSharedPreferences, TERMUX_APP.KEY_GESTURE_PILL_SWIPE_DOWN, value, false);
+    }
+
+    public String getGesturePillTap() {
+        return SharedPreferenceUtils.getString(mSharedPreferences, TERMUX_APP.KEY_GESTURE_PILL_TAP, TERMUX_APP.DEFAULT_VALUE_GESTURE_PILL_TAP, false);
+    }
+
+    public void setGesturePillTap(String value) {
+        SharedPreferenceUtils.setString(mSharedPreferences, TERMUX_APP.KEY_GESTURE_PILL_TAP, value, false);
+    }
+
     public boolean isTerminalBorderEnabled() {
         return SharedPreferenceUtils.getBoolean(mSharedPreferences, TERMUX_APP.KEY_TERMINAL_BORDER_ENABLED, TERMUX_APP.DEFAULT_VALUE_TERMINAL_BORDER_ENABLED);
     }
@@ -593,6 +697,20 @@ public class TermuxAppSharedPreferences extends AppSharedPreferences {
         setTabCloseButtonWidth(TERMUX_APP.DEFAULT_VALUE_TAB_CLOSE_BUTTON_WIDTH);
         setTabSettingsButtonWidth(TERMUX_APP.DEFAULT_VALUE_TAB_SETTINGS_BUTTON_WIDTH);
         setTabActiveTitleLength(TERMUX_APP.DEFAULT_VALUE_TAB_ACTIVE_TITLE_LENGTH);
+        setTabAnimationEnabled(TERMUX_APP.DEFAULT_VALUE_TAB_ANIMATION_ENABLED);
+
+        setGesturePillEnabled(TERMUX_APP.DEFAULT_VALUE_GESTURE_PILL_ENABLED);
+        setGesturePillWidth(TERMUX_APP.DEFAULT_VALUE_GESTURE_PILL_WIDTH);
+        setGesturePillHeight(TERMUX_APP.DEFAULT_VALUE_GESTURE_PILL_HEIGHT);
+        setGesturePillCornerRadius(TERMUX_APP.DEFAULT_VALUE_GESTURE_PILL_CORNER_RADIUS);
+        setGesturePillColor(TERMUX_APP.DEFAULT_VALUE_GESTURE_PILL_COLOR);
+        setGesturePillPosXRatio(TERMUX_APP.DEFAULT_VALUE_GESTURE_PILL_POS_X_RATIO);
+        setGesturePillPosYRatio(TERMUX_APP.DEFAULT_VALUE_GESTURE_PILL_POS_Y_RATIO);
+        setGesturePillSwipeLeft(TERMUX_APP.DEFAULT_VALUE_GESTURE_PILL_SWIPE_LEFT);
+        setGesturePillSwipeRight(TERMUX_APP.DEFAULT_VALUE_GESTURE_PILL_SWIPE_RIGHT);
+        setGesturePillSwipeUp(TERMUX_APP.DEFAULT_VALUE_GESTURE_PILL_SWIPE_UP);
+        setGesturePillSwipeDown(TERMUX_APP.DEFAULT_VALUE_GESTURE_PILL_SWIPE_DOWN);
+        setGesturePillTap(TERMUX_APP.DEFAULT_VALUE_GESTURE_PILL_TAP);
 
         setTerminalBorderEnabled(TERMUX_APP.DEFAULT_VALUE_TERMINAL_BORDER_ENABLED);
         setTerminalBorderCornerRadius(TERMUX_APP.DEFAULT_VALUE_TERMINAL_BORDER_CORNER_RADIUS);

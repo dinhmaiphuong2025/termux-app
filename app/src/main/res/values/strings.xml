@@ -248,6 +248,25 @@
     <string name="action_close_session">Close Session</string>
     <string name="termux_tab_bar_active_title_length_title">Active Tab Title Length</string>
     <string name="termux_tab_bar_active_title_length_summary">Number of leading characters shown for active tab title (0 = number only)</string>
+    <string name="termux_tab_animation_title">Niri Ribbon Tab Animation</string>
+    <string name="termux_tab_animation_summary">Smooth horizontal sliding transition between tabs like Niri WM</string>
+
+    <!-- Floating Gesture Pill Preferences -->
+    <string name="termux_gesture_pill_header">Floating Gesture Pill</string>
+    <string name="termux_gesture_pill_enable_title">Enable Gesture Pill</string>
+    <string name="termux_gesture_pill_enable_summary">Floating gesture handle to switch tabs and toggle keyboard</string>
+    <string name="termux_gesture_pill_width_title">Pill Width (dp)</string>
+    <string name="termux_gesture_pill_height_title">Pill Height / Thickness (dp)</string>
+    <string name="termux_gesture_pill_corner_radius_title">Pill Corner Radius (dp)</string>
+    <string name="termux_gesture_pill_color_title">Pill Color</string>
+    <string name="termux_gesture_pill_color_summary">Hex color or transparency (click to choose from palette)</string>
+    <string name="termux_gesture_pill_swipe_left_title">Swipe Left Action</string>
+    <string name="termux_gesture_pill_swipe_right_title">Swipe Right Action</string>
+    <string name="termux_gesture_pill_swipe_up_title">Swipe Up Action</string>
+    <string name="termux_gesture_pill_swipe_down_title">Swipe Down Action</string>
+    <string name="termux_gesture_pill_tap_title">Tap Action</string>
+    <string name="termux_gesture_pill_reset_position_title">Reset Pill Position</string>
+    <string name="termux_gesture_pill_reset_position_summary">Move gesture pill back to center-bottom of screen (hold &amp; drag pill to reposition anywhere)</string>
 
     <!-- Niri WM Window Border Preferences -->
     <string name="termux_niri_border_header">Niri Window Border</string>

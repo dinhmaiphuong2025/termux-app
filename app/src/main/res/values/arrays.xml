@@ -57,4 +57,28 @@
         <item>full</item>
         <item>brackets</item>
     </string-array>
+
+    <string-array name="gesture_pill_action_titles">
+        <item>Switch to Previous Tab (Tab trước)</item>
+        <item>Switch to Next Tab (Tab sau)</item>
+        <item>Open Soft Keyboard (Mở bàn phím)</item>
+        <item>Close Soft Keyboard (Tắt bàn phím)</item>
+        <item>Toggle Keyboard (Bật/tắt bàn phím)</item>
+        <item>New Session Tab (Tạo tab mới)</item>
+        <item>Close Current Tab (Đóng tab hiện tại)</item>
+        <item>Toggle Extra Keys Bar (Bật/tắt phím phụ)</item>
+        <item>None (Không thao tác)</item>
+    </string-array>
+
+    <string-array name="gesture_pill_action_values">
+        <item>prev_tab</item>
+        <item>next_tab</item>
+        <item>open_keyboard</item>
+        <item>close_keyboard</item>
+        <item>toggle_keyboard</item>
+        <item>new_tab</item>
+        <item>close_tab</item>
+        <item>toggle_extra_keys</item>
+        <item>none</item>
+    </string-array>
 </resources>

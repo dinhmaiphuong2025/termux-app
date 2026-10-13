@@ -77,6 +77,98 @@
             app:showSeekBarValue="true"
             app:defaultValue="12" />
 
+        <SwitchPreferenceCompat
+            app:key="tab_animation_enabled"
+            app:title="@string/termux_tab_animation_title"
+            app:summary="@string/termux_tab_animation_summary"
+            app:defaultValue="true" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:key="gesture_pill_category"
+        app:title="@string/termux_gesture_pill_header">
+
+        <SwitchPreferenceCompat
+            app:key="gesture_pill_enabled"
+            app:title="@string/termux_gesture_pill_enable_title"
+            app:summary="@string/termux_gesture_pill_enable_summary"
+            app:defaultValue="true" />
+
+        <SeekBarPreference
+            app:key="gesture_pill_width"
+            app:title="@string/termux_gesture_pill_width_title"
+            app:min="30"
+            android:max="240"
+            app:showSeekBarValue="true"
+            app:defaultValue="90" />
+
+        <SeekBarPreference
+            app:key="gesture_pill_height"
+            app:title="@string/termux_gesture_pill_height_title"
+            app:min="4"
+            android:max="40"
+            app:showSeekBarValue="true"
+            app:defaultValue="14" />
+
+        <SeekBarPreference
+            app:key="gesture_pill_corner_radius"
+            app:title="@string/termux_gesture_pill_corner_radius_title"
+            app:min="0"
+            android:max="30"
+            app:showSeekBarValue="true"
+            app:defaultValue="20" />
+
+        <Preference
+            app:key="gesture_pill_color"
+            app:title="@string/termux_gesture_pill_color_title"
+            app:summary="@string/termux_gesture_pill_color_summary" />
+
+        <ListPreference
+            app:key="gesture_pill_swipe_left"
+            app:title="@string/termux_gesture_pill_swipe_left_title"
+            app:entries="@array/gesture_pill_action_titles"
+            app:entryValues="@array/gesture_pill_action_values"
+            app:useSimpleSummaryProvider="true"
+            app:defaultValue="prev_tab" />
+
+        <ListPreference
+            app:key="gesture_pill_swipe_right"
+            app:title="@string/termux_gesture_pill_swipe_right_title"
+            app:entries="@array/gesture_pill_action_titles"
+            app:entryValues="@array/gesture_pill_action_values"
+            app:useSimpleSummaryProvider="true"
+            app:defaultValue="next_tab" />
+
+        <ListPreference
+            app:key="gesture_pill_swipe_up"
+            app:title="@string/termux_gesture_pill_swipe_up_title"
+            app:entries="@array/gesture_pill_action_titles"
+            app:entryValues="@array/gesture_pill_action_values"
+            app:useSimpleSummaryProvider="true"
+            app:defaultValue="open_keyboard" />
+
+        <ListPreference
+            app:key="gesture_pill_swipe_down"
+            app:title="@string/termux_gesture_pill_swipe_down_title"
+            app:entries="@array/gesture_pill_action_titles"
+            app:entryValues="@array/gesture_pill_action_values"
+            app:useSimpleSummaryProvider="true"
+            app:defaultValue="close_keyboard" />
+
+        <ListPreference
+            app:key="gesture_pill_tap"
+            app:title="@string/termux_gesture_pill_tap_title"
+            app:entries="@array/gesture_pill_action_titles"
+            app:entryValues="@array/gesture_pill_action_values"
+            app:useSimpleSummaryProvider="true"
+            app:defaultValue="toggle_keyboard" />
+
+        <Preference
+            app:key="gesture_pill_reset_position"
+            app:title="@string/termux_gesture_pill_reset_position_title"
+            app:summary="@string/termux_gesture_pill_reset_position_summary" />
+
     </PreferenceCategory>
 
     <PreferenceCategory
