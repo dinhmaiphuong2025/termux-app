@@ -220,6 +220,33 @@
 
         </PreferenceCategory>
 
+        <PreferenceCategory
+            app:key="extra_keys_customizer_category"
+            app:title="@string/termux_extra_keys_customizer_header">
+
+            <SwitchPreferenceCompat
+                app:key="extra_keys_use_custom"
+                app:title="@string/termux_extra_keys_use_custom_title"
+                app:summary="@string/termux_extra_keys_use_custom_summary"
+                app:defaultValue="false" />
+
+            <ListPreference
+                app:key="extra_keys_preset"
+                app:title="@string/termux_extra_keys_preset_title"
+                app:summary="@string/termux_extra_keys_preset_summary"
+                app:entries="@array/extra_keys_preset_titles"
+                app:entryValues="@array/extra_keys_preset_values"
+                app:useSimpleSummaryProvider="true" />
+
+            <EditTextPreference
+                app:key="extra_keys_custom_json"
+                app:title="@string/termux_extra_keys_custom_json_title"
+                app:summary="@string/termux_extra_keys_custom_json_summary"
+                app:useSimpleSummaryProvider="true"
+                app:defaultValue="" />
+
+        </PreferenceCategory>
+
     </PreferenceScreen>
 
     <!-- ============ 3. TAB BAR ============ -->

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -15,12 +16,16 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceDataStore;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
+import androidx.preference.SwitchPreferenceCompat;
 
 import com.termux.R;
 import com.termux.app.TermuxActivity;
 import com.termux.app.fragments.settings.ColorPickerDialogUtils;
 import com.termux.shared.logger.Logger;
 import com.termux.shared.termux.settings.preferences.TermuxAppSharedPreferences;
+
+import org.json.JSONArray;
+import org.json.JSONException;
 
 @Keep
 public class CustomUIPreferencesFragment extends PreferenceFragmentCompat {
@@ -162,6 +167,66 @@ public class CustomUIPreferencesFragment extends PreferenceFragmentCompat {
             });
         }
 
+        Preference presetPref = findPreference("extra_keys_preset");
+        if (presetPref != null) {
+            presetPref.setOnPreferenceChangeListener((preference, newValue) -> {
+                String presetVal = (String) newValue;
+                if (!TextUtils.isEmpty(presetVal)) {
+                    try {
+                        new JSONArray(presetVal);
+                        TermuxAppSharedPreferences prefs = TermuxAppSharedPreferences.build(context, true);
+                        if (prefs != null) {
+                            prefs.setExtraKeysPreset(presetVal);
+                            prefs.setExtraKeysCustomJson(presetVal);
+                            prefs.setExtraKeysUseCustom(true);
+                            SwitchPreferenceCompat customSwitch = findPreference("extra_keys_use_custom");
+                            if (customSwitch != null) customSwitch.setChecked(true);
+                            EditTextPreference customJsonPref = findPreference("extra_keys_custom_json");
+                            if (customJsonPref != null) customJsonPref.setText(presetVal);
+                            TermuxActivity.updateTermuxActivityStyling(context, false);
+                        }
+                    } catch (JSONException e) {
+                        Toast.makeText(context, "Invalid preset JSON: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        return false;
+                    }
+                }
+                return true;
+            });
+        }
+
+        Preference customJsonPref = findPreference("extra_keys_custom_json");
+        if (customJsonPref != null) {
+            customJsonPref.setOnPreferenceChangeListener((preference, newValue) -> {
+                String jsonVal = (String) newValue;
+                if (!TextUtils.isEmpty(jsonVal)) {
+                    try {
+                        new JSONArray(jsonVal);
+                    } catch (JSONException e) {
+                        Toast.makeText(context, "Invalid JSON format: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        return false;
+                    }
+                }
+                TermuxAppSharedPreferences prefs = TermuxAppSharedPreferences.build(context, true);
+                if (prefs != null) {
+                    prefs.setExtraKeysCustomJson(jsonVal != null ? jsonVal : "");
+                    TermuxActivity.updateTermuxActivityStyling(context, false);
+                }
+                return true;
+            });
+        }
+
+        Preference useCustomPref = findPreference("extra_keys_use_custom");
+        if (useCustomPref != null) {
+            useCustomPref.setOnPreferenceChangeListener((preference, newValue) -> {
+                TermuxAppSharedPreferences prefs = TermuxAppSharedPreferences.build(context, true);
+                if (prefs != null) {
+                    prefs.setExtraKeysUseCustom((Boolean) newValue);
+                    TermuxActivity.updateTermuxActivityStyling(context, false);
+                }
+                return true;
+            });
+        }
+
         Preference pillColorPref = findPreference("gesture_pill_color");
         if (pillColorPref != null) {
             TermuxAppSharedPreferences prefs = TermuxAppSharedPreferences.build(context, true);
@@ -218,6 +283,9 @@ public class CustomUIPreferencesFragment extends PreferenceFragmentCompat {
             "background_blur_radius",
             "extra_keys_bar_background_sync",
             "outer_background_style",
+            "extra_keys_use_custom",
+            "extra_keys_preset",
+            "extra_keys_custom_json",
             "extra_keys_color_theme",
             "extra_keys_flat_keys",
             "extra_keys_margin",
@@ -289,6 +357,9 @@ class CustomUIPreferencesDataStore extends PreferenceDataStore {
             case "extra_keys_bar_background_sync":
                 mPreferences.setExtraKeysBarBackgroundSyncEnabled(value);
                 break;
+            case "extra_keys_use_custom":
+                mPreferences.setExtraKeysUseCustom(value);
+                break;
             case "tab_animation_enabled":
                 mPreferences.setTabAnimationEnabled(value);
                 break;
@@ -330,6 +401,8 @@ class CustomUIPreferencesDataStore extends PreferenceDataStore {
                 return mPreferences.isBackgroundBlurEnabled();
             case "extra_keys_bar_background_sync":
                 return mPreferences.isExtraKeysBarBackgroundSyncEnabled();
+            case "extra_keys_use_custom":
+                return mPreferences.isExtraKeysUseCustom();
             case "tab_animation_enabled":
                 return mPreferences.isTabAnimationEnabled();
             case "show_session_name_without_tab_bar":
@@ -508,6 +581,12 @@ class CustomUIPreferencesDataStore extends PreferenceDataStore {
             case "outer_background_style":
                 mPreferences.setOuterBackgroundStyle(value != null ? value : "off");
                 break;
+            case "extra_keys_preset":
+                mPreferences.setExtraKeysPreset(value != null ? value : "");
+                break;
+            case "extra_keys_custom_json":
+                mPreferences.setExtraKeysCustomJson(value != null ? value : "");
+                break;
             case "gesture_pill_color":
                 mPreferences.setGesturePillColor(value != null ? value : "#80FFFFFF");
                 break;
@@ -555,6 +634,10 @@ class CustomUIPreferencesDataStore extends PreferenceDataStore {
                 return mPreferences.getSessionNameAlignment();
             case "outer_background_style":
                 return mPreferences.getOuterBackgroundStyle();
+            case "extra_keys_preset":
+                return mPreferences.getExtraKeysPreset();
+            case "extra_keys_custom_json":
+                return mPreferences.getExtraKeysCustomJson();
             case "gesture_pill_color":
                 return mPreferences.getGesturePillColor();
             case "gesture_pill_swipe_left":

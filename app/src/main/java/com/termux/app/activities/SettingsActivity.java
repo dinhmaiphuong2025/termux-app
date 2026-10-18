@@ -3,11 +3,17 @@ package com.termux.app.activities;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Environment;
+import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.PreferenceScreen;
+
+import java.util.Map;
+import java.util.WeakHashMap;
 
 import com.termux.R;
 import com.termux.shared.activities.ReportActivity;
@@ -26,7 +32,11 @@ import com.termux.shared.termux.TermuxUtils;
 import com.termux.shared.activity.media.AppCompatActivityUtils;
 import com.termux.shared.theme.NightMode;
 
-public class SettingsActivity extends AppCompatActivity {
+public class SettingsActivity extends AppCompatActivity
+    implements PreferenceFragmentCompat.OnPreferenceStartScreenCallback {
+
+    /** Root preference screens per fragment, so the back button can return from sub-screens. */
+    private final Map<PreferenceFragmentCompat, PreferenceScreen> mRootScreens = new WeakHashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +54,37 @@ public class SettingsActivity extends AppCompatActivity {
 
         AppCompatActivityUtils.setToolbar(this, com.termux.shared.R.id.toolbar);
         AppCompatActivityUtils.setShowBackButtonInActionBar(this, true);
+    }
+
+    /**
+     * Navigate to a nested PreferenceScreen within the same fragment.
+     * androidx.preference no longer supports same-XML nested screens out of the box,
+     * so the screen is swapped in place and the root is remembered for the back button.
+     */
+    @Override
+    public boolean onPreferenceStartScreen(PreferenceFragmentCompat caller, PreferenceScreen preferenceScreen) {
+        if (!mRootScreens.containsKey(caller)) {
+            mRootScreens.put(caller, caller.getPreferenceScreen());
+        }
+        caller.setPreferenceScreen(preferenceScreen);
+        return true;
+    }
+
+    @Override
+    public void onBackPressed() {
+        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.settings);
+        if (fragment instanceof PreferenceFragmentCompat) {
+            PreferenceFragmentCompat prefFragment = (PreferenceFragmentCompat) fragment;
+            PreferenceScreen root = mRootScreens.get(prefFragment);
+            if (root != null && prefFragment.getPreferenceScreen() != root
+                && prefFragment.getPreferenceScreen() != null
+                && !TextUtils.isEmpty(prefFragment.getPreferenceScreen().getKey())) {
+                // Return from a sub-screen to the fragment's root screen.
+                prefFragment.setPreferenceScreen(root);
+                return;
+            }
+        }
+        super.onBackPressed();
     }
 
     @Override
