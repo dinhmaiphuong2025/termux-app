@@ -602,6 +602,30 @@ public class TermuxAppSharedPreferences extends AppSharedPreferences {
         SharedPreferenceUtils.setString(mSharedPreferences, TERMUX_APP.KEY_OUTER_BACKGROUND_STYLE, value, false);
     }
 
+    public boolean isTerminalShadowEnabled() {
+        return SharedPreferenceUtils.getBoolean(mSharedPreferences, TERMUX_APP.KEY_TERMINAL_SHADOW_ENABLED, TERMUX_APP.DEFAULT_VALUE_TERMINAL_SHADOW_ENABLED);
+    }
+
+    public void setTerminalShadowEnabled(boolean value) {
+        SharedPreferenceUtils.setBoolean(mSharedPreferences, TERMUX_APP.KEY_TERMINAL_SHADOW_ENABLED, value, false);
+    }
+
+    public boolean isTerminalBorderCornerEnabled() {
+        return SharedPreferenceUtils.getBoolean(mSharedPreferences, TERMUX_APP.KEY_TERMINAL_BORDER_CORNER_ENABLED, TERMUX_APP.DEFAULT_VALUE_TERMINAL_BORDER_CORNER_ENABLED);
+    }
+
+    public void setTerminalBorderCornerEnabled(boolean value) {
+        SharedPreferenceUtils.setBoolean(mSharedPreferences, TERMUX_APP.KEY_TERMINAL_BORDER_CORNER_ENABLED, value, false);
+    }
+
+    public boolean isExtraKeysBarCornerEnabled() {
+        return SharedPreferenceUtils.getBoolean(mSharedPreferences, TERMUX_APP.KEY_EXTRA_KEYS_BAR_CORNER_ENABLED, TERMUX_APP.DEFAULT_VALUE_EXTRA_KEYS_BAR_CORNER_ENABLED);
+    }
+
+    public void setExtraKeysBarCornerEnabled(boolean value) {
+        SharedPreferenceUtils.setBoolean(mSharedPreferences, TERMUX_APP.KEY_EXTRA_KEYS_BAR_CORNER_ENABLED, value, false);
+    }
+
     public int getExtraKeysCornerRadius() {
         return SharedPreferenceUtils.getInt(mSharedPreferences, TERMUX_APP.KEY_EXTRA_KEYS_CORNER_RADIUS, TERMUX_APP.DEFAULT_VALUE_EXTRA_KEYS_CORNER_RADIUS);
     }
@@ -803,6 +827,9 @@ public class TermuxAppSharedPreferences extends AppSharedPreferences {
         setBackgroundBlurRadius(TERMUX_APP.DEFAULT_VALUE_BACKGROUND_BLUR_RADIUS);
         setExtraKeysBarBackgroundSyncEnabled(TERMUX_APP.DEFAULT_VALUE_EXTRA_KEYS_BAR_BACKGROUND_SYNC);
         setOuterBackgroundStyle(TERMUX_APP.DEFAULT_VALUE_OUTER_BACKGROUND_STYLE);
+        setTerminalShadowEnabled(TERMUX_APP.DEFAULT_VALUE_TERMINAL_SHADOW_ENABLED);
+        setTerminalBorderCornerEnabled(TERMUX_APP.DEFAULT_VALUE_TERMINAL_BORDER_CORNER_ENABLED);
+        setExtraKeysBarCornerEnabled(TERMUX_APP.DEFAULT_VALUE_EXTRA_KEYS_BAR_CORNER_ENABLED);
 
         setExtraKeysCornerRadius(TERMUX_APP.DEFAULT_VALUE_EXTRA_KEYS_CORNER_RADIUS);
         setExtraKeysMargin(TERMUX_APP.DEFAULT_VALUE_EXTRA_KEYS_MARGIN);

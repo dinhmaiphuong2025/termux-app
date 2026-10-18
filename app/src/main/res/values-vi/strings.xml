@@ -23,8 +23,13 @@
     <string name="termux_terminal_behavior_screen_summary">Cuộn mượt nội dung terminal</string>
     <string name="termux_extra_keys_background_header">Nền thanh phím</string>
     <string name="termux_outer_background_header">Nền ngoài</string>
+    <string name="termux_outer_shadow_header">Đổ bóng cửa sổ</string>
+    <string name="termux_terminal_shadow_enabled_title">Đổ bóng nhẹ cho cửa sổ</string>
+    <string name="termux_terminal_shadow_enabled_summary">Bóng đổ nhẹ dưới cửa sổ terminal tạo cảm giác nổi trên nền</string>
+    <string name="termux_border_corner_enabled_title">Bo góc viền</string>
+    <string name="termux_border_corner_enabled_summary">Làm tròn góc viền; khi tắt, góc vuông sắc (bỏ qua giá trị bán kính)</string>
     <string name="termux_extra_keys_flat_keys_title">Phím phẳng cùng màu thanh</string>
-    <string name="termux_extra_keys_flat_keys_summary">Nền phím cùng màu với nền thanh; bị bỏ qua khi bật theme đồng bộ hình nền hoặc kính lỏng (phím trong suốt hoàn toàn)</string>
+    <string name="termux_extra_keys_flat_keys_summary">BẬT: nền mỗi phím trùng màu nền thanh, các phím liền mạch thành một khối. TẮT: nền phím dùng màu nút riêng, mỗi phím nổi lên thành một ô chữ nhật riêng biệt. Bị bỏ qua ở chế độ đồng bộ hình nền (phím trong suốt)</string>
 
     <!-- Floating Gesture Pill Preferences -->
     <string name="termux_gesture_pill_header">Nút cử chỉ nổi (Gesture Pill)</string>
@@ -47,11 +52,11 @@
     <string name="termux_smooth_scroll_summary">Nội dung terminal lướt theo từng pixel khi vuốt, hất hoặc lăn chuột</string>
 
     <!-- Glass & Blur Effect Preferences -->
-    <string name="termux_glass_effects_header">Hiệu ứng kính lỏng &amp; làm mờ</string>
-    <string name="termux_glass_effect_enabled_title">Hiệu ứng kính lỏng</string>
-    <string name="termux_glass_effect_enabled_summary">Kính mờ cho cửa sổ terminal và thanh phím phụ với lớp bóng, tăng bão hòa và viền sáng bên trong</string>
+    <string name="termux_glass_effects_header">Hiệu ứng Liquid Glass &amp; làm mờ</string>
+    <string name="termux_glass_effect_enabled_title">Liquid Glass</string>
+    <string name="termux_glass_effect_enabled_summary">Kính trong kiểu Apple cho cửa sổ terminal: lớp tint trong suốt và tăng nhẹ độ bão hòa; thanh phím phụ giữ nguyên màu của nó</string>
     <string name="termux_glass_tint_opacity_title">Độ đậm lớp kính (%)</string>
-    <string name="termux_glass_tint_opacity_summary">Cường độ lớp bóng kính trắng phủ bên trên</string>
+    <string name="termux_glass_tint_opacity_summary">Cường độ lớp kính trong phủ lên cửa sổ terminal</string>
     <string name="termux_background_blur_enabled_title">Làm mờ hình nền</string>
     <string name="termux_background_blur_enabled_summary">Làm mờ gaussian thật cho ảnh nền (RenderScript / RenderEffect)</string>
     <string name="termux_background_blur_radius_title">Bán kính làm mờ (dp)</string>

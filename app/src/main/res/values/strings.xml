@@ -302,6 +302,9 @@
     <string name="termux_terminal_behavior_screen_summary">Smooth scrolling of terminal content</string>
     <string name="termux_extra_keys_background_header">Bar Background</string>
     <string name="termux_outer_background_header">Outer Background</string>
+    <string name="termux_outer_shadow_header">Window Shadow</string>
+    <string name="termux_terminal_shadow_enabled_title">Light Window Drop Shadow</string>
+    <string name="termux_terminal_shadow_enabled_summary">Subtle floating shadow under the terminal window so it lifts off the background</string>
 
     <!-- Background Wallpaper Preferences -->
     <string name="termux_background_header">Background Wallpaper</string>
@@ -327,10 +330,10 @@
 
     <!-- Glass & Blur Effect Preferences -->
     <string name="termux_glass_effects_header">Liquid Glass &amp; Blur Effects</string>
-    <string name="termux_glass_effect_enabled_title">Liquid Glass Effect</string>
-    <string name="termux_glass_effect_enabled_summary">Frosted glass look for the terminal window and extra keys bar with sheen, saturation and inner highlight</string>
+    <string name="termux_glass_effect_enabled_title">Liquid Glass</string>
+    <string name="termux_glass_effect_enabled_summary">Apple-style clear glass for the terminal window: translucent tint and slight saturation boost; the extra keys bar keeps its own colors</string>
     <string name="termux_glass_tint_opacity_title">Glass Tint Opacity (%)</string>
-    <string name="termux_glass_tint_opacity_summary">Strength of the white glass sheen overlay</string>
+    <string name="termux_glass_tint_opacity_summary">Strength of the clear glass tint over the terminal window</string>
     <string name="termux_background_blur_enabled_title">Blur Background Wallpaper</string>
     <string name="termux_background_blur_enabled_summary">Real gaussian blur on the background image (RenderScript / RenderEffect)</string>
     <string name="termux_background_blur_radius_title">Blur Radius (dp)</string>
@@ -339,8 +342,10 @@
     <string name="termux_extra_keys_styling_header">Extra Keys Shape &amp; Styling</string>
     <string name="termux_extra_keys_color_theme_title">Bar Color Theme</string>
     <string name="termux_extra_keys_color_theme_summary">Choose color palette (Catppuccin, Dracula, System Material You...)</string>
+    <string name="termux_border_corner_enabled_title">Rounded Corners</string>
+    <string name="termux_border_corner_enabled_summary">Round the border corners; when off the corners stay sharp (radius is ignored)</string>
     <string name="termux_extra_keys_flat_keys_title">Flat Keys (Sync with Bar Color)</string>
-    <string name="termux_extra_keys_flat_keys_summary">Key background color matches the bar background; ignored when the wallpaper sync theme or liquid glass is active (keys become fully transparent)</string>
+    <string name="termux_extra_keys_flat_keys_summary">ON: each key uses the same background as the bar so keys merge seamlessly. OFF: keys use a distinct button background, making each key stand out as a separate rectangle. Ignored in wallpaper sync mode (keys become transparent)</string>
     <string name="termux_extra_keys_margin_title">Key Spacing / Margin (dp)</string>
     <string name="termux_extra_keys_text_size_title">Key Text Size (sp)</string>
     <string name="termux_extra_keys_height_scale_title">Key Height Scale (%)</string>

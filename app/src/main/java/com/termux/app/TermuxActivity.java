@@ -1004,7 +1004,8 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         if (mTerminalCardContainer != null) {
             boolean borderEnabled = getPreferences().isTerminalBorderEnabled();
             if (borderEnabled) {
-                int cornerRadius = (int) (getPreferences().getTerminalBorderCornerRadius() * density);
+                int cornerRadius = getPreferences().isTerminalBorderCornerEnabled()
+                    ? (int) (getPreferences().getTerminalBorderCornerRadius() * density) : 0;
                 int strokeWidth = (int) (getPreferences().getTerminalBorderWidth() * density);
                 int gaps = (int) (getPreferences().getTerminalBorderGaps() * density);
                 String colorStr = getPreferences().getTerminalBorderColor();
@@ -1114,7 +1115,8 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
             boolean barBorderEnabled = getPreferences().isExtraKeysBarBorderEnabled();
             if (barBorderEnabled) {
                 int barStrokeWidth = (int) (getPreferences().getExtraKeysBarBorderWidth() * density);
-                int cornerRadius = (int) (getPreferences().getExtraKeysBarBorderCornerRadius() * density);
+                int cornerRadius = getPreferences().isExtraKeysBarCornerEnabled()
+                    ? (int) (getPreferences().getExtraKeysBarBorderCornerRadius() * density) : 0;
                 int gaps = (int) (getPreferences().getExtraKeysBarBorderGaps() * density);
 
                 int barStrokeColor;
@@ -1342,12 +1344,12 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
     }
 
     /**
-     * Whether the toolbar should show the wallpaper slice behind it: either the liquid
-     * glass effect is enabled or the bar color theme is set to "sync_wallpaper".
+     * Whether the toolbar should show the wallpaper slice behind it: only when the bar
+     * color theme is set to "sync_wallpaper". Liquid glass and blur never alter the bar.
      */
     private boolean isBarBackgroundEnabled() {
-        return getPreferences() != null && (getPreferences().isGlassEffectEnabled()
-            || "sync_wallpaper".equals(getPreferences().getExtraKeysColorTheme()));
+        return getPreferences() != null
+            && "sync_wallpaper".equals(getPreferences().getExtraKeysColorTheme());
     }
 
     /**
@@ -1443,8 +1445,8 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         mTerminalToolbarBackgroundImage.setScaleType(ImageView.ScaleType.MATRIX);
         mTerminalToolbarBackgroundImage.setImageMatrix(barMatrix);
         mTerminalToolbarBackgroundImage.setImageBitmap(bitmap);
-        mTerminalToolbarBackgroundImage.setColorFilter(
-            getPreferences() != null && getPreferences().isGlassEffectEnabled() ? buildSaturationFilter(1.25f) : null);
+        // Pure wallpaper in sync mode: no saturation or tint from the glass effect.
+        mTerminalToolbarBackgroundImage.setColorFilter(null);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             if (blurRadius > 0) {
                 mTerminalToolbarBackgroundImage.setRenderEffect(
@@ -1495,36 +1497,34 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
     }
 
     /**
-     * Apply liquid glass effects: sheen tint, saturation, border highlight on the
-     * terminal window, and translucent glass styling for the extra keys bar.
+     * Apply Liquid Glass (Apple-style clear glass) to the terminal window only:
+     * a uniform translucent white tint plus a slight wallpaper saturation boost.
+     * No glow, no frosted layer and no bar styling — the extra keys bar keeps its
+     * own colors unless the wallpaper sync theme is selected.
      */
     private void applyGlassAndBlurEffects(float density) {
         boolean glassEnabled = getPreferences().isGlassEffectEnabled();
         float tintAlpha = Math.max(0f, Math.min(1f, getPreferences().getGlassTintOpacity() / 100f));
 
-        // Terminal sheen tint.
+        // Terminal clear-glass tint.
         if (mTerminalGlassTint != null) {
             mTerminalGlassTint.setAlpha(glassEnabled ? tintAlpha : 1f);
             mTerminalGlassTint.setVisibility(glassEnabled ? View.VISIBLE : View.GONE);
         }
 
-        // Glass highlight inside the terminal border.
-        if (mTerminalBorderDrawable != null) {
-            mTerminalBorderDrawable.setGlassHighlight(glassEnabled);
-        }
-        if (mTerminalBorderOverlay != null) {
-            mTerminalBorderOverlay.invalidate();
-        }
-
-        // Toolbar sheen tint.
+        // The toolbar sheen layer is never shown: the bar keeps its own colors
+        // unless the wallpaper sync theme is selected.
         if (mTerminalToolbarGlassTint != null) {
-            mTerminalToolbarGlassTint.setAlpha(glassEnabled ? Math.min(1f, tintAlpha * 0.7f) : 1f);
-            mTerminalToolbarGlassTint.setVisibility(glassEnabled ? View.VISIBLE : View.GONE);
+            mTerminalToolbarGlassTint.setVisibility(View.GONE);
         }
 
-        // Extra keys bar glass translucency (applies when glass or wallpaper sync is on,
-        // otherwise the opaque bar backgrounds would hide the synced wallpaper slice).
+        // Extra keys bar wallpaper mode (only the sync theme triggers it).
         applyExtraKeysBarGlass(isBarBackgroundEnabled());
+
+        // Light drop shadow under the terminal window.
+        if (mTerminalCardContainer != null) {
+            mTerminalCardContainer.setCardElevation(getPreferences().isTerminalShadowEnabled() ? 6 * density : 0f);
+        }
 
         // Size the toolbar background views to the extra keys card.
         syncToolbarBackgroundViews();
@@ -1544,28 +1544,22 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
     }
 
     /**
-     * Make the extra keys bar translucent glass: the wallpaper shows through the
-     * card, pager, extra keys view and key buttons.
+     * Wallpaper-sync mode for the extra keys bar: fully transparent card, pager, bar and
+     * key backgrounds so only the wallpaper slice (with the dim overlay) shows through.
      */
     private void applyExtraKeysBarGlass(boolean enabled) {
         if (mTerminalToolbarCard == null || getPreferences() == null) return;
 
         if (enabled) {
-            String themeName = getPreferences().getExtraKeysColorTheme();
-            com.termux.shared.termux.extrakeys.ExtraKeysTheme theme =
-                com.termux.shared.termux.extrakeys.ExtraKeysTheme.getTheme(this, themeName);
-            int glassColor = (theme.barBackgroundColor & 0x00FFFFFF) | (0xA0 << 24); // ~63% opaque
-            mTerminalToolbarCard.setCardBackgroundColor(glassColor);
+            mTerminalToolbarCard.setCardBackgroundColor(Color.TRANSPARENT);
             if (mExtraKeysView != null) {
-                mExtraKeysView.setBackgroundColor(glassColor);
-                // Fully transparent key backgrounds: only the glyphs float on the wallpaper,
-                // avoiding the stacked rectangles the opaque/flat key colors would create.
-                mExtraKeysView.setButtonColors(theme.buttonTextColor, theme.buttonActiveTextColor,
-                    0x00FFFFFF, 0x33FFFFFF);
+                mExtraKeysView.setBackgroundColor(Color.TRANSPARENT);
+                // Fully transparent key backgrounds: only the glyphs float on the wallpaper.
+                mExtraKeysView.setButtonColors(Color.WHITE, Color.WHITE, 0x00FFFFFF, 0x33FFFFFF);
             }
             ViewPager terminalToolbarViewPager = getTerminalToolbarViewPager();
             if (terminalToolbarViewPager != null) {
-                terminalToolbarViewPager.setBackgroundColor(glassColor);
+                terminalToolbarViewPager.setBackgroundColor(Color.TRANSPARENT);
             }
         }
     }

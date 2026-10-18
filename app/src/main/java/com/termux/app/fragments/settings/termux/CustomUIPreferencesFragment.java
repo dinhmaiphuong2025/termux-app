@@ -283,6 +283,9 @@ public class CustomUIPreferencesFragment extends PreferenceFragmentCompat {
             "background_blur_radius",
             "extra_keys_bar_background_sync",
             "outer_background_style",
+            "terminal_shadow_enabled",
+            "terminal_border_corner_enabled",
+            "extra_keys_bar_corner_enabled",
             "extra_keys_use_custom",
             "extra_keys_preset",
             "extra_keys_custom_json",
@@ -401,6 +404,12 @@ class CustomUIPreferencesDataStore extends PreferenceDataStore {
                 return mPreferences.isBackgroundBlurEnabled();
             case "extra_keys_bar_background_sync":
                 return mPreferences.isExtraKeysBarBackgroundSyncEnabled();
+            case "terminal_shadow_enabled":
+                return mPreferences.isTerminalShadowEnabled();
+            case "terminal_border_corner_enabled":
+                return mPreferences.isTerminalBorderCornerEnabled();
+            case "extra_keys_bar_corner_enabled":
+                return mPreferences.isExtraKeysBarCornerEnabled();
             case "extra_keys_use_custom":
                 return mPreferences.isExtraKeysUseCustom();
             case "tab_animation_enabled":
@@ -580,6 +589,15 @@ class CustomUIPreferencesDataStore extends PreferenceDataStore {
                 break;
             case "outer_background_style":
                 mPreferences.setOuterBackgroundStyle(value != null ? value : "off");
+                break;
+            case "terminal_shadow_enabled":
+                mPreferences.setTerminalShadowEnabled(value);
+                break;
+            case "terminal_border_corner_enabled":
+                mPreferences.setTerminalBorderCornerEnabled(value);
+                break;
+            case "extra_keys_bar_corner_enabled":
+                mPreferences.setExtraKeysBarCornerEnabled(value);
                 break;
             case "extra_keys_preset":
                 mPreferences.setExtraKeysPreset(value != null ? value : "");

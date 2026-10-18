@@ -1,18 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Liquid glass: uniform frosted base layer + sheen gradient highlight at the top. -->
-<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item>
-        <shape>
-            <solid android:color="#1FFFFFFF" />
-        </shape>
-    </item>
-    <item>
-        <shape>
-            <gradient
-                android:angle="270"
-                android:startColor="#2BFFFFFF"
-                android:centerColor="#0FFFFFFF"
-                android:endColor="#00FFFFFF" />
-        </shape>
-    </item>
-</layer-list>
+<!-- Apple-style Liquid Glass: a clear, uniform translucent white pane.
+     Opacity is driven by the glass tint preference; no glow, no frost. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="#FFFFFF" />
+</shape>

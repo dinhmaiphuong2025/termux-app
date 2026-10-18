@@ -327,6 +327,15 @@ public final class TermuxPreferenceConstants {
         public static final String KEY_OUTER_BACKGROUND_STYLE = "outer_background_style";
         public static final String DEFAULT_VALUE_OUTER_BACKGROUND_STYLE = "off"; // "off", "blur", "sharp"
 
+        public static final String KEY_TERMINAL_SHADOW_ENABLED = "terminal_shadow_enabled";
+        public static final boolean DEFAULT_VALUE_TERMINAL_SHADOW_ENABLED = true;
+
+        public static final String KEY_TERMINAL_BORDER_CORNER_ENABLED = "terminal_border_corner_enabled";
+        public static final boolean DEFAULT_VALUE_TERMINAL_BORDER_CORNER_ENABLED = true;
+
+        public static final String KEY_EXTRA_KEYS_BAR_CORNER_ENABLED = "extra_keys_bar_corner_enabled";
+        public static final boolean DEFAULT_VALUE_EXTRA_KEYS_BAR_CORNER_ENABLED = true;
+
         /**
          * Extra Keys Shape & Customizer Preferences.
          */
