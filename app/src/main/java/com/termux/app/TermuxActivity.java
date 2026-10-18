@@ -10,8 +10,13 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.renderscript.Allocation;
+import android.renderscript.Element;
+import android.renderscript.RenderScript;
+import android.renderscript.ScriptIntrinsicBlur;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Gravity;
@@ -72,12 +77,17 @@ import com.google.android.material.card.MaterialCardView;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.net.Uri;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
+import android.graphics.Matrix;
+import android.graphics.RenderEffect;
+import android.graphics.Shader;
 import android.text.TextUtils;
-import android.view.ViewGroup;
 import android.widget.ImageView;
 import java.io.File;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * A terminal emulator activity.
@@ -157,6 +167,28 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
     View mTerminalBackgroundOverlay;
     View mTerminalBorderOverlay;
     TerminalBorderDrawable mTerminalBorderDrawable;
+    View mTerminalGlassTint;
+    ImageView mTerminalToolbarBackgroundImage;
+    View mTerminalToolbarBackgroundOverlay;
+    View mTerminalToolbarGlassTint;
+
+    /** Last decoded background bitmap and blur radius, kept for re-applying layout matrices. */
+    Bitmap mLastBackgroundBitmap;
+    int mLastBackgroundBlurRadius;
+
+    /** Small LRU cache of decoded (and on old APIs, pre-blurred) background bitmaps. */
+    final Map<String, Bitmap> mBackgroundBitmapCache = new LinkedHashMap<String, Bitmap>() {
+        @Override
+        protected boolean removeEldestEntry(Map.Entry<String, Bitmap> eldest) {
+            if (size() > 4) {
+                if (eldest.getValue() != null && !eldest.getValue().isRecycled()) {
+                    eldest.getValue().recycle();
+                }
+                return true;
+            }
+            return false;
+        }
+    };
     TermuxTabBarController mTermuxTabBarController;
     TermuxGesturePillView mTermuxGesturePillView;
 
@@ -532,6 +564,10 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         if (mTerminalBorderOverlay != null) {
             mTerminalBorderOverlay.setBackground(mTerminalBorderDrawable);
         }
+        mTerminalGlassTint = findViewById(R.id.terminal_glass_tint);
+        mTerminalToolbarBackgroundImage = findViewById(R.id.terminal_toolbar_background_image);
+        mTerminalToolbarBackgroundOverlay = findViewById(R.id.terminal_toolbar_background_overlay);
+        mTerminalToolbarGlassTint = findViewById(R.id.terminal_toolbar_glass_tint);
 
         mTermuxGesturePillView = findViewById(R.id.terminal_gesture_pill);
         if (mTermuxGesturePillView != null) {
@@ -1029,74 +1065,8 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
             }
         }
 
-        // 2. Terminal Background Image & Opacity Overlay
-        if (mTerminalBackgroundImage != null && mTerminalBackgroundOverlay != null) {
-            String imagePath = getPreferences().getTerminalBackgroundImagePath();
-            if (!TextUtils.isEmpty(imagePath)) {
-                final int opacity = getPreferences().getTerminalBackgroundOpacity();
-                final float alpha = Math.max(0.0f, Math.min(1.0f, opacity / 100.0f));
-                mTerminalBackgroundOverlay.setAlpha(alpha);
-                mTerminalBackgroundOverlay.setVisibility(View.VISIBLE);
-
-                final String targetPath = imagePath;
-                final ImageView bgView = mTerminalBackgroundImage;
-
-                new Thread(() -> {
-                    Bitmap loadedBitmap = null;
-                    try {
-                        Uri uri = Uri.parse(targetPath);
-                        BitmapFactory.Options opts = new BitmapFactory.Options();
-                        opts.inJustDecodeBounds = true;
-
-                        if (targetPath.startsWith("content://") || targetPath.startsWith("file://")) {
-                            try (java.io.InputStream is = getContentResolver().openInputStream(uri)) {
-                                BitmapFactory.decodeStream(is, null, opts);
-                            }
-                        } else {
-                            BitmapFactory.decodeFile(targetPath, opts);
-                        }
-
-                        // Downsample if image is excessively large (larger than 2048 in either dimension)
-                        int sampleSize = 1;
-                        int maxDim = Math.max(opts.outWidth, opts.outHeight);
-                        while (maxDim / sampleSize > 2048) {
-                            sampleSize *= 2;
-                        }
-
-                        BitmapFactory.Options decodeOpts = new BitmapFactory.Options();
-                        decodeOpts.inSampleSize = sampleSize;
-
-                        if (targetPath.startsWith("content://") || targetPath.startsWith("file://")) {
-                            try (java.io.InputStream is = getContentResolver().openInputStream(uri)) {
-                                loadedBitmap = BitmapFactory.decodeStream(is, null, decodeOpts);
-                            }
-                        } else {
-                            loadedBitmap = BitmapFactory.decodeFile(targetPath, decodeOpts);
-                        }
-                    } catch (Throwable t) {
-                        Logger.logStackTraceWithMessage(LOG_TAG, "Failed to decode background image in background thread", t);
-                    }
-
-                    final Bitmap finalBitmap = loadedBitmap;
-                    runOnUiThread(() -> {
-                        if (!isFinishing()) {
-                            if (finalBitmap != null) {
-                                bgView.setImageBitmap(finalBitmap);
-                                bgView.setVisibility(View.VISIBLE);
-                            } else {
-                                bgView.setVisibility(View.GONE);
-                                mTerminalBackgroundOverlay.setVisibility(View.GONE);
-                                showToast("Could not load background image", false);
-                            }
-                        }
-                    });
-                }).start();
-            } else {
-                mTerminalBackgroundImage.setImageDrawable(null);
-                mTerminalBackgroundImage.setVisibility(View.GONE);
-                mTerminalBackgroundOverlay.setVisibility(View.GONE);
-            }
-        }
+        // 2. Terminal Background Image & Opacity Overlay (with blur + glass)
+        applyTerminalBackground();
 
         // 2.5 Terminal Cell Background Transparency (for Neovim / TUI apps)
         if (mTerminalView != null) {
@@ -1158,10 +1128,332 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         // 5. Extra Keys Styling & Config
         reloadExtraKeysStylingAndConfig();
 
+        // 5.5 Glass & Blur Effects
+        applyGlassAndBlurEffects(density);
+
         // 6. Floating Gesture Pill
         if (mTermuxGesturePillView != null) {
             mTermuxGesturePillView.applyConfig();
         }
+    }
+
+    /**
+     * Load (or reuse from the LRU cache) the terminal background wallpaper and apply
+     * blur, saturation and glass layout to the terminal and toolbar background views.
+     */
+    private void applyTerminalBackground() {
+        if (mTerminalBackgroundImage == null || mTerminalBackgroundOverlay == null) return;
+
+        String imagePath = getPreferences().getTerminalBackgroundImagePath();
+        if (!TextUtils.isEmpty(imagePath)) {
+            final int opacity = getPreferences().getTerminalBackgroundOpacity();
+            final float alpha = Math.max(0.0f, Math.min(1.0f, opacity / 100.0f));
+            mTerminalBackgroundOverlay.setAlpha(alpha);
+            mTerminalBackgroundOverlay.setVisibility(View.VISIBLE);
+            if (mTerminalToolbarBackgroundOverlay != null) {
+                mTerminalToolbarBackgroundOverlay.setAlpha(alpha);
+            }
+
+            final String targetPath = imagePath;
+            final float density = getResources().getDisplayMetrics().density;
+            final boolean blurEnabled = getPreferences().isBackgroundBlurEnabled();
+            final int blurRadius = blurEnabled ? Math.max(1, getPreferences().getBackgroundBlurRadius()) : 0;
+            final String cacheKey = targetPath + "|" + blurRadius;
+
+            Bitmap cached = mBackgroundBitmapCache.get(cacheKey);
+            if (cached != null) {
+                // Refresh LRU order.
+                mBackgroundBitmapCache.remove(cacheKey);
+                mBackgroundBitmapCache.put(cacheKey, cached);
+                applyBackgroundBitmap(cached, blurRadius);
+            } else {
+                new Thread(() -> {
+                    Bitmap loadedBitmap = null;
+                    try {
+                        Uri uri = Uri.parse(targetPath);
+                        BitmapFactory.Options opts = new BitmapFactory.Options();
+                        opts.inJustDecodeBounds = true;
+
+                        if (targetPath.startsWith("content://") || targetPath.startsWith("file://")) {
+                            try (java.io.InputStream is = getContentResolver().openInputStream(uri)) {
+                                BitmapFactory.decodeStream(is, null, opts);
+                            }
+                        } else {
+                            BitmapFactory.decodeFile(targetPath, opts);
+                        }
+
+                        // Downsample if image is excessively large (larger than 2048 in either dimension)
+                        int sampleSize = 1;
+                        int maxDim = Math.max(opts.outWidth, opts.outHeight);
+                        while (maxDim / sampleSize > 2048) {
+                            sampleSize *= 2;
+                        }
+
+                        BitmapFactory.Options decodeOpts = new BitmapFactory.Options();
+                        decodeOpts.inSampleSize = sampleSize;
+
+                        if (targetPath.startsWith("content://") || targetPath.startsWith("file://")) {
+                            try (java.io.InputStream is = getContentResolver().openInputStream(uri)) {
+                                loadedBitmap = BitmapFactory.decodeStream(is, null, decodeOpts);
+                            }
+                        } else {
+                            loadedBitmap = BitmapFactory.decodeFile(targetPath, decodeOpts);
+                        }
+
+                        // Real gaussian blur on APIs without RenderEffect (21-30).
+                        if (loadedBitmap != null && blurRadius > 0
+                            && Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+                            loadedBitmap = blurBitmapRenderScript(loadedBitmap, Math.round(blurRadius * density));
+                        }
+                    } catch (Throwable t) {
+                        Logger.logStackTraceWithMessage(LOG_TAG, "Failed to decode background image in background thread", t);
+                    }
+
+                    final Bitmap finalBitmap = loadedBitmap;
+                    runOnUiThread(() -> {
+                        if (!isFinishing()) {
+                            if (finalBitmap != null) {
+                                // All cache access happens on the UI thread only.
+                                mBackgroundBitmapCache.put(cacheKey, finalBitmap);
+                                applyBackgroundBitmap(finalBitmap, blurRadius);
+                            } else {
+                                mTerminalBackgroundImage.setVisibility(View.GONE);
+                                mTerminalBackgroundOverlay.setVisibility(View.GONE);
+                                hideToolbarBackground();
+                                showToast("Could not load background image", false);
+                            }
+                        }
+                    });
+                }).start();
+            }
+        } else {
+            mTerminalBackgroundImage.setImageDrawable(null);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                mTerminalBackgroundImage.setRenderEffect(null);
+            }
+            mTerminalBackgroundImage.setColorFilter(null);
+            mTerminalBackgroundImage.setVisibility(View.GONE);
+            mTerminalBackgroundOverlay.setVisibility(View.GONE);
+            mLastBackgroundBitmap = null;
+            hideToolbarBackground();
+        }
+    }
+
+    /**
+     * Push a decoded (and possibly pre-blurred) wallpaper bitmap into the terminal
+     * background view, applying blur, saturation and the glass union-crop layout.
+     */
+    @SuppressLint("NewApi")
+    private void applyBackgroundBitmap(Bitmap bitmap, int blurRadius) {
+        boolean glassEnabled = getPreferences() != null && getPreferences().isGlassEffectEnabled();
+        float blurPx = blurRadius * getResources().getDisplayMetrics().density;
+
+        mLastBackgroundBitmap = bitmap;
+        mLastBackgroundBlurRadius = blurRadius;
+
+        if (mTerminalBackgroundImage != null) {
+            mTerminalBackgroundImage.setImageBitmap(bitmap);
+            mTerminalBackgroundImage.setColorFilter(glassEnabled ? buildSaturationFilter(1.25f) : null);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                if (blurRadius > 0) {
+                    mTerminalBackgroundImage.setRenderEffect(
+                        RenderEffect.createBlurEffect(blurPx, blurPx, Shader.TileMode.CLAMP));
+                } else {
+                    mTerminalBackgroundImage.setRenderEffect(null);
+                }
+            }
+            mTerminalBackgroundImage.setVisibility(View.VISIBLE);
+        }
+
+        if (glassEnabled) {
+            applyToolbarBackgroundSlice(bitmap, blurRadius, blurPx);
+        } else {
+            hideToolbarBackground();
+            if (mTerminalBackgroundImage != null) {
+                mTerminalBackgroundImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                mTerminalBackgroundImage.setImageMatrix(null);
+            }
+        }
+    }
+
+    /**
+     * Show the wallpaper slice behind the extra keys bar using a union center-crop
+     * transform shared with the terminal card so the image is continuous across the seam.
+     */
+    @SuppressLint("NewApi")
+    private void applyToolbarBackgroundSlice(Bitmap bitmap, int blurRadius, float blurPx) {
+        if (mTerminalToolbarBackgroundImage == null || mTerminalToolbarCard == null || mTerminalCardContainer == null) return;
+
+        int[] cardLoc = new int[2];
+        int[] barLoc = new int[2];
+        mTerminalCardContainer.getLocationOnScreen(cardLoc);
+        mTerminalToolbarCard.getLocationOnScreen(barLoc);
+
+        int cardW = mTerminalCardContainer.getWidth();
+        int cardH = mTerminalCardContainer.getHeight();
+        int barW = mTerminalToolbarCard.getWidth();
+        int barH = mTerminalToolbarCard.getHeight();
+
+        if (cardW <= 0 || cardH <= 0 || barW <= 0 || barH <= 0) {
+            // Layout not ready yet; retry once it is.
+            mTerminalCardContainer.post(() -> {
+                if (!isFinishing() && mLastBackgroundBitmap == bitmap) {
+                    applyToolbarBackgroundSlice(bitmap, blurRadius, blurPx);
+                }
+            });
+            return;
+        }
+
+        int unionW = Math.max(cardW, barW);
+        int barOffsetInUnion = barLoc[1] - cardLoc[1];
+        int unionH = barOffsetInUnion + barH;
+        float scale = Math.max((float) unionW / bitmap.getWidth(), (float) unionH / bitmap.getHeight());
+        float scaledW = bitmap.getWidth() * scale;
+        float scaledH = bitmap.getHeight() * scale;
+        float dx = (unionW - scaledW) / 2f;
+        float dy = (unionH - scaledH) / 2f;
+
+        // Terminal image: top part of the union crop.
+        if (mTerminalBackgroundImage != null) {
+            Matrix matrix = new Matrix();
+            matrix.setScale(scale, scale);
+            matrix.postTranslate(dx, dy);
+            mTerminalBackgroundImage.setScaleType(ImageView.ScaleType.MATRIX);
+            mTerminalBackgroundImage.setImageMatrix(matrix);
+        }
+
+        // Toolbar image: bottom part of the union crop.
+        Matrix barMatrix = new Matrix();
+        barMatrix.setScale(scale, scale);
+        barMatrix.postTranslate(dx, dy - barOffsetInUnion);
+        mTerminalToolbarBackgroundImage.setScaleType(ImageView.ScaleType.MATRIX);
+        mTerminalToolbarBackgroundImage.setImageMatrix(barMatrix);
+        mTerminalToolbarBackgroundImage.setImageBitmap(bitmap);
+        mTerminalToolbarBackgroundImage.setColorFilter(
+            getPreferences() != null && getPreferences().isGlassEffectEnabled() ? buildSaturationFilter(1.25f) : null);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            if (blurRadius > 0) {
+                mTerminalToolbarBackgroundImage.setRenderEffect(
+                    RenderEffect.createBlurEffect(blurPx, blurPx, Shader.TileMode.CLAMP));
+            } else {
+                mTerminalToolbarBackgroundImage.setRenderEffect(null);
+            }
+        }
+        mTerminalToolbarBackgroundImage.setVisibility(View.VISIBLE);
+        if (mTerminalToolbarBackgroundOverlay != null) {
+            mTerminalToolbarBackgroundOverlay.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void hideToolbarBackground() {
+        if (mTerminalToolbarBackgroundImage != null) {
+            mTerminalToolbarBackgroundImage.setVisibility(View.GONE);
+            mTerminalToolbarBackgroundImage.setImageDrawable(null);
+            mTerminalToolbarBackgroundImage.setColorFilter(null);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                mTerminalToolbarBackgroundImage.setRenderEffect(null);
+            }
+        }
+        if (mTerminalToolbarBackgroundOverlay != null) {
+            mTerminalToolbarBackgroundOverlay.setVisibility(View.GONE);
+        }
+    }
+
+    /**
+     * Apply liquid glass effects: sheen tint, saturation, border highlight on the
+     * terminal window, and translucent glass styling for the extra keys bar.
+     */
+    private void applyGlassAndBlurEffects(float density) {
+        boolean glassEnabled = getPreferences().isGlassEffectEnabled();
+        float tintAlpha = Math.max(0f, Math.min(1f, getPreferences().getGlassTintOpacity() / 100f));
+
+        // Terminal sheen tint.
+        if (mTerminalGlassTint != null) {
+            mTerminalGlassTint.setAlpha(glassEnabled ? tintAlpha : 1f);
+            mTerminalGlassTint.setVisibility(glassEnabled ? View.VISIBLE : View.GONE);
+        }
+
+        // Glass highlight inside the terminal border.
+        if (mTerminalBorderDrawable != null) {
+            mTerminalBorderDrawable.setGlassHighlight(glassEnabled);
+        }
+        if (mTerminalBorderOverlay != null) {
+            mTerminalBorderOverlay.invalidate();
+        }
+
+        // Toolbar sheen tint.
+        if (mTerminalToolbarGlassTint != null) {
+            mTerminalToolbarGlassTint.setAlpha(glassEnabled ? Math.min(1f, tintAlpha * 0.7f) : 1f);
+            mTerminalToolbarGlassTint.setVisibility(glassEnabled ? View.VISIBLE : View.GONE);
+        }
+
+        // Extra keys bar glass translucency.
+        applyExtraKeysBarGlass(glassEnabled);
+
+        // Re-apply saturation filters and union-crop layout on already-loaded wallpaper.
+        if (mTerminalBackgroundImage != null && mLastBackgroundBitmap != null) {
+            mTerminalBackgroundImage.setColorFilter(glassEnabled ? buildSaturationFilter(1.25f) : null);
+            if (glassEnabled) {
+                applyToolbarBackgroundSlice(mLastBackgroundBitmap, mLastBackgroundBlurRadius,
+                    mLastBackgroundBlurRadius * density);
+            } else {
+                mTerminalBackgroundImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                mTerminalBackgroundImage.setImageMatrix(null);
+                hideToolbarBackground();
+            }
+        }
+    }
+
+    /**
+     * Make the extra keys bar translucent glass: the wallpaper shows through the
+     * card, pager and extra keys view backgrounds.
+     */
+    private void applyExtraKeysBarGlass(boolean glassEnabled) {
+        if (mTerminalToolbarCard == null || getPreferences() == null) return;
+
+        if (glassEnabled) {
+            String themeName = getPreferences().getExtraKeysColorTheme();
+            com.termux.shared.termux.extrakeys.ExtraKeysTheme theme =
+                com.termux.shared.termux.extrakeys.ExtraKeysTheme.getTheme(this, themeName);
+            int glassColor = (theme.barBackgroundColor & 0x00FFFFFF) | (0xA0 << 24); // ~63% opaque
+            mTerminalToolbarCard.setCardBackgroundColor(glassColor);
+            if (mExtraKeysView != null) {
+                mExtraKeysView.setBackgroundColor(glassColor);
+            }
+            ViewPager terminalToolbarViewPager = getTerminalToolbarViewPager();
+            if (terminalToolbarViewPager != null) {
+                terminalToolbarViewPager.setBackgroundColor(glassColor);
+            }
+        }
+    }
+
+    /** Real gaussian blur via RenderScript (framework API, available on API 21-30). */
+    @SuppressWarnings("deprecation")
+    private Bitmap blurBitmapRenderScript(Bitmap src, int radiusPx) {
+        try {
+            RenderScript rs = RenderScript.create(this);
+            Allocation input = Allocation.createFromBitmap(rs, src, Allocation.MipmapControl.MIPMAP_NONE, Allocation.USAGE_SCRIPT);
+            Allocation output = Allocation.createTyped(rs, input.getType());
+            ScriptIntrinsicBlur blur = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs));
+            blur.setRadius(Math.max(1f, Math.min(25f, radiusPx)));
+            blur.setInput(input);
+            blur.forEach(output);
+            output.copyTo(src);
+            input.destroy();
+            output.destroy();
+            blur.destroy();
+            rs.destroy();
+            return src;
+        } catch (Throwable t) {
+            Logger.logStackTraceWithMessage(LOG_TAG, "RenderScript blur failed, using unblurred wallpaper", t);
+            return src;
+        }
+    }
+
+    private static ColorMatrixColorFilter buildSaturationFilter(float saturation) {
+        ColorMatrix matrix = new ColorMatrix();
+        matrix.setSaturation(saturation);
+        return new ColorMatrixColorFilter(matrix);
     }
 
     public void reloadExtraKeysStylingAndConfig() {

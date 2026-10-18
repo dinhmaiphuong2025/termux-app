@@ -307,6 +307,21 @@ public final class TermuxPreferenceConstants {
         public static final boolean DEFAULT_VALUE_TERMINAL_SMOOTH_SCROLL = true;
 
         /**
+         * Glass & Blur Effect Preferences.
+         */
+        public static final String KEY_GLASS_EFFECT_ENABLED = "glass_effect_enabled";
+        public static final boolean DEFAULT_VALUE_GLASS_EFFECT_ENABLED = false;
+
+        public static final String KEY_GLASS_TINT_OPACITY = "glass_tint_opacity";
+        public static final int DEFAULT_VALUE_GLASS_TINT_OPACITY = 18; // 0-100
+
+        public static final String KEY_BACKGROUND_BLUR_ENABLED = "background_blur_enabled";
+        public static final boolean DEFAULT_VALUE_BACKGROUND_BLUR_ENABLED = false;
+
+        public static final String KEY_BACKGROUND_BLUR_RADIUS = "background_blur_radius";
+        public static final int DEFAULT_VALUE_BACKGROUND_BLUR_RADIUS = 12; // 1-25 dp
+
+        /**
          * Extra Keys Shape & Customizer Preferences.
          */
         public static final String KEY_EXTRA_KEYS_CORNER_RADIUS = "extra_keys_corner_radius";

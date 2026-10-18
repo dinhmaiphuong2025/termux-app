@@ -373,6 +373,41 @@
     </PreferenceCategory>
 
     <PreferenceCategory
+        app:key="glass_effects_category"
+        app:title="@string/termux_glass_effects_header">
+
+        <SwitchPreferenceCompat
+            app:key="glass_effect_enabled"
+            app:title="@string/termux_glass_effect_enabled_title"
+            app:summary="@string/termux_glass_effect_enabled_summary"
+            app:defaultValue="false" />
+
+        <SeekBarPreference
+            app:key="glass_tint_opacity"
+            app:title="@string/termux_glass_tint_opacity_title"
+            app:summary="@string/termux_glass_tint_opacity_summary"
+            app:min="0"
+            android:max="100"
+            app:showSeekBarValue="true"
+            app:defaultValue="18" />
+
+        <SwitchPreferenceCompat
+            app:key="background_blur_enabled"
+            app:title="@string/termux_background_blur_enabled_title"
+            app:summary="@string/termux_background_blur_enabled_summary"
+            app:defaultValue="false" />
+
+        <SeekBarPreference
+            app:key="background_blur_radius"
+            app:title="@string/termux_background_blur_radius_title"
+            app:min="1"
+            android:max="25"
+            app:showSeekBarValue="true"
+            app:defaultValue="12" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
         app:key="terminal_behavior_category"
         app:title="@string/termux_terminal_behavior_header">
 

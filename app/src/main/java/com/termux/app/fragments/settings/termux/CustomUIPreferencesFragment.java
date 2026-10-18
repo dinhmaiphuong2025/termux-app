@@ -212,6 +212,10 @@ public class CustomUIPreferencesFragment extends PreferenceFragmentCompat {
             "terminal_cell_background_transparency",
             "terminal_cell_background_opacity",
             "terminal_smooth_scroll",
+            "glass_effect_enabled",
+            "glass_tint_opacity",
+            "background_blur_enabled",
+            "background_blur_radius",
             "extra_keys_color_theme",
             "extra_keys_flat_keys",
             "extra_keys_margin",
@@ -274,6 +278,12 @@ class CustomUIPreferencesDataStore extends PreferenceDataStore {
             case "terminal_smooth_scroll":
                 mPreferences.setTerminalSmoothScrollEnabled(value);
                 break;
+            case "glass_effect_enabled":
+                mPreferences.setGlassEffectEnabled(value);
+                break;
+            case "background_blur_enabled":
+                mPreferences.setBackgroundBlurEnabled(value);
+                break;
             case "tab_animation_enabled":
                 mPreferences.setTabAnimationEnabled(value);
                 break;
@@ -309,6 +319,10 @@ class CustomUIPreferencesDataStore extends PreferenceDataStore {
                 return mPreferences.isTerminalCellBackgroundTransparencyEnabled();
             case "terminal_smooth_scroll":
                 return mPreferences.isTerminalSmoothScrollEnabled();
+            case "glass_effect_enabled":
+                return mPreferences.isGlassEffectEnabled();
+            case "background_blur_enabled":
+                return mPreferences.isBackgroundBlurEnabled();
             case "tab_animation_enabled":
                 return mPreferences.isTabAnimationEnabled();
             case "show_session_name_without_tab_bar":
@@ -367,6 +381,12 @@ class CustomUIPreferencesDataStore extends PreferenceDataStore {
                 break;
             case "terminal_cell_background_opacity":
                 mPreferences.setTerminalCellBackgroundOpacity(value);
+                break;
+            case "glass_tint_opacity":
+                mPreferences.setGlassTintOpacity(value);
+                break;
+            case "background_blur_radius":
+                mPreferences.setBackgroundBlurRadius(value);
                 break;
             case "gesture_pill_width":
                 mPreferences.setGesturePillWidth(value);
@@ -431,6 +451,10 @@ class CustomUIPreferencesDataStore extends PreferenceDataStore {
                 return mPreferences.getTerminalBackgroundOpacity();
             case "terminal_cell_background_opacity":
                 return mPreferences.getTerminalCellBackgroundOpacity();
+            case "glass_tint_opacity":
+                return mPreferences.getGlassTintOpacity();
+            case "background_blur_radius":
+                return mPreferences.getBackgroundBlurRadius();
             case "gesture_pill_width":
                 return mPreferences.getGesturePillWidth();
             case "gesture_pill_height":

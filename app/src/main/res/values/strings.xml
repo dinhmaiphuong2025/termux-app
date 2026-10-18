@@ -305,6 +305,16 @@
     <string name="termux_smooth_scroll_title">Smooth Scroll</string>
     <string name="termux_smooth_scroll_summary">Glide terminal content at pixel precision when swiping, flinging or scrolling with a mouse wheel</string>
 
+    <!-- Glass & Blur Effect Preferences -->
+    <string name="termux_glass_effects_header">Liquid Glass &amp; Blur Effects</string>
+    <string name="termux_glass_effect_enabled_title">Liquid Glass Effect</string>
+    <string name="termux_glass_effect_enabled_summary">Frosted glass look for the terminal window and extra keys bar with sheen, saturation and inner highlight</string>
+    <string name="termux_glass_tint_opacity_title">Glass Tint Opacity (%)</string>
+    <string name="termux_glass_tint_opacity_summary">Strength of the white glass sheen overlay</string>
+    <string name="termux_background_blur_enabled_title">Blur Background Wallpaper</string>
+    <string name="termux_background_blur_enabled_summary">Real gaussian blur on the background image (RenderScript / RenderEffect)</string>
+    <string name="termux_background_blur_radius_title">Blur Radius (dp)</string>
+
     <!-- Extra Keys Styling & Presets -->
     <string name="termux_extra_keys_styling_header">Extra Keys Shape &amp; Styling</string>
     <string name="termux_extra_keys_color_theme_title">Bar Color Theme</string>

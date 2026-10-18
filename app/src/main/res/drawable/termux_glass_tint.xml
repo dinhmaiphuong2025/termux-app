@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Liquid glass sheen gradient: subtle white highlight at the top fading to transparent. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <gradient
+        android:angle="270"
+        android:startColor="#33FFFFFF"
+        android:centerColor="#10FFFFFF"
+        android:endColor="#00FFFFFF" />
+</shape>

@@ -554,6 +554,38 @@ public class TermuxAppSharedPreferences extends AppSharedPreferences {
         SharedPreferenceUtils.setBoolean(mSharedPreferences, TERMUX_APP.KEY_TERMINAL_SMOOTH_SCROLL, value, false);
     }
 
+    public boolean isGlassEffectEnabled() {
+        return SharedPreferenceUtils.getBoolean(mSharedPreferences, TERMUX_APP.KEY_GLASS_EFFECT_ENABLED, TERMUX_APP.DEFAULT_VALUE_GLASS_EFFECT_ENABLED);
+    }
+
+    public void setGlassEffectEnabled(boolean value) {
+        SharedPreferenceUtils.setBoolean(mSharedPreferences, TERMUX_APP.KEY_GLASS_EFFECT_ENABLED, value, false);
+    }
+
+    public int getGlassTintOpacity() {
+        return SharedPreferenceUtils.getInt(mSharedPreferences, TERMUX_APP.KEY_GLASS_TINT_OPACITY, TERMUX_APP.DEFAULT_VALUE_GLASS_TINT_OPACITY);
+    }
+
+    public void setGlassTintOpacity(int value) {
+        SharedPreferenceUtils.setInt(mSharedPreferences, TERMUX_APP.KEY_GLASS_TINT_OPACITY, value, false);
+    }
+
+    public boolean isBackgroundBlurEnabled() {
+        return SharedPreferenceUtils.getBoolean(mSharedPreferences, TERMUX_APP.KEY_BACKGROUND_BLUR_ENABLED, TERMUX_APP.DEFAULT_VALUE_BACKGROUND_BLUR_ENABLED);
+    }
+
+    public void setBackgroundBlurEnabled(boolean value) {
+        SharedPreferenceUtils.setBoolean(mSharedPreferences, TERMUX_APP.KEY_BACKGROUND_BLUR_ENABLED, value, false);
+    }
+
+    public int getBackgroundBlurRadius() {
+        return SharedPreferenceUtils.getInt(mSharedPreferences, TERMUX_APP.KEY_BACKGROUND_BLUR_RADIUS, TERMUX_APP.DEFAULT_VALUE_BACKGROUND_BLUR_RADIUS);
+    }
+
+    public void setBackgroundBlurRadius(int value) {
+        SharedPreferenceUtils.setInt(mSharedPreferences, TERMUX_APP.KEY_BACKGROUND_BLUR_RADIUS, value, false);
+    }
+
     public int getExtraKeysCornerRadius() {
         return SharedPreferenceUtils.getInt(mSharedPreferences, TERMUX_APP.KEY_EXTRA_KEYS_CORNER_RADIUS, TERMUX_APP.DEFAULT_VALUE_EXTRA_KEYS_CORNER_RADIUS);
     }
@@ -749,6 +781,10 @@ public class TermuxAppSharedPreferences extends AppSharedPreferences {
         setTerminalCellBackgroundTransparencyEnabled(TERMUX_APP.DEFAULT_VALUE_TERMINAL_CELL_BACKGROUND_TRANSPARENCY);
         setTerminalCellBackgroundOpacity(TERMUX_APP.DEFAULT_VALUE_TERMINAL_CELL_BACKGROUND_OPACITY);
         setTerminalSmoothScrollEnabled(TERMUX_APP.DEFAULT_VALUE_TERMINAL_SMOOTH_SCROLL);
+        setGlassEffectEnabled(TERMUX_APP.DEFAULT_VALUE_GLASS_EFFECT_ENABLED);
+        setGlassTintOpacity(TERMUX_APP.DEFAULT_VALUE_GLASS_TINT_OPACITY);
+        setBackgroundBlurEnabled(TERMUX_APP.DEFAULT_VALUE_BACKGROUND_BLUR_ENABLED);
+        setBackgroundBlurRadius(TERMUX_APP.DEFAULT_VALUE_BACKGROUND_BLUR_RADIUS);
 
         setExtraKeysCornerRadius(TERMUX_APP.DEFAULT_VALUE_EXTRA_KEYS_CORNER_RADIUS);
         setExtraKeysMargin(TERMUX_APP.DEFAULT_VALUE_EXTRA_KEYS_MARGIN);

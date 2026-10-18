@@ -66,6 +66,13 @@
                                 android:background="#000000"
                                 android:visibility="gone" />
 
+                            <View
+                                android:id="@+id/terminal_glass_tint"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:background="@drawable/termux_glass_tint"
+                                android:visibility="gone" />
+
                             <com.termux.view.TerminalView
                                 android:id="@+id/terminal_view"
                                 android:layout_width="match_parent"
@@ -168,6 +175,28 @@
             app:strokeWidth="0dp"
             app:cardCornerRadius="0dp"
             app:cardBackgroundColor="@android:color/transparent">
+
+            <ImageView
+                android:id="@+id/terminal_toolbar_background_image"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="matrix"
+                android:visibility="gone"
+                tools:ignore="ContentDescription" />
+
+            <View
+                android:id="@+id/terminal_toolbar_background_overlay"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#000000"
+                android:visibility="gone" />
+
+            <View
+                android:id="@+id/terminal_toolbar_glass_tint"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/termux_glass_tint"
+                android:visibility="gone" />
 
             <androidx.viewpager.widget.ViewPager
                 android:id="@+id/terminal_toolbar_view_pager"

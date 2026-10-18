@@ -24,16 +24,20 @@ public class TerminalBorderDrawable extends Drawable {
     public static final String STYLE_BRACKETS = "brackets";
 
     private final Paint mStrokePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint mHighlightPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
     private int mStrokeWidth = 1;
     private int mCornerRadius = 1;
     private int mStrokeColor = 0xFFFFFFFF;
     private String mStyle = STYLE_FULL;
+    private boolean mGlassHighlight = false;
 
     private float mDensity = 1.0f;
 
     public TerminalBorderDrawable() {
         mStrokePaint.setStyle(Paint.Style.STROKE);
+        mHighlightPaint.setStyle(Paint.Style.STROKE);
+        mHighlightPaint.setColor(0x55FFFFFF);
     }
 
     public void setConfig(float density, int strokeWidth, int cornerRadius, int strokeColor, String style) {
@@ -45,7 +49,21 @@ public class TerminalBorderDrawable extends Drawable {
 
         mStrokePaint.setStrokeWidth(mStrokeWidth);
         mStrokePaint.setColor(mStrokeColor);
+        if (mGlassHighlight) {
+            mHighlightPaint.setStrokeWidth(Math.max(1f, mDensity));
+        }
 
+        invalidateSelf();
+    }
+
+    /**
+     * Enable or disable the inner translucent white highlight used by the
+     * liquid glass effect (1dp stroke inset from the main border).
+     */
+    public void setGlassHighlight(boolean enabled) {
+        if (mGlassHighlight == enabled) return;
+        mGlassHighlight = enabled;
+        mHighlightPaint.setStrokeWidth(Math.max(1f, mDensity));
         invalidateSelf();
     }
 
@@ -111,6 +129,23 @@ public class TerminalBorderDrawable extends Drawable {
                 canvas.drawRoundRect(new RectF(left, top, right, bottom), r, r, mStrokePaint);
             } else {
                 canvas.drawRect(left, top, right, bottom, mStrokePaint);
+            }
+        }
+
+        if (mGlassHighlight) {
+            // Inner glass highlight: a thin translucent white stroke just inside the main border.
+            float inset = mStrokeWidth / 2.0f + Math.max(1f, mDensity);
+            float hlLeft = left + inset;
+            float hlTop = top + inset;
+            float hlRight = right - inset;
+            float hlBottom = bottom - inset;
+            float hlRadius = Math.max(0f, r - inset);
+            if (hlLeft < hlRight && hlTop < hlBottom) {
+                if (hlRadius > 0) {
+                    canvas.drawRoundRect(new RectF(hlLeft, hlTop, hlRight, hlBottom), hlRadius, hlRadius, mHighlightPaint);
+                } else {
+                    canvas.drawRect(hlLeft, hlTop, hlRight, hlBottom, mHighlightPaint);
+                }
             }
         }
     }
