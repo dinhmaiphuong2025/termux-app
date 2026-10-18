@@ -209,18 +209,6 @@
         </PreferenceCategory>
 
         <PreferenceCategory
-            app:key="extra_keys_background_category"
-            app:title="@string/termux_extra_keys_background_header">
-
-            <SwitchPreferenceCompat
-                app:key="extra_keys_bar_background_sync"
-                app:title="@string/termux_extra_keys_bar_background_sync_title"
-                app:summary="@string/termux_extra_keys_bar_background_sync_summary"
-                app:defaultValue="false" />
-
-        </PreferenceCategory>
-
-        <PreferenceCategory
             app:key="extra_keys_customizer_category"
             app:title="@string/termux_extra_keys_customizer_header">
 
@@ -331,12 +319,6 @@
                 android:max="30"
                 app:showSeekBarValue="true"
                 app:defaultValue="12" />
-
-            <SwitchPreferenceCompat
-                app:key="tab_animation_enabled"
-                app:title="@string/termux_tab_animation_title"
-                app:summary="@string/termux_tab_animation_summary"
-                app:defaultValue="true" />
 
             <SwitchPreferenceCompat
                 app:key="show_session_name_without_tab_bar"
@@ -523,6 +505,12 @@
                 app:key="terminal_smooth_scroll"
                 app:title="@string/termux_smooth_scroll_title"
                 app:summary="@string/termux_smooth_scroll_summary"
+                app:defaultValue="true" />
+
+            <SwitchPreferenceCompat
+                app:key="tab_animation_enabled"
+                app:title="@string/termux_tab_animation_title"
+                app:summary="@string/termux_tab_animation_summary"
                 app:defaultValue="true" />
 
         </PreferenceCategory>

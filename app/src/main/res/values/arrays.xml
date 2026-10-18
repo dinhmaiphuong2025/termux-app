@@ -29,6 +29,7 @@
         <item>Tokyo Night</item>
         <item>Rosé Pine</item>
         <item>Solarized Dark</item>
+        <item>Sync Wallpaper (Terminal)</item>
     </string-array>
 
     <string-array name="extra_keys_color_theme_values">
@@ -46,6 +47,7 @@
         <item>tokyo_night</item>
         <item>rose_pine</item>
         <item>solarized_dark</item>
+        <item>sync_wallpaper</item>
     </string-array>
 
     <string-array name="terminal_border_style_titles">

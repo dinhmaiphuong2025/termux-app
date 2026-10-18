@@ -1343,11 +1343,11 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
 
     /**
      * Whether the toolbar should show the wallpaper slice behind it: either the liquid
-     * glass effect is enabled or the wallpaper is explicitly synced to the extra keys bar.
+     * glass effect is enabled or the bar color theme is set to "sync_wallpaper".
      */
     private boolean isBarBackgroundEnabled() {
         return getPreferences() != null && (getPreferences().isGlassEffectEnabled()
-            || getPreferences().isExtraKeysBarBackgroundSyncEnabled());
+            || "sync_wallpaper".equals(getPreferences().getExtraKeysColorTheme()));
     }
 
     /**
@@ -1558,10 +1558,10 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
             mTerminalToolbarCard.setCardBackgroundColor(glassColor);
             if (mExtraKeysView != null) {
                 mExtraKeysView.setBackgroundColor(glassColor);
-                int btnBg = getPreferences().isExtraKeysFlatKeys() ? theme.barBackgroundColor : theme.buttonBackgroundColor;
-                int glassBtnBg = (btnBg & 0x00FFFFFF) | (0xA0 << 24);
-                int glassActiveBg = (theme.buttonActiveBackgroundColor & 0x00FFFFFF) | (0xC8 << 24);
-                mExtraKeysView.setButtonColors(theme.buttonTextColor, theme.buttonActiveTextColor, glassBtnBg, glassActiveBg);
+                // Fully transparent key backgrounds: only the glyphs float on the wallpaper,
+                // avoiding the stacked rectangles the opaque/flat key colors would create.
+                mExtraKeysView.setButtonColors(theme.buttonTextColor, theme.buttonActiveTextColor,
+                    0x00FFFFFF, 0x33FFFFFF);
             }
             ViewPager terminalToolbarViewPager = getTerminalToolbarViewPager();
             if (terminalToolbarViewPager != null) {

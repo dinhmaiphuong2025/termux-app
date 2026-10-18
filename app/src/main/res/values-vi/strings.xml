@@ -23,6 +23,8 @@
     <string name="termux_terminal_behavior_screen_summary">Cuộn mượt nội dung terminal</string>
     <string name="termux_extra_keys_background_header">Nền thanh phím</string>
     <string name="termux_outer_background_header">Nền ngoài</string>
+    <string name="termux_extra_keys_flat_keys_title">Phím phẳng cùng màu thanh</string>
+    <string name="termux_extra_keys_flat_keys_summary">Nền phím cùng màu với nền thanh; bị bỏ qua khi bật theme đồng bộ hình nền hoặc kính lỏng (phím trong suốt hoàn toàn)</string>
 
     <!-- Floating Gesture Pill Preferences -->
     <string name="termux_gesture_pill_header">Nút cử chỉ nổi (Gesture Pill)</string>

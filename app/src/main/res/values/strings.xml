@@ -340,7 +340,7 @@
     <string name="termux_extra_keys_color_theme_title">Bar Color Theme</string>
     <string name="termux_extra_keys_color_theme_summary">Choose color palette (Catppuccin, Dracula, System Material You...)</string>
     <string name="termux_extra_keys_flat_keys_title">Flat Keys (Sync with Bar Color)</string>
-    <string name="termux_extra_keys_flat_keys_summary">Key background color matches the bar background seamlessly</string>
+    <string name="termux_extra_keys_flat_keys_summary">Key background color matches the bar background; ignored when the wallpaper sync theme or liquid glass is active (keys become fully transparent)</string>
     <string name="termux_extra_keys_margin_title">Key Spacing / Margin (dp)</string>
     <string name="termux_extra_keys_text_size_title">Key Text Size (sp)</string>
     <string name="termux_extra_keys_height_scale_title">Key Height Scale (%)</string>

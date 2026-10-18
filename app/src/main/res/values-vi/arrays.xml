@@ -17,6 +17,24 @@
         <item>Hình nền gốc</item>
     </string-array>
 
+    <string-array name="extra_keys_color_theme_titles">
+        <item>Mặc định (Termux Dark)</item>
+        <item>Theo hệ thống (Material You)</item>
+        <item>Chalk Dark</item>
+        <item>Gruvbox Dark</item>
+        <item>Gruvbox Light</item>
+        <item>Catppuccin Mocha</item>
+        <item>Catppuccin Macchiato</item>
+        <item>Catppuccin Latte (Sáng)</item>
+        <item>Dracula</item>
+        <item>Nord</item>
+        <item>One Dark</item>
+        <item>Tokyo Night</item>
+        <item>Rosé Pine</item>
+        <item>Solarized Dark</item>
+        <item>Đồng bộ hình nền (Terminal)</item>
+    </string-array>
+
     <string-array name="gesture_pill_action_titles">
         <item>Chuyển sang tab trước</item>
         <item>Chuyển sang tab tiếp theo</item>
