@@ -1438,8 +1438,9 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
             mTerminalToolbarGlassTint.setVisibility(glassEnabled ? View.VISIBLE : View.GONE);
         }
 
-        // Extra keys bar glass translucency.
-        applyExtraKeysBarGlass(glassEnabled);
+        // Extra keys bar glass translucency (applies when glass or wallpaper sync is on,
+        // otherwise the opaque bar backgrounds would hide the synced wallpaper slice).
+        applyExtraKeysBarGlass(isBarBackgroundEnabled());
 
         // Size the toolbar background views to the extra keys card.
         syncToolbarBackgroundViews();
@@ -1460,12 +1461,12 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
 
     /**
      * Make the extra keys bar translucent glass: the wallpaper shows through the
-     * card, pager and extra keys view backgrounds.
+     * card, pager, extra keys view and key buttons.
      */
-    private void applyExtraKeysBarGlass(boolean glassEnabled) {
+    private void applyExtraKeysBarGlass(boolean enabled) {
         if (mTerminalToolbarCard == null || getPreferences() == null) return;
 
-        if (glassEnabled) {
+        if (enabled) {
             String themeName = getPreferences().getExtraKeysColorTheme();
             com.termux.shared.termux.extrakeys.ExtraKeysTheme theme =
                 com.termux.shared.termux.extrakeys.ExtraKeysTheme.getTheme(this, themeName);
@@ -1473,6 +1474,10 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
             mTerminalToolbarCard.setCardBackgroundColor(glassColor);
             if (mExtraKeysView != null) {
                 mExtraKeysView.setBackgroundColor(glassColor);
+                int btnBg = getPreferences().isExtraKeysFlatKeys() ? theme.barBackgroundColor : theme.buttonBackgroundColor;
+                int glassBtnBg = (btnBg & 0x00FFFFFF) | (0xA0 << 24);
+                int glassActiveBg = (theme.buttonActiveBackgroundColor & 0x00FFFFFF) | (0xC8 << 24);
+                mExtraKeysView.setButtonColors(theme.buttonTextColor, theme.buttonActiveTextColor, glassBtnBg, glassActiveBg);
             }
             ViewPager terminalToolbarViewPager = getTerminalToolbarViewPager();
             if (terminalToolbarViewPager != null) {
