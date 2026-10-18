@@ -37,4 +37,6 @@
     <string name="termux_background_blur_enabled_title">Làm mờ hình nền</string>
     <string name="termux_background_blur_enabled_summary">Làm mờ gaussian thật cho ảnh nền (RenderScript / RenderEffect)</string>
     <string name="termux_background_blur_radius_title">Bán kính làm mờ (dp)</string>
+    <string name="termux_extra_keys_bar_background_sync_title">Đồng bộ hình nền xuống thanh phím phụ</string>
+    <string name="termux_extra_keys_bar_background_sync_summary">Hiển thị cùng ảnh nền (có làm mờ) phía sau thanh phím phụ, liền mạch từ cửa sổ terminal xuống</string>
 </resources>

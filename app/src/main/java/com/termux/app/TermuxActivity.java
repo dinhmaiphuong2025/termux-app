@@ -578,7 +578,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
                 int height = mTerminalToolbarCard.getHeight();
                 if (height == mLastToolbarBackgroundHeight) return;
                 mLastToolbarBackgroundHeight = height;
-                if (getPreferences() != null && getPreferences().isGlassEffectEnabled() && mLastBackgroundBitmap != null && height > 0) {
+                if (isBarBackgroundEnabled() && mLastBackgroundBitmap != null && height > 0) {
                     applyToolbarBackgroundSlice(mLastBackgroundBitmap, mLastBackgroundBlurRadius,
                         mLastBackgroundBlurRadius * getResources().getDisplayMetrics().density);
                 } else {
@@ -1258,6 +1258,15 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
     }
 
     /**
+     * Whether the toolbar should show the wallpaper slice behind it: either the liquid
+     * glass effect is enabled or the wallpaper is explicitly synced to the extra keys bar.
+     */
+    private boolean isBarBackgroundEnabled() {
+        return getPreferences() != null && (getPreferences().isGlassEffectEnabled()
+            || getPreferences().isExtraKeysBarBackgroundSyncEnabled());
+    }
+
+    /**
      * Push a decoded (and possibly pre-blurred) wallpaper bitmap into the terminal
      * background view, applying blur, saturation and the glass union-crop layout.
      */
@@ -1283,7 +1292,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
             mTerminalBackgroundImage.setVisibility(View.VISIBLE);
         }
 
-        if (glassEnabled) {
+        if (isBarBackgroundEnabled()) {
             applyToolbarBackgroundSlice(bitmap, blurRadius, blurPx);
         } else {
             hideToolbarBackground();
@@ -1313,9 +1322,12 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         int barH = mTerminalToolbarCard.getHeight();
 
         if (cardW <= 0 || cardH <= 0 || barW <= 0 || barH <= 0) {
-            // Layout not ready yet; retry once it is.
+            // Layout not ready yet (or the bar is hidden): retry once after a layout pass,
+            // but never spin-retry while the toolbar card stays zero-sized.
             mTerminalCardContainer.post(() -> {
-                if (!isFinishing() && mLastBackgroundBitmap == bitmap) {
+                if (!isFinishing() && mLastBackgroundBitmap == bitmap
+                    && mTerminalToolbarCard.getVisibility() == View.VISIBLE
+                    && mTerminalToolbarCard.getHeight() > 0) {
                     applyToolbarBackgroundSlice(bitmap, blurRadius, blurPx);
                 }
             });
@@ -1435,7 +1447,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         // Re-apply saturation filters and union-crop layout on already-loaded wallpaper.
         if (mTerminalBackgroundImage != null && mLastBackgroundBitmap != null) {
             mTerminalBackgroundImage.setColorFilter(glassEnabled ? buildSaturationFilter(1.25f) : null);
-            if (glassEnabled) {
+            if (isBarBackgroundEnabled()) {
                 applyToolbarBackgroundSlice(mLastBackgroundBitmap, mLastBackgroundBlurRadius,
                     mLastBackgroundBlurRadius * density);
             } else {

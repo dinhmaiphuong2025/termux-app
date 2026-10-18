@@ -216,6 +216,7 @@ public class CustomUIPreferencesFragment extends PreferenceFragmentCompat {
             "glass_tint_opacity",
             "background_blur_enabled",
             "background_blur_radius",
+            "extra_keys_bar_background_sync",
             "extra_keys_color_theme",
             "extra_keys_flat_keys",
             "extra_keys_margin",
@@ -284,6 +285,9 @@ class CustomUIPreferencesDataStore extends PreferenceDataStore {
             case "background_blur_enabled":
                 mPreferences.setBackgroundBlurEnabled(value);
                 break;
+            case "extra_keys_bar_background_sync":
+                mPreferences.setExtraKeysBarBackgroundSyncEnabled(value);
+                break;
             case "tab_animation_enabled":
                 mPreferences.setTabAnimationEnabled(value);
                 break;
@@ -323,6 +327,8 @@ class CustomUIPreferencesDataStore extends PreferenceDataStore {
                 return mPreferences.isGlassEffectEnabled();
             case "background_blur_enabled":
                 return mPreferences.isBackgroundBlurEnabled();
+            case "extra_keys_bar_background_sync":
+                return mPreferences.isExtraKeysBarBackgroundSyncEnabled();
             case "tab_animation_enabled":
                 return mPreferences.isTabAnimationEnabled();
             case "show_session_name_without_tab_bar":

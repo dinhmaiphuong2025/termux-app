@@ -299,6 +299,8 @@
     <string name="termux_cell_background_transparency_title">Transparent Editor / App Background</string>
     <string name="termux_cell_background_transparency_summary">Allow wallpaper to show through TUI editors like Neovim, Vim, Htop</string>
     <string name="termux_cell_background_opacity_title">Editor Cell Background Opacity (%)</string>
+    <string name="termux_extra_keys_bar_background_sync_title">Sync Wallpaper to Extra Keys Bar</string>
+    <string name="termux_extra_keys_bar_background_sync_summary">Show the same background image (with blur) behind the extra keys bar, seamlessly continuing from the terminal window</string>
 
     <!-- Terminal Behavior Preferences -->
     <string name="termux_terminal_behavior_header">Terminal Behavior</string>

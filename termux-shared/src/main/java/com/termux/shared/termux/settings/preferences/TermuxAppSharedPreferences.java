@@ -586,6 +586,14 @@ public class TermuxAppSharedPreferences extends AppSharedPreferences {
         SharedPreferenceUtils.setInt(mSharedPreferences, TERMUX_APP.KEY_BACKGROUND_BLUR_RADIUS, value, false);
     }
 
+    public boolean isExtraKeysBarBackgroundSyncEnabled() {
+        return SharedPreferenceUtils.getBoolean(mSharedPreferences, TERMUX_APP.KEY_EXTRA_KEYS_BAR_BACKGROUND_SYNC, TERMUX_APP.DEFAULT_VALUE_EXTRA_KEYS_BAR_BACKGROUND_SYNC);
+    }
+
+    public void setExtraKeysBarBackgroundSyncEnabled(boolean value) {
+        SharedPreferenceUtils.setBoolean(mSharedPreferences, TERMUX_APP.KEY_EXTRA_KEYS_BAR_BACKGROUND_SYNC, value, false);
+    }
+
     public int getExtraKeysCornerRadius() {
         return SharedPreferenceUtils.getInt(mSharedPreferences, TERMUX_APP.KEY_EXTRA_KEYS_CORNER_RADIUS, TERMUX_APP.DEFAULT_VALUE_EXTRA_KEYS_CORNER_RADIUS);
     }
@@ -785,6 +793,7 @@ public class TermuxAppSharedPreferences extends AppSharedPreferences {
         setGlassTintOpacity(TERMUX_APP.DEFAULT_VALUE_GLASS_TINT_OPACITY);
         setBackgroundBlurEnabled(TERMUX_APP.DEFAULT_VALUE_BACKGROUND_BLUR_ENABLED);
         setBackgroundBlurRadius(TERMUX_APP.DEFAULT_VALUE_BACKGROUND_BLUR_RADIUS);
+        setExtraKeysBarBackgroundSyncEnabled(TERMUX_APP.DEFAULT_VALUE_EXTRA_KEYS_BAR_BACKGROUND_SYNC);
 
         setExtraKeysCornerRadius(TERMUX_APP.DEFAULT_VALUE_EXTRA_KEYS_CORNER_RADIUS);
         setExtraKeysMargin(TERMUX_APP.DEFAULT_VALUE_EXTRA_KEYS_MARGIN);

@@ -321,6 +321,9 @@ public final class TermuxPreferenceConstants {
         public static final String KEY_BACKGROUND_BLUR_RADIUS = "background_blur_radius";
         public static final int DEFAULT_VALUE_BACKGROUND_BLUR_RADIUS = 12; // 1-25 dp
 
+        public static final String KEY_EXTRA_KEYS_BAR_BACKGROUND_SYNC = "extra_keys_bar_background_sync";
+        public static final boolean DEFAULT_VALUE_EXTRA_KEYS_BAR_BACKGROUND_SYNC = false;
+
         /**
          * Extra Keys Shape & Customizer Preferences.
          */
