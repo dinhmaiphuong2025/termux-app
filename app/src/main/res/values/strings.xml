@@ -287,6 +287,22 @@
     <string name="termux_niri_border_style_title">Border Style</string>
     <string name="termux_niri_border_style_summary">Full box or Hermes brackets with cut-out sides</string>
 
+    <!-- Custom UI Settings Sub-Screens -->
+    <string name="termux_terminal_window_screen_title">Terminal Window</string>
+    <string name="termux_terminal_window_screen_summary">Border, layout and wallpaper of the terminal window</string>
+    <string name="termux_extra_keys_screen_title">Extra Keys Bar</string>
+    <string name="termux_extra_keys_screen_summary">Styling, border and background of the extra keys bar</string>
+    <string name="termux_tab_bar_screen_title">Tab Bar</string>
+    <string name="termux_tab_bar_screen_summary">Tab bar layout, buttons and session title</string>
+    <string name="termux_gesture_pill_screen_title">Gesture Pill</string>
+    <string name="termux_gesture_pill_screen_summary">Floating gesture button size, color and actions</string>
+    <string name="termux_effects_screen_title">Effects</string>
+    <string name="termux_effects_screen_summary">Liquid glass, wallpaper blur and outer background</string>
+    <string name="termux_terminal_behavior_screen_title">Terminal Behavior</string>
+    <string name="termux_terminal_behavior_screen_summary">Smooth scrolling of terminal content</string>
+    <string name="termux_extra_keys_background_header">Bar Background</string>
+    <string name="termux_outer_background_header">Outer Background</string>
+
     <!-- Background Wallpaper Preferences -->
     <string name="termux_background_header">Background Wallpaper</string>
     <string name="termux_background_pick_title">Choose Background Image</string>

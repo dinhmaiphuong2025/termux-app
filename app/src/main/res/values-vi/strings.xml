@@ -8,6 +8,22 @@
     <string name="termux_tab_bar_show_session_name_without_tab_bar_summary">Hiển thị thẻ tên phiên làm việc phía trên viền terminal khi tắt thanh tab</string>
     <string name="termux_session_name_alignment_title">Vị trí căn chỉnh tên session</string>
 
+    <!-- Custom UI Settings Sub-Screens -->
+    <string name="termux_terminal_window_screen_title">Cửa sổ Terminal</string>
+    <string name="termux_terminal_window_screen_summary">Viền, bố cục và hình nền của cửa sổ terminal</string>
+    <string name="termux_extra_keys_screen_title">Thanh phím phụ</string>
+    <string name="termux_extra_keys_screen_summary">Kiểu dáng, viền và nền của thanh phím phụ</string>
+    <string name="termux_tab_bar_screen_title">Tab Bar</string>
+    <string name="termux_tab_bar_screen_summary">Bố cục, nút và tiêu đề phiên của tab bar</string>
+    <string name="termux_gesture_pill_screen_title">Nút cử chỉ nổi</string>
+    <string name="termux_gesture_pill_screen_summary">Kích thước, màu và hành động của nút cử chỉ nổi</string>
+    <string name="termux_effects_screen_title">Hiệu ứng</string>
+    <string name="termux_effects_screen_summary">Kính lỏng, làm mờ hình nền và nền ngoài</string>
+    <string name="termux_terminal_behavior_screen_title">Hành vi Terminal</string>
+    <string name="termux_terminal_behavior_screen_summary">Cuộn mượt nội dung terminal</string>
+    <string name="termux_extra_keys_background_header">Nền thanh phím</string>
+    <string name="termux_outer_background_header">Nền ngoài</string>
+
     <!-- Floating Gesture Pill Preferences -->
     <string name="termux_gesture_pill_header">Nút cử chỉ nổi (Gesture Pill)</string>
     <string name="termux_gesture_pill_enable_title">Bật nút cử chỉ nổi</string>

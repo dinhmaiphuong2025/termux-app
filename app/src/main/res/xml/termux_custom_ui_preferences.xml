@@ -2,444 +2,504 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <!-- ============ 1. BORDERS ============ -->
-
-    <PreferenceCategory
-        app:key="niri_border_category"
-        app:title="@string/termux_niri_border_header">
-
-        <SwitchPreferenceCompat
-            app:key="terminal_border_enabled"
-            app:title="@string/termux_niri_border_enable_title"
-            app:summary="@string/termux_niri_border_enable_summary"
-            app:defaultValue="true" />
-
-        <SeekBarPreference
-            app:key="terminal_border_corner_radius"
-            app:title="@string/termux_niri_border_corner_radius_title"
-            app:min="0"
-            android:max="32"
-            app:showSeekBarValue="true"
-            app:defaultValue="1" />
-
-        <SeekBarPreference
-            app:key="terminal_border_width"
-            app:title="@string/termux_niri_border_width_title"
-            app:min="1"
-            android:max="8"
-            app:showSeekBarValue="true"
-            app:defaultValue="1" />
-
-        <Preference
-            app:key="terminal_border_color"
-            app:title="@string/termux_niri_border_color_title"
-            app:summary="@string/termux_niri_border_color_summary" />
-
-        <SeekBarPreference
-            app:key="terminal_border_gaps"
-            app:title="@string/termux_niri_border_gaps_title"
-            app:min="0"
-            android:max="20"
-            app:showSeekBarValue="true"
-            app:defaultValue="4" />
-
-        <SeekBarPreference
-            app:key="terminal_horizontal_margin"
-            app:title="@string/termux_niri_border_horizontal_margin_title"
-            app:summary="@string/termux_niri_border_horizontal_margin_summary"
-            app:min="0"
-            android:max="30"
-            app:showSeekBarValue="true"
-            app:defaultValue="3" />
-
-        <ListPreference
-            app:key="terminal_border_style"
-            app:title="@string/termux_niri_border_style_title"
-            app:summary="@string/termux_niri_border_style_summary"
-            app:entries="@array/terminal_border_style_titles"
-            app:entryValues="@array/terminal_border_style_values"
-            app:useSimpleSummaryProvider="true"
-            app:defaultValue="full" />
-
-    </PreferenceCategory>
-
-    <PreferenceCategory
-        app:key="extra_keys_bar_border_category"
-        app:title="@string/termux_extra_keys_bar_border_header">
-
-        <SwitchPreferenceCompat
-            app:key="extra_keys_bar_border_enabled"
-            app:title="@string/termux_extra_keys_bar_border_enable_title"
-            app:summary="@string/termux_extra_keys_bar_border_enable_summary"
-            app:defaultValue="false" />
-
-        <SeekBarPreference
-            app:key="extra_keys_bar_border_width"
-            app:title="@string/termux_extra_keys_bar_border_width_title"
-            app:min="1"
-            android:max="4"
-            app:showSeekBarValue="true"
-            app:defaultValue="1" />
-
-        <Preference
-            app:key="extra_keys_bar_border_color"
-            app:title="@string/termux_extra_keys_bar_border_color_title"
-            app:summary="@string/termux_extra_keys_bar_border_color_summary" />
-
-        <SeekBarPreference
-            app:key="extra_keys_bar_border_corner_radius"
-            app:title="@string/termux_extra_keys_bar_border_corner_radius_title"
-            app:min="0"
-            android:max="32"
-            app:showSeekBarValue="true"
-            app:defaultValue="1" />
-
-        <SeekBarPreference
-            app:key="extra_keys_bar_border_gaps"
-            app:title="@string/termux_extra_keys_bar_border_gaps_title"
-            app:min="0"
-            android:max="20"
-            app:showSeekBarValue="true"
-            app:defaultValue="4" />
-
-    </PreferenceCategory>
-
-    <!-- ============ 2. BACKGROUND & EFFECTS ============ -->
-
-    <PreferenceCategory
-        app:key="background_category"
-        app:title="@string/termux_background_header">
-
-        <Preference
-            app:key="terminal_background_pick"
-            app:title="@string/termux_background_pick_title"
-            app:summary="@string/termux_background_pick_summary" />
-
-        <Preference
-            app:key="terminal_background_clear"
-            app:title="@string/termux_background_clear_title"
-            app:summary="@string/termux_background_clear_summary" />
-
-        <EditTextPreference
-            app:key="terminal_background_image_path"
-            app:title="@string/termux_background_image_path_title"
-            app:summary="@string/termux_background_image_path_summary"
-            app:useSimpleSummaryProvider="true"
-            app:defaultValue="" />
-
-        <SeekBarPreference
-            app:key="terminal_background_opacity"
-            app:title="@string/termux_background_opacity_title"
-            app:min="0"
-            android:max="100"
-            app:showSeekBarValue="true"
-            app:defaultValue="60" />
-
-        <SwitchPreferenceCompat
-            app:key="terminal_cell_background_transparency"
-            app:title="@string/termux_cell_background_transparency_title"
-            app:summary="@string/termux_cell_background_transparency_summary"
-            app:defaultValue="false" />
-
-        <SeekBarPreference
-            app:key="terminal_cell_background_opacity"
-            app:title="@string/termux_cell_background_opacity_title"
-            app:min="0"
-            android:max="100"
-            app:showSeekBarValue="true"
-            app:defaultValue="0" />
-
-        <SwitchPreferenceCompat
-            app:key="extra_keys_bar_background_sync"
-            app:title="@string/termux_extra_keys_bar_background_sync_title"
-            app:summary="@string/termux_extra_keys_bar_background_sync_summary"
-            app:defaultValue="false" />
-
-        <ListPreference
-            app:key="outer_background_style"
-            app:title="@string/termux_outer_background_style_title"
-            app:summary="@string/termux_outer_background_style_summary"
-            app:entries="@array/outer_background_style_titles"
-            app:entryValues="@array/outer_background_style_values"
-            app:useSimpleSummaryProvider="true"
-            app:defaultValue="off" />
-
-    </PreferenceCategory>
-
-    <PreferenceCategory
-        app:key="glass_effects_category"
-        app:title="@string/termux_glass_effects_header">
-
-        <SwitchPreferenceCompat
-            app:key="glass_effect_enabled"
-            app:title="@string/termux_glass_effect_enabled_title"
-            app:summary="@string/termux_glass_effect_enabled_summary"
-            app:defaultValue="false" />
-
-        <SeekBarPreference
-            app:key="glass_tint_opacity"
-            app:title="@string/termux_glass_tint_opacity_title"
-            app:summary="@string/termux_glass_tint_opacity_summary"
-            app:min="0"
-            android:max="100"
-            app:showSeekBarValue="true"
-            app:dependency="glass_effect_enabled"
-            app:defaultValue="18" />
-
-        <SwitchPreferenceCompat
-            app:key="background_blur_enabled"
-            app:title="@string/termux_background_blur_enabled_title"
-            app:summary="@string/termux_background_blur_enabled_summary"
-            app:defaultValue="false" />
-
-        <SeekBarPreference
-            app:key="background_blur_radius"
-            app:title="@string/termux_background_blur_radius_title"
-            app:min="1"
-            android:max="25"
-            app:showSeekBarValue="true"
-            app:dependency="background_blur_enabled"
-            app:defaultValue="12" />
-
-    </PreferenceCategory>
-
-    <!-- ============ 3. FEATURES ============ -->
-
-    <PreferenceCategory
-        app:key="tab_bar_category"
-        app:title="@string/termux_tab_bar_header">
-
-        <SwitchPreferenceCompat
-            app:key="show_tab_bar"
-            app:title="@string/termux_tab_bar_title"
-            app:summary="@string/termux_tab_bar_summary"
-            app:defaultValue="true" />
-
-        <SeekBarPreference
-            app:key="tab_corner_radius"
-            app:title="@string/termux_tab_bar_corner_radius_title"
-            app:min="0"
-            android:max="24"
-            app:showSeekBarValue="true"
-            app:defaultValue="1" />
-
-        <SeekBarPreference
-            app:key="tab_border_width"
-            app:title="@string/termux_tab_bar_border_width_title"
-            app:min="0"
-            android:max="4"
-            app:showSeekBarValue="true"
-            app:defaultValue="1" />
-
-        <Preference
-            app:key="tab_border_color"
-            app:title="@string/termux_tab_bar_border_color_title"
-            app:summary="@string/termux_tab_bar_border_color_summary" />
-
-        <SeekBarPreference
-            app:key="tab_button_width"
-            app:title="@string/termux_tab_bar_button_width_title"
-            app:summary="@string/termux_tab_bar_button_width_summary"
-            app:min="20"
-            android:max="72"
-            app:showSeekBarValue="true"
-            app:defaultValue="28" />
-
-        <SeekBarPreference
-            app:key="tab_new_button_width"
-            app:title="@string/termux_tab_bar_new_button_width_title"
-            app:summary="@string/termux_tab_bar_new_button_width_summary"
-            app:min="20"
-            android:max="72"
-            app:showSeekBarValue="true"
-            app:defaultValue="28" />
-
-        <SeekBarPreference
-            app:key="tab_close_button_width"
-            app:title="@string/termux_tab_bar_close_button_width_title"
-            app:summary="@string/termux_tab_bar_close_button_width_summary"
-            app:min="20"
-            android:max="72"
-            app:showSeekBarValue="true"
-            app:defaultValue="28" />
-
-        <SeekBarPreference
-            app:key="tab_settings_button_width"
-            app:title="@string/termux_tab_bar_settings_button_width_title"
-            app:summary="@string/termux_tab_bar_settings_button_width_summary"
-            app:min="20"
-            android:max="72"
-            app:showSeekBarValue="true"
-            app:defaultValue="28" />
-
-        <SeekBarPreference
-            app:key="tab_active_title_length"
-            app:title="@string/termux_tab_bar_active_title_length_title"
-            app:summary="@string/termux_tab_bar_active_title_length_summary"
-            app:min="0"
-            android:max="30"
-            app:showSeekBarValue="true"
-            app:defaultValue="12" />
-
-        <SwitchPreferenceCompat
-            app:key="tab_animation_enabled"
-            app:title="@string/termux_tab_animation_title"
-            app:summary="@string/termux_tab_animation_summary"
-            app:defaultValue="true" />
-
-        <SwitchPreferenceCompat
-            app:key="show_session_name_without_tab_bar"
-            app:title="@string/termux_tab_bar_show_session_name_without_tab_bar_title"
-            app:summary="@string/termux_tab_bar_show_session_name_without_tab_bar_summary"
-            app:defaultValue="true" />
-
-        <ListPreference
-            app:key="session_name_alignment"
-            app:title="@string/termux_session_name_alignment_title"
-            app:entries="@array/session_name_alignment_titles"
-            app:entryValues="@array/session_name_alignment_values"
-            app:useSimpleSummaryProvider="true"
-            app:dependency="show_session_name_without_tab_bar"
-            app:defaultValue="center" />
-
-    </PreferenceCategory>
-
-    <PreferenceCategory
-        app:key="gesture_pill_category"
-        app:title="@string/termux_gesture_pill_header">
-
-        <SwitchPreferenceCompat
-            app:key="gesture_pill_enabled"
-            app:title="@string/termux_gesture_pill_enable_title"
-            app:summary="@string/termux_gesture_pill_enable_summary"
-            app:defaultValue="true" />
-
-        <SeekBarPreference
-            app:key="gesture_pill_width"
-            app:title="@string/termux_gesture_pill_width_title"
-            app:min="30"
-            android:max="240"
-            app:showSeekBarValue="true"
-            app:defaultValue="90" />
-
-        <SeekBarPreference
-            app:key="gesture_pill_height"
-            app:title="@string/termux_gesture_pill_height_title"
-            app:min="4"
-            android:max="40"
-            app:showSeekBarValue="true"
-            app:defaultValue="14" />
-
-        <SeekBarPreference
-            app:key="gesture_pill_corner_radius"
-            app:title="@string/termux_gesture_pill_corner_radius_title"
-            app:min="0"
-            android:max="30"
-            app:showSeekBarValue="true"
-            app:defaultValue="20" />
-
-        <Preference
-            app:key="gesture_pill_color"
-            app:title="@string/termux_gesture_pill_color_title"
-            app:summary="@string/termux_gesture_pill_color_summary" />
-
-        <ListPreference
-            app:key="gesture_pill_swipe_left"
-            app:title="@string/termux_gesture_pill_swipe_left_title"
-            app:entries="@array/gesture_pill_action_titles"
-            app:entryValues="@array/gesture_pill_action_values"
-            app:useSimpleSummaryProvider="true"
-            app:defaultValue="prev_tab" />
-
-        <ListPreference
-            app:key="gesture_pill_swipe_right"
-            app:title="@string/termux_gesture_pill_swipe_right_title"
-            app:entries="@array/gesture_pill_action_titles"
-            app:entryValues="@array/gesture_pill_action_values"
-            app:useSimpleSummaryProvider="true"
-            app:defaultValue="next_tab" />
-
-        <ListPreference
-            app:key="gesture_pill_swipe_up"
-            app:title="@string/termux_gesture_pill_swipe_up_title"
-            app:entries="@array/gesture_pill_action_titles"
-            app:entryValues="@array/gesture_pill_action_values"
-            app:useSimpleSummaryProvider="true"
-            app:defaultValue="open_keyboard" />
-
-        <ListPreference
-            app:key="gesture_pill_swipe_down"
-            app:title="@string/termux_gesture_pill_swipe_down_title"
-            app:entries="@array/gesture_pill_action_titles"
-            app:entryValues="@array/gesture_pill_action_values"
-            app:useSimpleSummaryProvider="true"
-            app:defaultValue="close_keyboard" />
-
-        <ListPreference
-            app:key="gesture_pill_tap"
-            app:title="@string/termux_gesture_pill_tap_title"
-            app:entries="@array/gesture_pill_action_titles"
-            app:entryValues="@array/gesture_pill_action_values"
-            app:useSimpleSummaryProvider="true"
-            app:defaultValue="toggle_keyboard" />
-
-    </PreferenceCategory>
-
-    <PreferenceCategory
-        app:key="extra_keys_styling_category"
-        app:title="@string/termux_extra_keys_styling_header">
-
-        <ListPreference
-            app:key="extra_keys_color_theme"
-            app:title="@string/termux_extra_keys_color_theme_title"
-            app:summary="@string/termux_extra_keys_color_theme_summary"
-            app:entries="@array/extra_keys_color_theme_titles"
-            app:entryValues="@array/extra_keys_color_theme_values"
-            app:useSimpleSummaryProvider="true"
-            app:defaultValue="default" />
-
-        <SwitchPreferenceCompat
-            app:key="extra_keys_flat_keys"
-            app:title="@string/termux_extra_keys_flat_keys_title"
-            app:summary="@string/termux_extra_keys_flat_keys_summary"
-            app:defaultValue="true" />
-
-        <SeekBarPreference
-            app:key="extra_keys_margin"
-            app:title="@string/termux_extra_keys_margin_title"
-            app:min="0"
-            android:max="8"
-            app:showSeekBarValue="true"
-            app:defaultValue="2" />
-
-        <SeekBarPreference
-            app:key="extra_keys_text_size"
-            app:title="@string/termux_extra_keys_text_size_title"
-            app:min="9"
-            android:max="16"
-            app:showSeekBarValue="true"
-            app:defaultValue="12" />
-
-        <SeekBarPreference
-            app:key="extra_keys_height_scale"
-            app:title="@string/termux_extra_keys_height_scale_title"
-            app:min="80"
-            android:max="160"
-            app:showSeekBarValue="true"
-            app:defaultValue="115" />
-
-    </PreferenceCategory>
-
-    <PreferenceCategory
-        app:key="terminal_behavior_category"
-        app:title="@string/termux_terminal_behavior_header">
-
-        <SwitchPreferenceCompat
-            app:key="terminal_smooth_scroll"
-            app:title="@string/termux_smooth_scroll_title"
-            app:summary="@string/termux_smooth_scroll_summary"
-            app:defaultValue="true" />
-
-    </PreferenceCategory>
+    <!-- ============ 1. TERMINAL WINDOW ============ -->
+
+    <PreferenceScreen
+        app:key="terminal_window_screen"
+        app:title="@string/termux_terminal_window_screen_title"
+        app:summary="@string/termux_terminal_window_screen_summary">
+
+        <PreferenceCategory
+            app:key="niri_border_category"
+            app:title="@string/termux_niri_border_header">
+
+            <SwitchPreferenceCompat
+                app:key="terminal_border_enabled"
+                app:title="@string/termux_niri_border_enable_title"
+                app:summary="@string/termux_niri_border_enable_summary"
+                app:defaultValue="true" />
+
+            <SeekBarPreference
+                app:key="terminal_border_corner_radius"
+                app:title="@string/termux_niri_border_corner_radius_title"
+                app:min="0"
+                android:max="32"
+                app:showSeekBarValue="true"
+                app:defaultValue="1" />
+
+            <SeekBarPreference
+                app:key="terminal_border_width"
+                app:title="@string/termux_niri_border_width_title"
+                app:min="1"
+                android:max="8"
+                app:showSeekBarValue="true"
+                app:defaultValue="1" />
+
+            <Preference
+                app:key="terminal_border_color"
+                app:title="@string/termux_niri_border_color_title"
+                app:summary="@string/termux_niri_border_color_summary" />
+
+            <SeekBarPreference
+                app:key="terminal_border_gaps"
+                app:title="@string/termux_niri_border_gaps_title"
+                app:min="0"
+                android:max="20"
+                app:showSeekBarValue="true"
+                app:defaultValue="4" />
+
+            <SeekBarPreference
+                app:key="terminal_horizontal_margin"
+                app:title="@string/termux_niri_border_horizontal_margin_title"
+                app:summary="@string/termux_niri_border_horizontal_margin_summary"
+                app:min="0"
+                android:max="30"
+                app:showSeekBarValue="true"
+                app:defaultValue="3" />
+
+            <ListPreference
+                app:key="terminal_border_style"
+                app:title="@string/termux_niri_border_style_title"
+                app:summary="@string/termux_niri_border_style_summary"
+                app:entries="@array/terminal_border_style_titles"
+                app:entryValues="@array/terminal_border_style_values"
+                app:useSimpleSummaryProvider="true"
+                app:defaultValue="full" />
+
+        </PreferenceCategory>
+
+        <PreferenceCategory
+            app:key="background_category"
+            app:title="@string/termux_background_header">
+
+            <Preference
+                app:key="terminal_background_pick"
+                app:title="@string/termux_background_pick_title"
+                app:summary="@string/termux_background_pick_summary" />
+
+            <Preference
+                app:key="terminal_background_clear"
+                app:title="@string/termux_background_clear_title"
+                app:summary="@string/termux_background_clear_summary" />
+
+            <EditTextPreference
+                app:key="terminal_background_image_path"
+                app:title="@string/termux_background_image_path_title"
+                app:summary="@string/termux_background_image_path_summary"
+                app:useSimpleSummaryProvider="true"
+                app:defaultValue="" />
+
+            <SeekBarPreference
+                app:key="terminal_background_opacity"
+                app:title="@string/termux_background_opacity_title"
+                app:min="0"
+                android:max="100"
+                app:showSeekBarValue="true"
+                app:defaultValue="60" />
+
+            <SwitchPreferenceCompat
+                app:key="terminal_cell_background_transparency"
+                app:title="@string/termux_cell_background_transparency_title"
+                app:summary="@string/termux_cell_background_transparency_summary"
+                app:defaultValue="false" />
+
+            <SeekBarPreference
+                app:key="terminal_cell_background_opacity"
+                app:title="@string/termux_cell_background_opacity_title"
+                app:min="0"
+                android:max="100"
+                app:showSeekBarValue="true"
+                app:defaultValue="0" />
+
+        </PreferenceCategory>
+
+    </PreferenceScreen>
+
+    <!-- ============ 2. EXTRA KEYS BAR ============ -->
+
+    <PreferenceScreen
+        app:key="extra_keys_screen"
+        app:title="@string/termux_extra_keys_screen_title"
+        app:summary="@string/termux_extra_keys_screen_summary">
+
+        <PreferenceCategory
+            app:key="extra_keys_styling_category"
+            app:title="@string/termux_extra_keys_styling_header">
+
+            <ListPreference
+                app:key="extra_keys_color_theme"
+                app:title="@string/termux_extra_keys_color_theme_title"
+                app:summary="@string/termux_extra_keys_color_theme_summary"
+                app:entries="@array/extra_keys_color_theme_titles"
+                app:entryValues="@array/extra_keys_color_theme_values"
+                app:useSimpleSummaryProvider="true"
+                app:defaultValue="default" />
+
+            <SwitchPreferenceCompat
+                app:key="extra_keys_flat_keys"
+                app:title="@string/termux_extra_keys_flat_keys_title"
+                app:summary="@string/termux_extra_keys_flat_keys_summary"
+                app:defaultValue="true" />
+
+            <SeekBarPreference
+                app:key="extra_keys_margin"
+                app:title="@string/termux_extra_keys_margin_title"
+                app:min="0"
+                android:max="8"
+                app:showSeekBarValue="true"
+                app:defaultValue="2" />
+
+            <SeekBarPreference
+                app:key="extra_keys_text_size"
+                app:title="@string/termux_extra_keys_text_size_title"
+                app:min="9"
+                android:max="16"
+                app:showSeekBarValue="true"
+                app:defaultValue="12" />
+
+            <SeekBarPreference
+                app:key="extra_keys_height_scale"
+                app:title="@string/termux_extra_keys_height_scale_title"
+                app:min="80"
+                android:max="160"
+                app:showSeekBarValue="true"
+                app:defaultValue="115" />
+
+        </PreferenceCategory>
+
+        <PreferenceCategory
+            app:key="extra_keys_bar_border_category"
+            app:title="@string/termux_extra_keys_bar_border_header">
+
+            <SwitchPreferenceCompat
+                app:key="extra_keys_bar_border_enabled"
+                app:title="@string/termux_extra_keys_bar_border_enable_title"
+                app:summary="@string/termux_extra_keys_bar_border_enable_summary"
+                app:defaultValue="false" />
+
+            <SeekBarPreference
+                app:key="extra_keys_bar_border_width"
+                app:title="@string/termux_extra_keys_bar_border_width_title"
+                app:min="1"
+                android:max="4"
+                app:showSeekBarValue="true"
+                app:defaultValue="1" />
+
+            <Preference
+                app:key="extra_keys_bar_border_color"
+                app:title="@string/termux_extra_keys_bar_border_color_title"
+                app:summary="@string/termux_extra_keys_bar_border_color_summary" />
+
+            <SeekBarPreference
+                app:key="extra_keys_bar_border_corner_radius"
+                app:title="@string/termux_extra_keys_bar_border_corner_radius_title"
+                app:min="0"
+                android:max="32"
+                app:showSeekBarValue="true"
+                app:defaultValue="1" />
+
+            <SeekBarPreference
+                app:key="extra_keys_bar_border_gaps"
+                app:title="@string/termux_extra_keys_bar_border_gaps_title"
+                app:min="0"
+                android:max="20"
+                app:showSeekBarValue="true"
+                app:defaultValue="4" />
+
+        </PreferenceCategory>
+
+        <PreferenceCategory
+            app:key="extra_keys_background_category"
+            app:title="@string/termux_extra_keys_background_header">
+
+            <SwitchPreferenceCompat
+                app:key="extra_keys_bar_background_sync"
+                app:title="@string/termux_extra_keys_bar_background_sync_title"
+                app:summary="@string/termux_extra_keys_bar_background_sync_summary"
+                app:defaultValue="false" />
+
+        </PreferenceCategory>
+
+    </PreferenceScreen>
+
+    <!-- ============ 3. TAB BAR ============ -->
+
+    <PreferenceScreen
+        app:key="tab_bar_screen"
+        app:title="@string/termux_tab_bar_screen_title"
+        app:summary="@string/termux_tab_bar_screen_summary">
+
+        <PreferenceCategory
+            app:key="tab_bar_category"
+            app:title="@string/termux_tab_bar_header">
+
+            <SwitchPreferenceCompat
+                app:key="show_tab_bar"
+                app:title="@string/termux_tab_bar_title"
+                app:summary="@string/termux_tab_bar_summary"
+                app:defaultValue="true" />
+
+            <SeekBarPreference
+                app:key="tab_corner_radius"
+                app:title="@string/termux_tab_bar_corner_radius_title"
+                app:min="0"
+                android:max="24"
+                app:showSeekBarValue="true"
+                app:defaultValue="1" />
+
+            <SeekBarPreference
+                app:key="tab_border_width"
+                app:title="@string/termux_tab_bar_border_width_title"
+                app:min="0"
+                android:max="4"
+                app:showSeekBarValue="true"
+                app:defaultValue="1" />
+
+            <Preference
+                app:key="tab_border_color"
+                app:title="@string/termux_tab_bar_border_color_title"
+                app:summary="@string/termux_tab_bar_border_color_summary" />
+
+            <SeekBarPreference
+                app:key="tab_button_width"
+                app:title="@string/termux_tab_bar_button_width_title"
+                app:summary="@string/termux_tab_bar_button_width_summary"
+                app:min="20"
+                android:max="72"
+                app:showSeekBarValue="true"
+                app:defaultValue="28" />
+
+            <SeekBarPreference
+                app:key="tab_new_button_width"
+                app:title="@string/termux_tab_bar_new_button_width_title"
+                app:summary="@string/termux_tab_bar_new_button_width_summary"
+                app:min="20"
+                android:max="72"
+                app:showSeekBarValue="true"
+                app:defaultValue="28" />
+
+            <SeekBarPreference
+                app:key="tab_close_button_width"
+                app:title="@string/termux_tab_bar_close_button_width_title"
+                app:summary="@string/termux_tab_bar_close_button_width_summary"
+                app:min="20"
+                android:max="72"
+                app:showSeekBarValue="true"
+                app:defaultValue="28" />
+
+            <SeekBarPreference
+                app:key="tab_settings_button_width"
+                app:title="@string/termux_tab_bar_settings_button_width_title"
+                app:summary="@string/termux_tab_bar_settings_button_width_summary"
+                app:min="20"
+                android:max="72"
+                app:showSeekBarValue="true"
+                app:defaultValue="28" />
+
+            <SeekBarPreference
+                app:key="tab_active_title_length"
+                app:title="@string/termux_tab_bar_active_title_length_title"
+                app:summary="@string/termux_tab_bar_active_title_length_summary"
+                app:min="0"
+                android:max="30"
+                app:showSeekBarValue="true"
+                app:defaultValue="12" />
+
+            <SwitchPreferenceCompat
+                app:key="tab_animation_enabled"
+                app:title="@string/termux_tab_animation_title"
+                app:summary="@string/termux_tab_animation_summary"
+                app:defaultValue="true" />
+
+            <SwitchPreferenceCompat
+                app:key="show_session_name_without_tab_bar"
+                app:title="@string/termux_tab_bar_show_session_name_without_tab_bar_title"
+                app:summary="@string/termux_tab_bar_show_session_name_without_tab_bar_summary"
+                app:defaultValue="true" />
+
+            <ListPreference
+                app:key="session_name_alignment"
+                app:title="@string/termux_session_name_alignment_title"
+                app:entries="@array/session_name_alignment_titles"
+                app:entryValues="@array/session_name_alignment_values"
+                app:useSimpleSummaryProvider="true"
+                app:dependency="show_session_name_without_tab_bar"
+                app:defaultValue="center" />
+
+        </PreferenceCategory>
+
+    </PreferenceScreen>
+
+    <!-- ============ 4. GESTURE PILL ============ -->
+
+    <PreferenceScreen
+        app:key="gesture_pill_screen"
+        app:title="@string/termux_gesture_pill_screen_title"
+        app:summary="@string/termux_gesture_pill_screen_summary">
+
+        <PreferenceCategory
+            app:key="gesture_pill_category"
+            app:title="@string/termux_gesture_pill_header">
+
+            <SwitchPreferenceCompat
+                app:key="gesture_pill_enabled"
+                app:title="@string/termux_gesture_pill_enable_title"
+                app:summary="@string/termux_gesture_pill_enable_summary"
+                app:defaultValue="true" />
+
+            <SeekBarPreference
+                app:key="gesture_pill_width"
+                app:title="@string/termux_gesture_pill_width_title"
+                app:min="30"
+                android:max="240"
+                app:showSeekBarValue="true"
+                app:defaultValue="90" />
+
+            <SeekBarPreference
+                app:key="gesture_pill_height"
+                app:title="@string/termux_gesture_pill_height_title"
+                app:min="4"
+                android:max="40"
+                app:showSeekBarValue="true"
+                app:defaultValue="14" />
+
+            <SeekBarPreference
+                app:key="gesture_pill_corner_radius"
+                app:title="@string/termux_gesture_pill_corner_radius_title"
+                app:min="0"
+                android:max="30"
+                app:showSeekBarValue="true"
+                app:defaultValue="20" />
+
+            <Preference
+                app:key="gesture_pill_color"
+                app:title="@string/termux_gesture_pill_color_title"
+                app:summary="@string/termux_gesture_pill_color_summary" />
+
+            <ListPreference
+                app:key="gesture_pill_swipe_left"
+                app:title="@string/termux_gesture_pill_swipe_left_title"
+                app:entries="@array/gesture_pill_action_titles"
+                app:entryValues="@array/gesture_pill_action_values"
+                app:useSimpleSummaryProvider="true"
+                app:defaultValue="prev_tab" />
+
+            <ListPreference
+                app:key="gesture_pill_swipe_right"
+                app:title="@string/termux_gesture_pill_swipe_right_title"
+                app:entries="@array/gesture_pill_action_titles"
+                app:entryValues="@array/gesture_pill_action_values"
+                app:useSimpleSummaryProvider="true"
+                app:defaultValue="next_tab" />
+
+            <ListPreference
+                app:key="gesture_pill_swipe_up"
+                app:title="@string/termux_gesture_pill_swipe_up_title"
+                app:entries="@array/gesture_pill_action_titles"
+                app:entryValues="@array/gesture_pill_action_values"
+                app:useSimpleSummaryProvider="true"
+                app:defaultValue="open_keyboard" />
+
+            <ListPreference
+                app:key="gesture_pill_swipe_down"
+                app:title="@string/termux_gesture_pill_swipe_down_title"
+                app:entries="@array/gesture_pill_action_titles"
+                app:entryValues="@array/gesture_pill_action_values"
+                app:useSimpleSummaryProvider="true"
+                app:defaultValue="close_keyboard" />
+
+            <ListPreference
+                app:key="gesture_pill_tap"
+                app:title="@string/termux_gesture_pill_tap_title"
+                app:entries="@array/gesture_pill_action_titles"
+                app:entryValues="@array/gesture_pill_action_values"
+                app:useSimpleSummaryProvider="true"
+                app:defaultValue="toggle_keyboard" />
+
+        </PreferenceCategory>
+
+    </PreferenceScreen>
+
+    <!-- ============ 5. EFFECTS & OUTER BACKGROUND ============ -->
+
+    <PreferenceScreen
+        app:key="effects_screen"
+        app:title="@string/termux_effects_screen_title"
+        app:summary="@string/termux_effects_screen_summary">
+
+        <PreferenceCategory
+            app:key="glass_effects_category"
+            app:title="@string/termux_glass_effects_header">
+
+            <SwitchPreferenceCompat
+                app:key="glass_effect_enabled"
+                app:title="@string/termux_glass_effect_enabled_title"
+                app:summary="@string/termux_glass_effect_enabled_summary"
+                app:defaultValue="false" />
+
+            <SeekBarPreference
+                app:key="glass_tint_opacity"
+                app:title="@string/termux_glass_tint_opacity_title"
+                app:summary="@string/termux_glass_tint_opacity_summary"
+                app:min="0"
+                android:max="100"
+                app:showSeekBarValue="true"
+                app:dependency="glass_effect_enabled"
+                app:defaultValue="18" />
+
+            <SwitchPreferenceCompat
+                app:key="background_blur_enabled"
+                app:title="@string/termux_background_blur_enabled_title"
+                app:summary="@string/termux_background_blur_enabled_summary"
+                app:defaultValue="false" />
+
+            <SeekBarPreference
+                app:key="background_blur_radius"
+                app:title="@string/termux_background_blur_radius_title"
+                app:min="1"
+                android:max="25"
+                app:showSeekBarValue="true"
+                app:dependency="background_blur_enabled"
+                app:defaultValue="12" />
+
+        </PreferenceCategory>
+
+        <PreferenceCategory
+            app:key="outer_background_category"
+            app:title="@string/termux_outer_background_header">
+
+            <ListPreference
+                app:key="outer_background_style"
+                app:title="@string/termux_outer_background_style_title"
+                app:summary="@string/termux_outer_background_style_summary"
+                app:entries="@array/outer_background_style_titles"
+                app:entryValues="@array/outer_background_style_values"
+                app:useSimpleSummaryProvider="true"
+                app:defaultValue="off" />
+
+        </PreferenceCategory>
+
+    </PreferenceScreen>
+
+    <!-- ============ 6. TERMINAL BEHAVIOR ============ -->
+
+    <PreferenceScreen
+        app:key="terminal_behavior_screen"
+        app:title="@string/termux_terminal_behavior_screen_title"
+        app:summary="@string/termux_terminal_behavior_screen_summary">
+
+        <PreferenceCategory
+            app:key="terminal_behavior_category"
+            app:title="@string/termux_terminal_behavior_header">
+
+            <SwitchPreferenceCompat
+                app:key="terminal_smooth_scroll"
+                app:title="@string/termux_smooth_scroll_title"
+                app:summary="@string/termux_smooth_scroll_summary"
+                app:defaultValue="true" />
+
+        </PreferenceCategory>
+
+    </PreferenceScreen>
 
 </PreferenceScreen>
