@@ -360,6 +360,15 @@ class CustomUIPreferencesDataStore extends PreferenceDataStore {
             case "extra_keys_bar_background_sync":
                 mPreferences.setExtraKeysBarBackgroundSyncEnabled(value);
                 break;
+            case "terminal_shadow_enabled":
+                mPreferences.setTerminalShadowEnabled(value);
+                break;
+            case "terminal_border_corner_enabled":
+                mPreferences.setTerminalBorderCornerEnabled(value);
+                break;
+            case "extra_keys_bar_corner_enabled":
+                mPreferences.setExtraKeysBarCornerEnabled(value);
+                break;
             case "extra_keys_use_custom":
                 mPreferences.setExtraKeysUseCustom(value);
                 break;
@@ -589,15 +598,6 @@ class CustomUIPreferencesDataStore extends PreferenceDataStore {
                 break;
             case "outer_background_style":
                 mPreferences.setOuterBackgroundStyle(value != null ? value : "off");
-                break;
-            case "terminal_shadow_enabled":
-                mPreferences.setTerminalShadowEnabled(value);
-                break;
-            case "terminal_border_corner_enabled":
-                mPreferences.setTerminalBorderCornerEnabled(value);
-                break;
-            case "extra_keys_bar_corner_enabled":
-                mPreferences.setExtraKeysBarCornerEnabled(value);
                 break;
             case "extra_keys_preset":
                 mPreferences.setExtraKeysPreset(value != null ? value : "");
