@@ -155,6 +155,15 @@
             app:summary="@string/termux_extra_keys_bar_background_sync_summary"
             app:defaultValue="false" />
 
+        <ListPreference
+            app:key="outer_background_style"
+            app:title="@string/termux_outer_background_style_title"
+            app:summary="@string/termux_outer_background_style_summary"
+            app:entries="@array/outer_background_style_titles"
+            app:entryValues="@array/outer_background_style_values"
+            app:useSimpleSummaryProvider="true"
+            app:defaultValue="off" />
+
     </PreferenceCategory>
 
     <PreferenceCategory

@@ -11,6 +11,12 @@
         <item>Căn phải</item>
     </string-array>
 
+    <string-array name="outer_background_style_titles">
+        <item>Tắt (màu đặc)</item>
+        <item>Hình nền mờ</item>
+        <item>Hình nền gốc</item>
+    </string-array>
+
     <string-array name="gesture_pill_action_titles">
         <item>Chuyển sang tab trước</item>
         <item>Chuyển sang tab tiếp theo</item>

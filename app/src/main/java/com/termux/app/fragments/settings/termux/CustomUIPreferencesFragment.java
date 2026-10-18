@@ -217,6 +217,7 @@ public class CustomUIPreferencesFragment extends PreferenceFragmentCompat {
             "background_blur_enabled",
             "background_blur_radius",
             "extra_keys_bar_background_sync",
+            "outer_background_style",
             "extra_keys_color_theme",
             "extra_keys_flat_keys",
             "extra_keys_margin",
@@ -504,6 +505,9 @@ class CustomUIPreferencesDataStore extends PreferenceDataStore {
             case "session_name_alignment":
                 mPreferences.setSessionNameAlignment(value != null ? value : "center");
                 break;
+            case "outer_background_style":
+                mPreferences.setOuterBackgroundStyle(value != null ? value : "off");
+                break;
             case "gesture_pill_color":
                 mPreferences.setGesturePillColor(value != null ? value : "#80FFFFFF");
                 break;
@@ -549,6 +553,8 @@ class CustomUIPreferencesDataStore extends PreferenceDataStore {
                 return mPreferences.getTerminalBorderStyle();
             case "session_name_alignment":
                 return mPreferences.getSessionNameAlignment();
+            case "outer_background_style":
+                return mPreferences.getOuterBackgroundStyle();
             case "gesture_pill_color":
                 return mPreferences.getGesturePillColor();
             case "gesture_pill_swipe_left":

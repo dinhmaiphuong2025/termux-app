@@ -171,6 +171,8 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
     ImageView mTerminalToolbarBackgroundImage;
     View mTerminalToolbarBackgroundOverlay;
     View mTerminalToolbarGlassTint;
+    ImageView mActivityBackgroundImage;
+    View mActivityBackgroundOverlay;
 
     /** Last decoded background bitmap and blur radius, kept for re-applying layout matrices. */
     Bitmap mLastBackgroundBitmap;
@@ -570,6 +572,8 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         mTerminalToolbarBackgroundImage = findViewById(R.id.terminal_toolbar_background_image);
         mTerminalToolbarBackgroundOverlay = findViewById(R.id.terminal_toolbar_background_overlay);
         mTerminalToolbarGlassTint = findViewById(R.id.terminal_toolbar_glass_tint);
+        mActivityBackgroundImage = findViewById(R.id.activity_background_image);
+        mActivityBackgroundOverlay = findViewById(R.id.activity_background_overlay);
 
         // Keep the toolbar background views sized to the extra keys card. They start at 0dp
         // in the layout so they can never inflate the wrap-content card measure.
@@ -1158,6 +1162,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
     /**
      * Load (or reuse from the LRU cache) the terminal background wallpaper and apply
      * blur, saturation and glass layout to the terminal and toolbar background views.
+     * Also manages the optional wallpaper behind the whole activity (outer background).
      */
     private void applyTerminalBackground() {
         if (mTerminalBackgroundImage == null || mTerminalBackgroundOverlay == null) return;
@@ -1171,78 +1176,45 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
             if (mTerminalToolbarBackgroundOverlay != null) {
                 mTerminalToolbarBackgroundOverlay.setAlpha(alpha);
             }
+            if (mActivityBackgroundOverlay != null) {
+                mActivityBackgroundOverlay.setAlpha(Math.max(0.45f, alpha));
+            }
 
             final String targetPath = imagePath;
             final float density = getResources().getDisplayMetrics().density;
             final boolean blurEnabled = getPreferences().isBackgroundBlurEnabled();
             final int blurRadius = blurEnabled ? Math.max(1, getPreferences().getBackgroundBlurRadius()) : 0;
-            final String cacheKey = targetPath + "|" + blurRadius;
 
-            Bitmap cached = mBackgroundBitmapCache.get(cacheKey);
-            if (cached != null) {
-                // Refresh LRU order.
-                mBackgroundBitmapCache.remove(cacheKey);
-                mBackgroundBitmapCache.put(cacheKey, cached);
-                applyBackgroundBitmap(cached, blurRadius);
-            } else {
-                new Thread(() -> {
-                    Bitmap loadedBitmap = null;
-                    try {
-                        Uri uri = Uri.parse(targetPath);
-                        BitmapFactory.Options opts = new BitmapFactory.Options();
-                        opts.inJustDecodeBounds = true;
-
-                        if (targetPath.startsWith("content://") || targetPath.startsWith("file://")) {
-                            try (java.io.InputStream is = getContentResolver().openInputStream(uri)) {
-                                BitmapFactory.decodeStream(is, null, opts);
-                            }
+            // Terminal wallpaper. On API 31+ the bitmap stays sharp and blur is applied
+            // as a view RenderEffect, so the cache key collapses to a single entry.
+            final int terminalBlurPx = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S ? 0 : Math.round(blurRadius * density);
+            loadBackgroundBitmap(targetPath, terminalBlurPx, targetPath + "|" + terminalBlurPx,
+                bitmap -> {
+                    if (!isFinishing()) {
+                        if (bitmap != null) {
+                            applyBackgroundBitmap(bitmap, blurRadius);
                         } else {
-                            BitmapFactory.decodeFile(targetPath, opts);
+                            mTerminalBackgroundImage.setVisibility(View.GONE);
+                            mTerminalBackgroundOverlay.setVisibility(View.GONE);
+                            hideToolbarBackground();
+                            showToast("Could not load background image", false);
                         }
-
-                        // Downsample if image is excessively large (larger than 2048 in either dimension)
-                        int sampleSize = 1;
-                        int maxDim = Math.max(opts.outWidth, opts.outHeight);
-                        while (maxDim / sampleSize > 2048) {
-                            sampleSize *= 2;
-                        }
-
-                        BitmapFactory.Options decodeOpts = new BitmapFactory.Options();
-                        decodeOpts.inSampleSize = sampleSize;
-
-                        if (targetPath.startsWith("content://") || targetPath.startsWith("file://")) {
-                            try (java.io.InputStream is = getContentResolver().openInputStream(uri)) {
-                                loadedBitmap = BitmapFactory.decodeStream(is, null, decodeOpts);
-                            }
-                        } else {
-                            loadedBitmap = BitmapFactory.decodeFile(targetPath, decodeOpts);
-                        }
-
-                        // Real gaussian blur on APIs without RenderEffect (21-30).
-                        if (loadedBitmap != null && blurRadius > 0
-                            && Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
-                            loadedBitmap = blurBitmapRenderScript(loadedBitmap, Math.round(blurRadius * density));
-                        }
-                    } catch (Throwable t) {
-                        Logger.logStackTraceWithMessage(LOG_TAG, "Failed to decode background image in background thread", t);
                     }
+                });
 
-                    final Bitmap finalBitmap = loadedBitmap;
-                    runOnUiThread(() -> {
-                        if (!isFinishing()) {
-                            if (finalBitmap != null) {
-                                // All cache access happens on the UI thread only.
-                                mBackgroundBitmapCache.put(cacheKey, finalBitmap);
-                                applyBackgroundBitmap(finalBitmap, blurRadius);
-                            } else {
-                                mTerminalBackgroundImage.setVisibility(View.GONE);
-                                mTerminalBackgroundOverlay.setVisibility(View.GONE);
-                                hideToolbarBackground();
-                                showToast("Could not load background image", false);
-                            }
+            // Outer (whole-activity) wallpaper behind the terminal card.
+            String outerStyle = getPreferences().getOuterBackgroundStyle();
+            if (!"off".equals(outerStyle)) {
+                final boolean outerBlur = "blur".equals(outerStyle);
+                final int outerBlurPx = (outerBlur && Build.VERSION.SDK_INT < Build.VERSION_CODES.S) ? Math.round(14 * density) : 0;
+                loadBackgroundBitmap(targetPath, outerBlurPx, targetPath + "|outer|" + outerBlurPx,
+                    bitmap -> {
+                        if (!isFinishing() && bitmap != null) {
+                            applyActivityBackground(bitmap, outerBlur);
                         }
                     });
-                }).start();
+            } else {
+                hideActivityBackground();
             }
         } else {
             mTerminalBackgroundImage.setImageDrawable(null);
@@ -1254,6 +1226,118 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
             mTerminalBackgroundOverlay.setVisibility(View.GONE);
             mLastBackgroundBitmap = null;
             hideToolbarBackground();
+            hideActivityBackground();
+        }
+    }
+
+    private interface BitmapLoadCallback {
+        void onLoaded(Bitmap bitmap);
+    }
+
+    /**
+     * Return a wallpaper bitmap from the LRU cache, or decode it on a background thread
+     * (with RenderScript blur on APIs 21-30 when {@code blurRadiusPx > 0}). The callback
+     * always runs on the UI thread; all cache access happens there too.
+     */
+    private void loadBackgroundBitmap(String imagePath, int blurRadiusPx, String cacheKey, BitmapLoadCallback callback) {
+        Bitmap cached = mBackgroundBitmapCache.get(cacheKey);
+        if (cached != null) {
+            // Refresh LRU order.
+            mBackgroundBitmapCache.remove(cacheKey);
+            mBackgroundBitmapCache.put(cacheKey, cached);
+            callback.onLoaded(cached);
+            return;
+        }
+
+        new Thread(() -> {
+            Bitmap loadedBitmap = null;
+            try {
+                loadedBitmap = decodeBackgroundBitmap(imagePath);
+                if (loadedBitmap != null && blurRadiusPx > 0 && Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+                    loadedBitmap = blurBitmapRenderScript(loadedBitmap, blurRadiusPx);
+                }
+            } catch (Throwable t) {
+                Logger.logStackTraceWithMessage(LOG_TAG, "Failed to decode background image in background thread", t);
+            }
+
+            final Bitmap finalBitmap = loadedBitmap;
+            runOnUiThread(() -> {
+                if (!isFinishing()) {
+                    if (finalBitmap != null) {
+                        mBackgroundBitmapCache.put(cacheKey, finalBitmap);
+                    }
+                    callback.onLoaded(finalBitmap);
+                }
+            });
+        }).start();
+    }
+
+    /** Decode and downsample a background image from a path, file or content URI. */
+    private Bitmap decodeBackgroundBitmap(String targetPath) throws Throwable {
+        Uri uri = Uri.parse(targetPath);
+        BitmapFactory.Options opts = new BitmapFactory.Options();
+        opts.inJustDecodeBounds = true;
+
+        if (targetPath.startsWith("content://") || targetPath.startsWith("file://")) {
+            try (java.io.InputStream is = getContentResolver().openInputStream(uri)) {
+                BitmapFactory.decodeStream(is, null, opts);
+            }
+        } else {
+            BitmapFactory.decodeFile(targetPath, opts);
+        }
+
+        // Downsample if image is excessively large (larger than 2048 in either dimension)
+        int sampleSize = 1;
+        int maxDim = Math.max(opts.outWidth, opts.outHeight);
+        while (maxDim / sampleSize > 2048) {
+            sampleSize *= 2;
+        }
+
+        BitmapFactory.Options decodeOpts = new BitmapFactory.Options();
+        decodeOpts.inSampleSize = sampleSize;
+
+        if (targetPath.startsWith("content://") || targetPath.startsWith("file://")) {
+            try (java.io.InputStream is = getContentResolver().openInputStream(uri)) {
+                return BitmapFactory.decodeStream(is, null, decodeOpts);
+            }
+        } else {
+            return BitmapFactory.decodeFile(targetPath, decodeOpts);
+        }
+    }
+
+    /**
+     * Show the wallpaper behind the whole activity (the area outside the terminal card:
+     * margins, tab bar gaps, extra keys gaps), blurred or sharp.
+     */
+    @SuppressLint("NewApi")
+    private void applyActivityBackground(Bitmap bitmap, boolean blurred) {
+        if (mActivityBackgroundImage == null) return;
+        mActivityBackgroundImage.setImageBitmap(bitmap);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            if (blurred) {
+                float blurPx = 14 * getResources().getDisplayMetrics().density;
+                mActivityBackgroundImage.setRenderEffect(
+                    RenderEffect.createBlurEffect(blurPx, blurPx, Shader.TileMode.CLAMP));
+            } else {
+                mActivityBackgroundImage.setRenderEffect(null);
+            }
+        }
+        mActivityBackgroundImage.setVisibility(View.VISIBLE);
+        if (mActivityBackgroundOverlay != null) {
+            mActivityBackgroundOverlay.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void hideActivityBackground() {
+        if (mActivityBackgroundImage != null) {
+            mActivityBackgroundImage.setVisibility(View.GONE);
+            mActivityBackgroundImage.setImageDrawable(null);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                mActivityBackgroundImage.setRenderEffect(null);
+            }
+        }
+        if (mActivityBackgroundOverlay != null) {
+            mActivityBackgroundOverlay.setVisibility(View.GONE);
         }
     }
 

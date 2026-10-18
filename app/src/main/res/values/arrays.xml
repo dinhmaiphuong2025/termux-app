@@ -70,6 +70,18 @@
         <item>right</item>
     </string-array>
 
+    <string-array name="outer_background_style_titles">
+        <item>Off (Solid color)</item>
+        <item>Blurred wallpaper</item>
+        <item>Sharp wallpaper</item>
+    </string-array>
+
+    <string-array name="outer_background_style_values">
+        <item>off</item>
+        <item>blur</item>
+        <item>sharp</item>
+    </string-array>
+
     <string-array name="gesture_pill_action_titles">
         <item>Switch to Previous Tab</item>
         <item>Switch to Next Tab</item>

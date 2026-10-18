@@ -324,6 +324,9 @@ public final class TermuxPreferenceConstants {
         public static final String KEY_EXTRA_KEYS_BAR_BACKGROUND_SYNC = "extra_keys_bar_background_sync";
         public static final boolean DEFAULT_VALUE_EXTRA_KEYS_BAR_BACKGROUND_SYNC = false;
 
+        public static final String KEY_OUTER_BACKGROUND_STYLE = "outer_background_style";
+        public static final String DEFAULT_VALUE_OUTER_BACKGROUND_STYLE = "off"; // "off", "blur", "sharp"
+
         /**
          * Extra Keys Shape & Customizer Preferences.
          */

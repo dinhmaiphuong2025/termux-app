@@ -301,6 +301,8 @@
     <string name="termux_cell_background_opacity_title">Editor Cell Background Opacity (%)</string>
     <string name="termux_extra_keys_bar_background_sync_title">Sync Wallpaper to Extra Keys Bar</string>
     <string name="termux_extra_keys_bar_background_sync_summary">Show the same background image (with blur) behind the extra keys bar, seamlessly continuing from the terminal window</string>
+    <string name="termux_outer_background_style_title">Background Outside the Terminal</string>
+    <string name="termux_outer_background_style_summary">Extend the wallpaper to the area around the terminal window (margins, tab bar and extra keys gaps): solid color, blurred or sharp</string>
 
     <!-- Terminal Behavior Preferences -->
     <string name="termux_terminal_behavior_header">Terminal Behavior</string>

@@ -39,4 +39,6 @@
     <string name="termux_background_blur_radius_title">Bán kính làm mờ (dp)</string>
     <string name="termux_extra_keys_bar_background_sync_title">Đồng bộ hình nền xuống thanh phím phụ</string>
     <string name="termux_extra_keys_bar_background_sync_summary">Hiển thị cùng ảnh nền (có làm mờ) phía sau thanh phím phụ, liền mạch từ cửa sổ terminal xuống</string>
+    <string name="termux_outer_background_style_title">Nền ngoài cửa sổ terminal</string>
+    <string name="termux_outer_background_style_summary">Mở rộng hình nền ra vùng xung quanh cửa sổ terminal (lề, khe giữa tab bar và thanh phím phụ): màu đặc, mờ hoặc ảnh gốc</string>
 </resources>
