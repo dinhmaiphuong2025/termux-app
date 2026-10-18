@@ -331,7 +331,7 @@
     <!-- Glass & Blur Effect Preferences -->
     <string name="termux_glass_effects_header">Liquid Glass &amp; Blur Effects</string>
     <string name="termux_glass_effect_enabled_title">Liquid Glass</string>
-    <string name="termux_glass_effect_enabled_summary">Apple-style clear glass for the terminal window: translucent tint and slight saturation boost; the extra keys bar keeps its own colors</string>
+    <string name="termux_glass_effect_enabled_summary">Apple-style clear glass for the terminal window: a translucent tint and a subtle light rim on the top edge. No saturation boost — combine with background blur for a real frosted look</string>
     <string name="termux_glass_tint_opacity_title">Glass Tint Opacity (%)</string>
     <string name="termux_glass_tint_opacity_summary">Strength of the clear glass tint over the terminal window</string>
     <string name="termux_background_blur_enabled_title">Blur Background Wallpaper</string>

@@ -2,11 +2,13 @@ package com.termux.app.terminal;
 
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
+import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.graphics.Shader;
 import android.graphics.drawable.Drawable;
 
 import androidx.annotation.NonNull;
@@ -24,7 +26,7 @@ public class TerminalBorderDrawable extends Drawable {
     public static final String STYLE_BRACKETS = "brackets";
 
     private final Paint mStrokePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-    private final Paint mHighlightPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint mRimPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
     private int mStrokeWidth = 1;
     private int mCornerRadius = 1;
@@ -36,8 +38,6 @@ public class TerminalBorderDrawable extends Drawable {
 
     public TerminalBorderDrawable() {
         mStrokePaint.setStyle(Paint.Style.STROKE);
-        mHighlightPaint.setStyle(Paint.Style.STROKE);
-        mHighlightPaint.setColor(0x55FFFFFF);
     }
 
     public void setConfig(float density, int strokeWidth, int cornerRadius, int strokeColor, String style) {
@@ -49,21 +49,18 @@ public class TerminalBorderDrawable extends Drawable {
 
         mStrokePaint.setStrokeWidth(mStrokeWidth);
         mStrokePaint.setColor(mStrokeColor);
-        if (mGlassHighlight) {
-            mHighlightPaint.setStrokeWidth(Math.max(1f, mDensity));
-        }
 
         invalidateSelf();
     }
 
     /**
-     * Enable or disable the inner translucent white highlight used by the
-     * liquid glass effect (1dp stroke inset from the main border).
+     * Enable or disable the Apple-style specular rim used by the liquid glass
+     * effect: a thin light band along the top edge that fades downward, like
+     * light catching the upper lip of a glass pane. No full-box glow.
      */
     public void setGlassHighlight(boolean enabled) {
         if (mGlassHighlight == enabled) return;
         mGlassHighlight = enabled;
-        mHighlightPaint.setStrokeWidth(Math.max(1f, mDensity));
         invalidateSelf();
     }
 
@@ -133,19 +130,17 @@ public class TerminalBorderDrawable extends Drawable {
         }
 
         if (mGlassHighlight) {
-            // Inner glass highlight: a thin translucent white stroke just inside the main border.
+            // Specular rim: light concentrated along the top edge, fading downward
+            // over ~6dp. Subtle by design — no glow around the whole window.
             float inset = mStrokeWidth / 2.0f + Math.max(1f, mDensity);
-            float hlLeft = left + inset;
-            float hlTop = top + inset;
-            float hlRight = right - inset;
-            float hlBottom = bottom - inset;
-            float hlRadius = Math.max(0f, r - inset);
-            if (hlLeft < hlRight && hlTop < hlBottom) {
-                if (hlRadius > 0) {
-                    canvas.drawRoundRect(new RectF(hlLeft, hlTop, hlRight, hlBottom), hlRadius, hlRadius, mHighlightPaint);
-                } else {
-                    canvas.drawRect(hlLeft, hlTop, hlRight, hlBottom, mHighlightPaint);
-                }
+            float rimLeft = left + inset;
+            float rimRight = right - inset;
+            float rimTop = top + inset;
+            float rimBottom = Math.min(bottom, rimTop + 6 * mDensity);
+            if (rimLeft < rimRight && rimTop < rimBottom) {
+                mRimPaint.setShader(new LinearGradient(0, rimTop, 0, rimBottom,
+                    0x59FFFFFF, 0x00FFFFFF, Shader.TileMode.CLAMP));
+                canvas.drawRect(rimLeft, rimTop, rimRight, rimBottom, mRimPaint);
             }
         }
     }

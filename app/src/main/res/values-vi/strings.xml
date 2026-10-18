@@ -54,7 +54,7 @@
     <!-- Glass & Blur Effect Preferences -->
     <string name="termux_glass_effects_header">Hiệu ứng Liquid Glass &amp; làm mờ</string>
     <string name="termux_glass_effect_enabled_title">Liquid Glass</string>
-    <string name="termux_glass_effect_enabled_summary">Kính trong kiểu Apple cho cửa sổ terminal: lớp tint trong suốt và tăng nhẹ độ bão hòa; thanh phím phụ giữ nguyên màu của nó</string>
+    <string name="termux_glass_effect_enabled_summary">Kính trong kiểu Apple cho cửa sổ terminal: lớp tint trong suốt và viền sáng nhẹ ở cạnh trên. Không tăng bão hòa — bật kèm làm mờ hình nền để có hiệu ứng kính mờ thật</string>
     <string name="termux_glass_tint_opacity_title">Độ đậm lớp kính (%)</string>
     <string name="termux_glass_tint_opacity_summary">Cường độ lớp kính trong phủ lên cửa sổ terminal</string>
     <string name="termux_background_blur_enabled_title">Làm mờ hình nền</string>

@@ -413,6 +413,38 @@ public final class ExtraKeysView extends GridLayout {
         }
     }
 
+    /**
+     * Re-apply the current button colors and styling to all buttons that already exist.
+     * Needed because {@link #setButtonColors(int, int, int, int)} only stores the values;
+     * views already on screen keep their old backgrounds until they are rebuilt, which
+     * previously only happened after a key was pressed.
+     */
+    public void restyleButtons() {
+        restyleButtonsRecursive(this);
+    }
+
+    private void restyleButtonsRecursive(ViewGroup group) {
+        for (int i = 0; i < group.getChildCount(); i++) {
+            View child = group.getChildAt(i);
+            if (child instanceof MaterialButton) {
+                MaterialButton button = (MaterialButton) child;
+                int textColor = mButtonTextColor;
+                if (mSpecialButtons != null) {
+                    for (SpecialButtonState state : mSpecialButtons.values()) {
+                        if (state.buttons != null && state.buttons.contains(button)) {
+                            if (state.isActive) textColor = mButtonActiveTextColor;
+                            break;
+                        }
+                    }
+                }
+                button.setTextColor(textColor);
+                styleExtraKeyButton(button, mButtonBackgroundColor);
+            } else if (child instanceof ViewGroup) {
+                restyleButtonsRecursive((ViewGroup) child);
+            }
+        }
+    }
+
 
     /** Get {@link #mLongPressTimeout}. */
     public int getLongPressTimeout() {

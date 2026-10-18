@@ -77,8 +77,6 @@ import com.google.android.material.card.MaterialCardView;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.ColorMatrix;
-import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Matrix;
 import android.graphics.RenderEffect;
 import android.graphics.Shader;
@@ -1059,7 +1057,10 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
                     }
                 }
             } else {
-                mTerminalCardContainer.setRadius(0);
+                // Border disabled: corners still apply if their toggle is on.
+                int cornerRadius = getPreferences().isTerminalBorderCornerEnabled()
+                    ? (int) (getPreferences().getTerminalBorderCornerRadius() * density) : 0;
+                mTerminalCardContainer.setRadius(cornerRadius);
                 mTerminalCardContainer.setStrokeWidth(0);
                 mTerminalCardContainer.setContentPadding(0, 0, 0, 0);
                 if (mTerminalBorderOverlay != null) {
@@ -1138,7 +1139,10 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
                     mTerminalToolbarCard.setLayoutParams(lp);
                 }
             } else {
-                mTerminalToolbarCard.setRadius(0);
+                // Bar border disabled: corners still apply if their toggle is on.
+                int cornerRadius = getPreferences().isExtraKeysBarCornerEnabled()
+                    ? (int) (getPreferences().getExtraKeysBarBorderCornerRadius() * density) : 0;
+                mTerminalToolbarCard.setRadius(cornerRadius);
                 mTerminalToolbarCard.setStrokeWidth(0);
                 mTerminalToolbarCard.setCardBackgroundColor(Color.TRANSPARENT);
                 ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) mTerminalToolbarCard.getLayoutParams();
@@ -1358,7 +1362,6 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
      */
     @SuppressLint("NewApi")
     private void applyBackgroundBitmap(Bitmap bitmap, int blurRadius) {
-        boolean glassEnabled = getPreferences() != null && getPreferences().isGlassEffectEnabled();
         float blurPx = blurRadius * getResources().getDisplayMetrics().density;
 
         mLastBackgroundBitmap = bitmap;
@@ -1366,7 +1369,8 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
 
         if (mTerminalBackgroundImage != null) {
             mTerminalBackgroundImage.setImageBitmap(bitmap);
-            mTerminalBackgroundImage.setColorFilter(glassEnabled ? buildSaturationFilter(1.25f) : null);
+            // No saturation boost: Liquid Glass keeps the wallpaper colors natural.
+            mTerminalBackgroundImage.setColorFilter(null);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 if (blurRadius > 0) {
                     mTerminalBackgroundImage.setRenderEffect(
@@ -1512,6 +1516,14 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
             mTerminalGlassTint.setVisibility(glassEnabled ? View.VISIBLE : View.GONE);
         }
 
+        // Apple-style specular rim along the top edge inside the window border.
+        if (mTerminalBorderDrawable != null) {
+            mTerminalBorderDrawable.setGlassHighlight(glassEnabled);
+        }
+        if (mTerminalBorderOverlay != null) {
+            mTerminalBorderOverlay.invalidate();
+        }
+
         // The toolbar sheen layer is never shown: the bar keeps its own colors
         // unless the wallpaper sync theme is selected.
         if (mTerminalToolbarGlassTint != null) {
@@ -1529,9 +1541,10 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         // Size the toolbar background views to the extra keys card.
         syncToolbarBackgroundViews();
 
-        // Re-apply saturation filters and union-crop layout on already-loaded wallpaper.
+        // Re-apply blur layout on already-loaded wallpaper. No saturation filter:
+        // Liquid Glass keeps the wallpaper colors natural.
         if (mTerminalBackgroundImage != null && mLastBackgroundBitmap != null) {
-            mTerminalBackgroundImage.setColorFilter(glassEnabled ? buildSaturationFilter(1.25f) : null);
+            mTerminalBackgroundImage.setColorFilter(null);
             if (isBarBackgroundEnabled()) {
                 applyToolbarBackgroundSlice(mLastBackgroundBitmap, mLastBackgroundBlurRadius,
                     mLastBackgroundBlurRadius * density);
@@ -1556,6 +1569,9 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
                 mExtraKeysView.setBackgroundColor(Color.TRANSPARENT);
                 // Fully transparent key backgrounds: only the glyphs float on the wallpaper.
                 mExtraKeysView.setButtonColors(Color.WHITE, Color.WHITE, 0x00FFFFFF, 0x33FFFFFF);
+                // setButtonColors only stores values; repaint every existing button now
+                // so no stale rectangular backgrounds linger until a key is pressed.
+                mExtraKeysView.restyleButtons();
             }
             ViewPager terminalToolbarViewPager = getTerminalToolbarViewPager();
             if (terminalToolbarViewPager != null) {
@@ -1585,12 +1601,6 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
             Logger.logStackTraceWithMessage(LOG_TAG, "RenderScript blur failed, using unblurred wallpaper", t);
             return src;
         }
-    }
-
-    private static ColorMatrixColorFilter buildSaturationFilter(float saturation) {
-        ColorMatrix matrix = new ColorMatrix();
-        matrix.setSaturation(saturation);
-        return new ColorMatrixColorFilter(matrix);
     }
 
     public void reloadExtraKeysStylingAndConfig() {
