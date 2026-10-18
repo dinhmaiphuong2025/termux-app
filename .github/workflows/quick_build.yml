@@ -1,0 +1,56 @@
+name: Quick Build (arm64)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v6
+
+      - name: Setup java 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Accept Android SDK licenses
+        run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
+
+      - name: Build arm64 APK
+        shell: bash {0}
+        env:
+          PACKAGE_VARIANT: apt-android-7
+        run: |
+          CURRENT_VERSION_NAME_REGEX='\s+versionName "([^"]+)"$'
+          CURRENT_VERSION_NAME="$(grep -m 1 -E "$CURRENT_VERSION_NAME_REGEX" ./app/build.gradle | sed -r "s/$CURRENT_VERSION_NAME_REGEX/\1/")"
+          RELEASE_VERSION_NAME="v${CURRENT_VERSION_NAME}+${GITHUB_SHA:0:7}"
+          APK_VERSION_TAG="${RELEASE_VERSION_NAME}-${PACKAGE_VARIANT}-github-debug"
+
+          APK_DIR_PATH="./app/build/outputs/apk/debug"
+          APK_BASENAME_PREFIX="termux-app_${APK_VERSION_TAG}"
+          echo "APK_DIR_PATH=$APK_DIR_PATH" >> $GITHUB_ENV
+          echo "APK_BASENAME_PREFIX=$APK_BASENAME_PREFIX" >> $GITHUB_ENV
+          echo "APK_VERSION_TAG=$APK_VERSION_TAG" >> $GITHUB_ENV
+
+          export TERMUX_APP_VERSION_NAME="${RELEASE_VERSION_NAME/v/}"
+          export TERMUX_APK_VERSION_TAG="$APK_VERSION_TAG"
+          export TERMUX_PACKAGE_VARIANT="$PACKAGE_VARIANT"
+          ./gradlew assembleDebug -Ptermux_abi=arm64-v8a
+
+          if ! test -f "$APK_DIR_PATH/${APK_BASENAME_PREFIX}_arm64-v8a.apk"; then
+            files_found="$(ls "$APK_DIR_PATH")"
+            echo "Failed to find built APK at '$APK_DIR_PATH/${APK_BASENAME_PREFIX}_arm64-v8a.apk'. Files found: "$'\n'"$files_found"
+            exit 1
+          fi
+
+      - name: Attach arm64 APK file
+        uses: actions/upload-artifact@v6
+        with:
+          name: ${{ env.APK_VERSION_TAG }}_arm64-v8a
+          path: |
+            ${{ env.APK_DIR_PATH }}/${{ env.APK_BASENAME_PREFIX }}_arm64-v8a.apk
+            ${{ env.APK_DIR_PATH }}/output-metadata.json
