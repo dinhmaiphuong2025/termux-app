@@ -179,7 +179,7 @@
             <ImageView
                 android:id="@+id/terminal_toolbar_background_image"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="0dp"
                 android:scaleType="matrix"
                 android:visibility="gone"
                 tools:ignore="ContentDescription" />
@@ -187,14 +187,14 @@
             <View
                 android:id="@+id/terminal_toolbar_background_overlay"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="0dp"
                 android:background="#000000"
                 android:visibility="gone" />
 
             <View
                 android:id="@+id/terminal_toolbar_glass_tint"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="0dp"
                 android:background="@drawable/termux_glass_tint"
                 android:visibility="gone" />
 

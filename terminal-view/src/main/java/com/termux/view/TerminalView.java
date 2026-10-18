@@ -73,6 +73,12 @@ public final class TerminalView extends View {
     int mTopRow;
     /** Fractional scroll offset in [0, 1): content is shifted up by this fraction of a row. */
     float mTopRowFraction;
+    /**
+     * The exact fractional top-row scroll position ({@code topRow - fraction} when not
+     * rubber-banding; may differ from {@code mTopRow - mTopRowFraction} only while
+     * over-scrolling past the transcript bottom).
+     */
+    private float mTopRowPosition;
     /** Whether smooth (fractional pixel) scrolling is enabled. */
     private boolean mSmoothScrollEnabled = true;
     /** Animator used for smooth scroll-to-target and snap-to-row animations. */
@@ -217,7 +223,7 @@ public final class TerminalView extends View {
                 } else {
                     // Fling in pixel space so the terminal scrolls smoothly across
                     // fractional rows instead of jumping one whole row per frame.
-                    int startPx = Math.round((mTopRow - mTopRowFraction) * lineSpacing);
+                    int startPx = Math.round(mTopRowPosition * lineSpacing);
                     int minPx = (int) (-mEmulator.getScreen().getActiveTranscriptRows() * lineSpacing);
                     mScroller.fling(0, startPx, 0, -(int) (velocityY * SCALE * lineSpacing), 0, 0, minPx, 0);
                 }
@@ -474,7 +480,7 @@ public final class TerminalView extends View {
 
     @Override
     protected int computeVerticalScrollOffset() {
-        return mEmulator == null ? 1 : Math.round(mEmulator.getScreen().getActiveRows() + mTopRow - mTopRowFraction - mEmulator.mRows);
+        return mEmulator == null ? 1 : Math.round(mEmulator.getScreen().getActiveRows() + mTopRowPosition - mEmulator.mRows);
     }
 
     public void onScreenUpdated() {
@@ -653,12 +659,14 @@ public final class TerminalView extends View {
      * so text glides smoothly instead of jumping one whole row at a time.
      */
     void scrollByPixels(float distanceY) {
-        applyTopRowF(mTopRow - mTopRowFraction + distanceY / mRenderer.mFontLineSpacing);
+        applyTopRowF(mTopRowPosition + distanceY / mRenderer.mFontLineSpacing);
     }
 
     /**
      * Apply a fractional top-row position: {@code topRowF} is the topmost visible row position
      * where the fractional part shifts the content up by that fraction of a row.
+     * Positions between -1 and 0 (over-scroll past the transcript bottom) are rendered with
+     * a smooth rubber-band: the last row slides off and an empty gap appears below.
      */
     void applyTopRowF(float topRowF) {
         if (mEmulator == null) return;
@@ -673,15 +681,16 @@ public final class TerminalView extends View {
             topRow = Math.round(topRowF);
             fraction = 0.f;
         }
-        if (fraction > 0.f && topRow >= 0) {
-            // A fractional offset needs one extra row below the viewport; when scrolled to
-            // the very bottom of the transcript there is no such row, so rest at the bottom.
-            topRow = 0;
-            fraction = 0.f;
+        if (fraction > 0.f && topRow == 0) {
+            // Over-scroll past the transcript bottom: shift the last row down instead of
+            // hard-clamping, so the content glides smoothly all the way to the end.
+            topRow = -1;
+            fraction = 1.f + topRowF;
         }
 
         if (topRow == mTopRow && fraction == mTopRowFraction) return;
 
+        mTopRowPosition = topRowF;
         mApplyingSmoothScroll = true;
         setTopRow(topRow);
         mApplyingSmoothScroll = false;
@@ -692,7 +701,7 @@ public final class TerminalView extends View {
     /** Animate the current fractional scroll position to {@code targetTopRowF}. */
     void animateSmoothScrollTo(float targetTopRowF) {
         cancelSmoothScrollAnimator();
-        final float startF = mTopRow - mTopRowFraction;
+        final float startF = mTopRowPosition;
         if (Math.abs(startF - targetTopRowF) < 0.001f) return;
         mSmoothScrollAnimator = ValueAnimator.ofFloat(startF, targetTopRowF);
         mSmoothScrollAnimator.setDuration(140);
@@ -704,7 +713,7 @@ public final class TerminalView extends View {
     /** Snap the current fractional scroll offset back to a whole row. */
     void snapToRow() {
         if (!mSmoothScrollEnabled || mTopRowFraction == 0.f) return;
-        animateSmoothScrollTo(Math.round(mTopRow - mTopRowFraction));
+        animateSmoothScrollTo(Math.round(mTopRowPosition));
     }
 
     private void cancelSmoothScrollAnimator() {
@@ -722,7 +731,8 @@ public final class TerminalView extends View {
             cancelSmoothScrollAnimator();
             if (mTopRowFraction != 0.f) {
                 // Snap to the nearest whole row when disabling smooth scrolling.
-                mTopRow = Math.round(mTopRow - mTopRowFraction);
+                mTopRow = Math.round(mTopRowPosition);
+                mTopRowPosition = mTopRow;
                 mTopRowFraction = 0.f;
                 invalidate();
             }
@@ -791,6 +801,10 @@ public final class TerminalView extends View {
             }
         }
 
+        if (action == MotionEvent.ACTION_DOWN) {
+            // A new touch takes over immediately: cancel any in-flight snap animation.
+            cancelSmoothScrollAnimator();
+        }
         if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
             // When the finger lifts after a drag, snap the fractional scroll offset
             // back to a whole row so all row-based logic stays consistent.
@@ -1236,6 +1250,7 @@ public final class TerminalView extends View {
             // and reset the fractional offset.
             cancelSmoothScrollAnimator();
             mTopRowFraction = 0.f;
+            mTopRowPosition = topRow;
         }
         if (updateEmulator && mEmulator != null) {
             mEmulator.setTopRow(mTopRow);

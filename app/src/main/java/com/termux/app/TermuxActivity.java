@@ -175,6 +175,8 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
     /** Last decoded background bitmap and blur radius, kept for re-applying layout matrices. */
     Bitmap mLastBackgroundBitmap;
     int mLastBackgroundBlurRadius;
+    /** Last toolbar card height applied to the toolbar background views. */
+    private int mLastToolbarBackgroundHeight;
 
     /** Small LRU cache of decoded (and on old APIs, pre-blurred) background bitmaps. */
     final Map<String, Bitmap> mBackgroundBitmapCache = new LinkedHashMap<String, Bitmap>() {
@@ -568,6 +570,22 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         mTerminalToolbarBackgroundImage = findViewById(R.id.terminal_toolbar_background_image);
         mTerminalToolbarBackgroundOverlay = findViewById(R.id.terminal_toolbar_background_overlay);
         mTerminalToolbarGlassTint = findViewById(R.id.terminal_toolbar_glass_tint);
+
+        // Keep the toolbar background views sized to the extra keys card. They start at 0dp
+        // in the layout so they can never inflate the wrap-content card measure.
+        if (mTerminalToolbarCard != null) {
+            mTerminalToolbarCard.getViewTreeObserver().addOnGlobalLayoutListener(() -> {
+                int height = mTerminalToolbarCard.getHeight();
+                if (height == mLastToolbarBackgroundHeight) return;
+                mLastToolbarBackgroundHeight = height;
+                if (getPreferences() != null && getPreferences().isGlassEffectEnabled() && mLastBackgroundBitmap != null && height > 0) {
+                    applyToolbarBackgroundSlice(mLastBackgroundBitmap, mLastBackgroundBlurRadius,
+                        mLastBackgroundBlurRadius * getResources().getDisplayMetrics().density);
+                } else {
+                    syncToolbarBackgroundViews();
+                }
+            });
+        }
 
         mTermuxGesturePillView = findViewById(R.id.terminal_gesture_pill);
         if (mTermuxGesturePillView != null) {
@@ -1343,6 +1361,27 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         if (mTerminalToolbarBackgroundOverlay != null) {
             mTerminalToolbarBackgroundOverlay.setVisibility(View.VISIBLE);
         }
+        syncToolbarBackgroundViews();
+    }
+
+    /**
+     * Size the toolbar background views (0dp in XML) to the extra keys card height.
+     * They must never influence the wrap-content measure of the card or the whole bar
+     * inflates and jumps to the top of the screen.
+     */
+    private void syncToolbarBackgroundViews() {
+        if (mTerminalToolbarCard == null) return;
+        int height = mTerminalToolbarCard.getHeight();
+        if (height <= 0) return;
+        View[] views = new View[]{mTerminalToolbarBackgroundImage, mTerminalToolbarBackgroundOverlay, mTerminalToolbarGlassTint};
+        for (View view : views) {
+            if (view == null) continue;
+            ViewGroup.LayoutParams lp = view.getLayoutParams();
+            if (lp != null && lp.height != height) {
+                lp.height = height;
+                view.setLayoutParams(lp);
+            }
+        }
     }
 
     private void hideToolbarBackground() {
@@ -1389,6 +1428,9 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
 
         // Extra keys bar glass translucency.
         applyExtraKeysBarGlass(glassEnabled);
+
+        // Size the toolbar background views to the extra keys card.
+        syncToolbarBackgroundViews();
 
         // Re-apply saturation filters and union-crop layout on already-loaded wallpaper.
         if (mTerminalBackgroundImage != null && mLastBackgroundBitmap != null) {
