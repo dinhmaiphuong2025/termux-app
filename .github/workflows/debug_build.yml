@@ -21,7 +21,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        package_variant: [ apt-android-7, apt-android-5 ]
+        package_variant: ${{ fromJSON(github.event.inputs.single_abi != '' && '["apt-android-7"]' || '["apt-android-7","apt-android-5"]') }}
 
     steps:
       - name: Clone repository
