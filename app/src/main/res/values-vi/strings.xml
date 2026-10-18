@@ -22,4 +22,9 @@
     <string name="termux_gesture_pill_swipe_up_title">Cử chỉ vuốt lên trên</string>
     <string name="termux_gesture_pill_swipe_down_title">Cử chỉ vuốt xuống dưới</string>
     <string name="termux_gesture_pill_tap_title">Cử chỉ chạm (Tap)</string>
+
+    <!-- Terminal Behavior Preferences -->
+    <string name="termux_terminal_behavior_header">Hành vi Terminal</string>
+    <string name="termux_smooth_scroll_title">Cuộn mượt (Smooth Scroll)</string>
+    <string name="termux_smooth_scroll_summary">Nội dung terminal lướt theo từng pixel khi vuốt, hất hoặc lăn chuột</string>
 </resources>

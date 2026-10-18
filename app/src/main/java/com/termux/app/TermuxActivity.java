@@ -1107,6 +1107,9 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
             } else {
                 mTerminalView.setCellBackgroundAlpha(-1);
             }
+
+            // Smooth (fractional pixel) scrolling of terminal content.
+            mTerminalView.setSmoothScrollEnabled(getPreferences().isTerminalSmoothScrollEnabled());
         }
 
         // 3. Tab Bar

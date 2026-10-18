@@ -300,6 +300,11 @@
     <string name="termux_cell_background_transparency_summary">Allow wallpaper to show through TUI editors like Neovim, Vim, Htop</string>
     <string name="termux_cell_background_opacity_title">Editor Cell Background Opacity (%)</string>
 
+    <!-- Terminal Behavior Preferences -->
+    <string name="termux_terminal_behavior_header">Terminal Behavior</string>
+    <string name="termux_smooth_scroll_title">Smooth Scroll</string>
+    <string name="termux_smooth_scroll_summary">Glide terminal content at pixel precision when swiping, flinging or scrolling with a mouse wheel</string>
+
     <!-- Extra Keys Styling & Presets -->
     <string name="termux_extra_keys_styling_header">Extra Keys Shape &amp; Styling</string>
     <string name="termux_extra_keys_color_theme_title">Bar Color Theme</string>

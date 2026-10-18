@@ -211,6 +211,7 @@ public class CustomUIPreferencesFragment extends PreferenceFragmentCompat {
             "terminal_background_opacity",
             "terminal_cell_background_transparency",
             "terminal_cell_background_opacity",
+            "terminal_smooth_scroll",
             "extra_keys_color_theme",
             "extra_keys_flat_keys",
             "extra_keys_margin",
@@ -270,6 +271,9 @@ class CustomUIPreferencesDataStore extends PreferenceDataStore {
             case "terminal_cell_background_transparency":
                 mPreferences.setTerminalCellBackgroundTransparencyEnabled(value);
                 break;
+            case "terminal_smooth_scroll":
+                mPreferences.setTerminalSmoothScrollEnabled(value);
+                break;
             case "tab_animation_enabled":
                 mPreferences.setTabAnimationEnabled(value);
                 break;
@@ -303,6 +307,8 @@ class CustomUIPreferencesDataStore extends PreferenceDataStore {
                 return mPreferences.isTabBorderSync();
             case "terminal_cell_background_transparency":
                 return mPreferences.isTerminalCellBackgroundTransparencyEnabled();
+            case "terminal_smooth_scroll":
+                return mPreferences.isTerminalSmoothScrollEnabled();
             case "tab_animation_enabled":
                 return mPreferences.isTabAnimationEnabled();
             case "show_session_name_without_tab_bar":

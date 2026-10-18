@@ -301,6 +301,12 @@ public final class TermuxPreferenceConstants {
         public static final int DEFAULT_VALUE_TERMINAL_CELL_BACKGROUND_OPACITY = 0; // 0-100 (0 = completely transparent, 100 = opaque)
 
         /**
+         * Smooth Scroll Preferences.
+         */
+        public static final String KEY_TERMINAL_SMOOTH_SCROLL = "terminal_smooth_scroll";
+        public static final boolean DEFAULT_VALUE_TERMINAL_SMOOTH_SCROLL = true;
+
+        /**
          * Extra Keys Shape & Customizer Preferences.
          */
         public static final String KEY_EXTRA_KEYS_CORNER_RADIUS = "extra_keys_corner_radius";

@@ -372,4 +372,16 @@
 
     </PreferenceCategory>
 
+    <PreferenceCategory
+        app:key="terminal_behavior_category"
+        app:title="@string/termux_terminal_behavior_header">
+
+        <SwitchPreferenceCompat
+            app:key="terminal_smooth_scroll"
+            app:title="@string/termux_smooth_scroll_title"
+            app:summary="@string/termux_smooth_scroll_summary"
+            app:defaultValue="true" />
+
+    </PreferenceCategory>
+
 </PreferenceScreen>

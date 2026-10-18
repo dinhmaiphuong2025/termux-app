@@ -1,5 +1,6 @@
 package com.termux.view;
 
+import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -27,6 +28,7 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewTreeObserver;
 import android.view.accessibility.AccessibilityManager;
+import android.view.animation.DecelerateInterpolator;
 import android.view.autofill.AutofillManager;
 import android.view.autofill.AutofillValue;
 import android.view.inputmethod.BaseInputConnection;
@@ -69,6 +71,14 @@ public final class TerminalView extends View {
 
     /** The top row of text to display. Ranges from -activeTranscriptRows to 0. */
     int mTopRow;
+    /** Fractional scroll offset in [0, 1): content is shifted up by this fraction of a row. */
+    float mTopRowFraction;
+    /** Whether smooth (fractional pixel) scrolling is enabled. */
+    private boolean mSmoothScrollEnabled = true;
+    /** Animator used for smooth scroll-to-target and snap-to-row animations. */
+    private ValueAnimator mSmoothScrollAnimator;
+    /** Guard against cancelling the smooth scroll animator from within its own update. */
+    private boolean mApplyingSmoothScroll;
     int[] mDefaultSelectors = new int[]{-1,-1,-1,-1};
 
     float mScaleFactor = 1.f;
@@ -178,10 +188,7 @@ public final class TerminalView extends View {
                     sendMouseEventCode(e, TerminalEmulator.MOUSE_LEFT_BUTTON_MOVED, true);
                 } else {
                     scrolledWithFinger = true;
-                    distanceY += mScrollRemainder;
-                    int deltaRows = (int) (distanceY / mRenderer.mFontLineSpacing);
-                    mScrollRemainder = distanceY - deltaRows * mRenderer.mFontLineSpacing;
-                    doScroll(e, deltaRows);
+                    doScroll(e, distanceY);
                 }
                 return true;
             }
@@ -200,12 +207,19 @@ public final class TerminalView extends View {
                 // Do not start scrolling until last fling has been taken care of:
                 if (!mScroller.isFinished()) return true;
 
+                cancelSmoothScrollAnimator();
+
                 final boolean mouseTrackingAtStartOfFling = mEmulator.isMouseTrackingActive();
                 float SCALE = 0.25f;
+                final float lineSpacing = mRenderer.mFontLineSpacing;
                 if (mouseTrackingAtStartOfFling) {
                     mScroller.fling(0, 0, 0, -(int) (velocityY * SCALE), 0, 0, -mEmulator.mRows / 2, mEmulator.mRows / 2);
                 } else {
-                    mScroller.fling(0, mTopRow, 0, -(int) (velocityY * SCALE), 0, 0, -mEmulator.getScreen().getActiveTranscriptRows(), 0);
+                    // Fling in pixel space so the terminal scrolls smoothly across
+                    // fractional rows instead of jumping one whole row per frame.
+                    int startPx = Math.round((mTopRow - mTopRowFraction) * lineSpacing);
+                    int minPx = (int) (-mEmulator.getScreen().getActiveTranscriptRows() * lineSpacing);
+                    mScroller.fling(0, startPx, 0, -(int) (velocityY * SCALE * lineSpacing), 0, 0, minPx, 0);
                 }
 
                 post(new Runnable() {
@@ -217,13 +231,23 @@ public final class TerminalView extends View {
                             mScroller.abortAnimation();
                             return;
                         }
-                        if (mScroller.isFinished()) return;
+                        if (mScroller.isFinished()) {
+                            snapToRow();
+                            return;
+                        }
                         boolean more = mScroller.computeScrollOffset();
                         int newY = mScroller.getCurrY();
-                        int diff = mouseTrackingAtStartOfFling ? (newY - mLastY) : (newY - mTopRow);
-                        doScroll(e2, diff);
+                        if (mouseTrackingAtStartOfFling) {
+                            int diff = newY - mLastY;
+                            doScroll(e2, diff * lineSpacing);
+                        } else if (mSmoothScrollEnabled) {
+                            applyTopRowF(newY / lineSpacing);
+                        } else {
+                            applyTopRowF(Math.round(newY / lineSpacing));
+                        }
                         mLastY = newY;
                         if (more) post(this);
+                        else snapToRow();
                     }
                 });
 
@@ -450,7 +474,7 @@ public final class TerminalView extends View {
 
     @Override
     protected int computeVerticalScrollOffset() {
-        return mEmulator == null ? 1 : mEmulator.getScreen().getActiveRows() + mTopRow - mEmulator.mRows;
+        return mEmulator == null ? 1 : Math.round(mEmulator.getScreen().getActiveRows() + mTopRow - mTopRowFraction - mEmulator.mRows);
     }
 
     public void onScreenUpdated() {
@@ -586,22 +610,127 @@ public final class TerminalView extends View {
         mEmulator.sendMouseEvent(button, x, y, pressed);
     }
 
-    /** Perform a scroll, either from dragging the screen or by scrolling a mouse wheel. */
-    void doScroll(MotionEvent event, int rowsDown) {
-        boolean up = rowsDown < 0;
-        int amount = Math.abs(rowsDown);
-        for (int i = 0; i < amount; i++) {
-            if (mEmulator.isMouseTrackingActive()) {
+    /**
+     * Perform a scroll, either from dragging the screen or by scrolling a mouse wheel.
+     *
+     * @param distanceY scroll distance in pixels (positive = scroll toward newer content).
+     */
+    void doScroll(MotionEvent event, float distanceY) {
+        if (mEmulator.isMouseTrackingActive()) {
+            // Quantize into whole rows so that one mouse wheel event is sent per scrolled cell row.
+            mScrollRemainder += distanceY;
+            int amount = (int) (mScrollRemainder / mRenderer.mFontLineSpacing);
+            mScrollRemainder -= amount * mRenderer.mFontLineSpacing;
+            boolean up = amount < 0;
+            for (int i = 0; i < Math.abs(amount); i++) {
                 sendMouseEventCode(event, up ? TerminalEmulator.MOUSE_WHEELUP_BUTTON : TerminalEmulator.MOUSE_WHEELDOWN_BUTTON, true);
-            } else if (mEmulator.isAlternateBufferActive()) {
-                // Send up and down key events for scrolling, which is what some terminals do to make scroll work in
-                // e.g. less, which shifts to the alt screen without mouse handling.
+            }
+        } else if (mEmulator.isAlternateBufferActive()) {
+            // Send up and down key events for scrolling, which is what some terminals do to make scroll work in
+            // e.g. less, which shifts to the alt screen without mouse handling.
+            mScrollRemainder += distanceY;
+            int amount = (int) (mScrollRemainder / mRenderer.mFontLineSpacing);
+            mScrollRemainder -= amount * mRenderer.mFontLineSpacing;
+            boolean up = amount < 0;
+            for (int i = 0; i < Math.abs(amount); i++) {
                 handleKeyCode(up ? KeyEvent.KEYCODE_DPAD_UP : KeyEvent.KEYCODE_DPAD_DOWN, 0);
+            }
+        } else {
+            if (mSmoothScrollEnabled) {
+                scrollByPixels(distanceY);
             } else {
-                setTopRow(Math.min(0, Math.max(-(mEmulator.getScreen().getActiveTranscriptRows()), mTopRow + (up ? -1 : 1))));
-                if (!awakenScrollBars()) invalidate();
+                // Legacy whole-row stepping when smooth scrolling is disabled.
+                mScrollRemainder += distanceY;
+                int deltaRows = (int) (mScrollRemainder / mRenderer.mFontLineSpacing);
+                mScrollRemainder -= deltaRows * mRenderer.mFontLineSpacing;
+                if (deltaRows != 0) applyTopRowF(mTopRow + deltaRows);
             }
         }
+    }
+
+    /**
+     * Scroll the terminal viewport by a pixel delta, allowing fractional row positions
+     * so text glides smoothly instead of jumping one whole row at a time.
+     */
+    void scrollByPixels(float distanceY) {
+        applyTopRowF(mTopRow - mTopRowFraction + distanceY / mRenderer.mFontLineSpacing);
+    }
+
+    /**
+     * Apply a fractional top-row position: {@code topRowF} is the topmost visible row position
+     * where the fractional part shifts the content up by that fraction of a row.
+     */
+    void applyTopRowF(float topRowF) {
+        if (mEmulator == null) return;
+        int minRow = -(mEmulator.getScreen().getActiveTranscriptRows());
+        if (topRowF > 0.f) topRowF = 0.f;
+        if (topRowF < minRow) topRowF = minRow;
+
+        int topRow = (int) Math.ceil(topRowF - 0.001f);
+        float fraction = topRow - topRowF;
+        if (fraction < 0.001f || fraction > 0.999f) {
+            // Snap tiny fractions to keep rows stable and avoid redundant redraws.
+            topRow = Math.round(topRowF);
+            fraction = 0.f;
+        }
+        if (fraction > 0.f && topRow >= 0) {
+            // A fractional offset needs one extra row below the viewport; when scrolled to
+            // the very bottom of the transcript there is no such row, so rest at the bottom.
+            topRow = 0;
+            fraction = 0.f;
+        }
+
+        if (topRow == mTopRow && fraction == mTopRowFraction) return;
+
+        mApplyingSmoothScroll = true;
+        setTopRow(topRow);
+        mApplyingSmoothScroll = false;
+        mTopRowFraction = fraction;
+        if (!awakenScrollBars()) invalidate();
+    }
+
+    /** Animate the current fractional scroll position to {@code targetTopRowF}. */
+    void animateSmoothScrollTo(float targetTopRowF) {
+        cancelSmoothScrollAnimator();
+        final float startF = mTopRow - mTopRowFraction;
+        if (Math.abs(startF - targetTopRowF) < 0.001f) return;
+        mSmoothScrollAnimator = ValueAnimator.ofFloat(startF, targetTopRowF);
+        mSmoothScrollAnimator.setDuration(140);
+        mSmoothScrollAnimator.setInterpolator(new DecelerateInterpolator());
+        mSmoothScrollAnimator.addUpdateListener(animation -> applyTopRowF((Float) animation.getAnimatedValue()));
+        mSmoothScrollAnimator.start();
+    }
+
+    /** Snap the current fractional scroll offset back to a whole row. */
+    void snapToRow() {
+        if (!mSmoothScrollEnabled || mTopRowFraction == 0.f) return;
+        animateSmoothScrollTo(Math.round(mTopRow - mTopRowFraction));
+    }
+
+    private void cancelSmoothScrollAnimator() {
+        if (mSmoothScrollAnimator != null) {
+            mSmoothScrollAnimator.cancel();
+            mSmoothScrollAnimator = null;
+        }
+    }
+
+    /** Enable or disable smooth (fractional pixel) scrolling of the terminal content. */
+    public void setSmoothScrollEnabled(boolean enabled) {
+        if (mSmoothScrollEnabled == enabled) return;
+        mSmoothScrollEnabled = enabled;
+        if (!enabled) {
+            cancelSmoothScrollAnimator();
+            if (mTopRowFraction != 0.f) {
+                // Snap to the nearest whole row when disabling smooth scrolling.
+                mTopRow = Math.round(mTopRow - mTopRowFraction);
+                mTopRowFraction = 0.f;
+                invalidate();
+            }
+        }
+    }
+
+    public boolean isSmoothScrollEnabled() {
+        return mSmoothScrollEnabled;
     }
 
     /** Overriding {@link View#onGenericMotionEvent(MotionEvent)}. */
@@ -610,7 +739,15 @@ public final class TerminalView extends View {
         if (mEmulator != null && event.isFromSource(InputDevice.SOURCE_MOUSE) && event.getAction() == MotionEvent.ACTION_SCROLL) {
             // Handle mouse wheel scrolling.
             boolean up = event.getAxisValue(MotionEvent.AXIS_VSCROLL) > 0.0f;
-            doScroll(event, up ? -3 : 3);
+            if (mSmoothScrollEnabled && !mEmulator.isMouseTrackingActive() && !mEmulator.isAlternateBufferActive()) {
+                // Glide three rows per wheel notch instead of jumping instantly.
+                float rows = up ? -3f : 3f;
+                int minRow = -(mEmulator.getScreen().getActiveTranscriptRows());
+                float target = Math.max(minRow, Math.min(0.f, mTopRow - mTopRowFraction + rows));
+                animateSmoothScrollTo(target);
+            } else {
+                doScroll(event, (up ? -3f : 3f) * mRenderer.mFontLineSpacing);
+            }
             return true;
         }
         return false;
@@ -652,6 +789,12 @@ public final class TerminalView extends View {
                         break;
                 }
             }
+        }
+
+        if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
+            // When the finger lifts after a drag, snap the fractional scroll offset
+            // back to a whole row so all row-based logic stays consistent.
+            snapToRow();
         }
 
         mGestureRecognizer.onTouchEvent(event);
@@ -951,7 +1094,7 @@ public final class TerminalView extends View {
                 if (shiftDown) {
                     long time = SystemClock.uptimeMillis();
                     MotionEvent motionEvent = MotionEvent.obtain(time, time, MotionEvent.ACTION_DOWN, 0, 0, 0);
-                    doScroll(motionEvent, keyCode == KeyEvent.KEYCODE_PAGE_UP ? -mEmulator.mRows : mEmulator.mRows);
+                    doScroll(motionEvent, (keyCode == KeyEvent.KEYCODE_PAGE_UP ? -mEmulator.mRows : mEmulator.mRows) * mRenderer.mFontLineSpacing);
                     motionEvent.recycle();
                     return true;
                 }
@@ -1044,7 +1187,7 @@ public final class TerminalView extends View {
                 mTextSelectionCursorController.getSelectors(sel);
             }
 
-            mRenderer.render(mEmulator, canvas, mTopRow, sel[0], sel[1], sel[2], sel[3]);
+            mRenderer.render(mEmulator, canvas, mTopRow, mTopRowFraction, sel[0], sel[1], sel[2], sel[3]);
 
             // render the text selection handles
             renderTextSelection();
@@ -1088,6 +1231,12 @@ public final class TerminalView extends View {
 
     public void setTopRow(int topRow, boolean updateEmulator) {
         mTopRow = topRow;
+        if (!mApplyingSmoothScroll) {
+            // External scroll jumps invalidate any in-flight smooth scroll animation
+            // and reset the fractional offset.
+            cancelSmoothScrollAnimator();
+            mTopRowFraction = 0.f;
+        }
         if (updateEmulator && mEmulator != null) {
             mEmulator.setTopRow(mTopRow);
         }

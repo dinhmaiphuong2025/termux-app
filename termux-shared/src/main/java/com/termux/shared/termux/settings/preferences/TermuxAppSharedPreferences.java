@@ -546,6 +546,14 @@ public class TermuxAppSharedPreferences extends AppSharedPreferences {
         SharedPreferenceUtils.setInt(mSharedPreferences, TERMUX_APP.KEY_TERMINAL_CELL_BACKGROUND_OPACITY, value, false);
     }
 
+    public boolean isTerminalSmoothScrollEnabled() {
+        return SharedPreferenceUtils.getBoolean(mSharedPreferences, TERMUX_APP.KEY_TERMINAL_SMOOTH_SCROLL, TERMUX_APP.DEFAULT_VALUE_TERMINAL_SMOOTH_SCROLL);
+    }
+
+    public void setTerminalSmoothScrollEnabled(boolean value) {
+        SharedPreferenceUtils.setBoolean(mSharedPreferences, TERMUX_APP.KEY_TERMINAL_SMOOTH_SCROLL, value, false);
+    }
+
     public int getExtraKeysCornerRadius() {
         return SharedPreferenceUtils.getInt(mSharedPreferences, TERMUX_APP.KEY_EXTRA_KEYS_CORNER_RADIUS, TERMUX_APP.DEFAULT_VALUE_EXTRA_KEYS_CORNER_RADIUS);
     }
@@ -740,6 +748,7 @@ public class TermuxAppSharedPreferences extends AppSharedPreferences {
         setTerminalBackgroundOpacity(TERMUX_APP.DEFAULT_VALUE_TERMINAL_BACKGROUND_OPACITY);
         setTerminalCellBackgroundTransparencyEnabled(TERMUX_APP.DEFAULT_VALUE_TERMINAL_CELL_BACKGROUND_TRANSPARENCY);
         setTerminalCellBackgroundOpacity(TERMUX_APP.DEFAULT_VALUE_TERMINAL_CELL_BACKGROUND_OPACITY);
+        setTerminalSmoothScrollEnabled(TERMUX_APP.DEFAULT_VALUE_TERMINAL_SMOOTH_SCROLL);
 
         setExtraKeysCornerRadius(TERMUX_APP.DEFAULT_VALUE_EXTRA_KEYS_CORNER_RADIUS);
         setExtraKeysMargin(TERMUX_APP.DEFAULT_VALUE_EXTRA_KEYS_MARGIN);
