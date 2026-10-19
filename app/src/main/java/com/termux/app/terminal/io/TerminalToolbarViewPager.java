@@ -87,6 +87,7 @@ public class TerminalToolbarViewPager {
             } else {
                 layout = inflater.inflate(R.layout.view_terminal_toolbar_text_input, collection, false);
                 final EditText editText = layout.findViewById(R.id.terminal_toolbar_text_input);
+                editText.setBackground(null);
                 disableTextMagnifier(editText);
 
                 if (mSavedTextInput != null) {

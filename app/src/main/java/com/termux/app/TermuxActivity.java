@@ -2352,18 +2352,23 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
             }
         }
 
-        int bgColor = Color.TRANSPARENT;
-        if (getPreferences() == null || !getPreferences().isGlassEffectEnabled()) {
-            TerminalSession current = getCurrentSession();
-            if (current != null && current.getEmulator() != null) {
-                bgColor = current.getEmulator().mColors.mCurrentColors[TextStyle.COLOR_INDEX_BACKGROUND];
-            } else {
-                bgColor = 0xFF000000;
-            }
-        }
-        mTransitionSnapshotBitmap.eraseColor(bgColor);
         try {
             android.graphics.Canvas canvas = new android.graphics.Canvas(mTransitionSnapshotBitmap);
+            if (mLastBackgroundBitmap != null && !mLastBackgroundBitmap.isRecycled()) {
+                if (mTerminalGlassBackdrop != null && mTerminalGlassBackdrop.getImageMatrix() != null) {
+                    canvas.drawBitmap(mLastBackgroundBitmap, mTerminalGlassBackdrop.getImageMatrix(), null);
+                    canvas.drawColor(0x330A0F19);
+                } else {
+                    canvas.drawColor(0xFF000000);
+                }
+            } else {
+                int bgColor = 0xFF000000;
+                TerminalSession current = getCurrentSession();
+                if (current != null && current.getEmulator() != null) {
+                    bgColor = current.getEmulator().mColors.mCurrentColors[TextStyle.COLOR_INDEX_BACKGROUND];
+                }
+                canvas.drawColor(bgColor);
+            }
             mTerminalCardContainer.draw(canvas);
         } catch (Throwable t) {
             Logger.logStackTraceWithMessage(LOG_TAG, "Failed to capture transition snapshot", t);
@@ -2444,7 +2449,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
 
     private void cleanupTransitionSnapshot() {
         if (mTerminalCardSnapshot != null) {
-            mTerminalCardSnapshot.setVisibility(View.GONE);
+            mTerminalCardSnapshot.setVisibility(View.INVISIBLE);
             mTerminalCardSnapshot.setImageBitmap(null);
             mTerminalCardSnapshot.setTranslationX(0f);
             mTerminalCardSnapshot.setAlpha(1.0f);
