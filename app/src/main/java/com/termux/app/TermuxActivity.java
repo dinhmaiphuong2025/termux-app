@@ -1803,10 +1803,11 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
                     lensShader.setFloatUniform("uRadius", cornerPx);
                     lensShader.setFloatUniform("uRim", 18f * density);
                     float effectiveBlur = Math.max(1f, blurPx);
-                    lensShader.setInputShader("content",
-                        RenderEffect.createBlurEffect(effectiveBlur, effectiveBlur, Shader.TileMode.CLAMP));
+                    RenderEffect blurEffect = RenderEffect.createBlurEffect(
+                        effectiveBlur, effectiveBlur, Shader.TileMode.CLAMP);
+                    RenderEffect lensEffect = RenderEffect.createRuntimeShaderEffect(lensShader, "content");
                     mTerminalGlassBackdrop.setRenderEffect(
-                        RenderEffect.createRuntimeShaderEffect(lensShader, "content"));
+                        RenderEffect.createChainEffect(lensEffect, blurEffect));
                 } catch (Throwable t) {
                     // Fall back to a light blur if the lens shader cannot run.
                     mTerminalGlassBackdrop.setRenderEffect(blurPx > 0
