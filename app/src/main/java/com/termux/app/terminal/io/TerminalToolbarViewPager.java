@@ -1,10 +1,12 @@
 package com.termux.app.terminal.io;
 
 import android.graphics.Color;
+import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.viewpager.widget.PagerAdapter;
@@ -85,6 +87,7 @@ public class TerminalToolbarViewPager {
             } else {
                 layout = inflater.inflate(R.layout.view_terminal_toolbar_text_input, collection, false);
                 final EditText editText = layout.findViewById(R.id.terminal_toolbar_text_input);
+                disableTextMagnifier(editText);
 
                 if (mSavedTextInput != null) {
                     editText.setText(mSavedTextInput);
@@ -118,6 +121,22 @@ public class TerminalToolbarViewPager {
     }
 
 
+
+    /**
+     * The system text magnifier (the zoom bubble shown while dragging the cursor)
+     * looks like rendering noise over the translucent glass toolbar. TextView has
+     * no public kill-switch on older platforms, so try the hidden setter and
+     * silently keep the magnifier when it is not available.
+     */
+    private static void disableTextMagnifier(EditText editText) {
+        if (editText == null || Build.VERSION.SDK_INT < Build.VERSION_CODES.P) return;
+        try {
+            java.lang.reflect.Method method = TextView.class.getMethod("setMagnifierEnabled", boolean.class);
+            method.invoke(editText, false);
+        } catch (Throwable ignored) {
+            // Platform skin without the method: the magnifier stays enabled.
+        }
+    }
 
     public static class OnPageChangeListener extends ViewPager.SimpleOnPageChangeListener {
 

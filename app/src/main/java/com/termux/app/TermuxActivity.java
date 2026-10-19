@@ -179,6 +179,8 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
     /** Last decoded background bitmap and blur radius, kept for re-applying layout matrices. */
     Bitmap mLastBackgroundBitmap;
     int mLastBackgroundBlurRadius;
+    /** Temporary diagnostic signature for the right-edge column investigation. */
+    String mLastGlassDebugSig = "";
     /**
      * Tracks layout changes of the activity scene and the extra keys bar so the
      * wallpaper sync slices and the glass backdrop follow their real positions in
@@ -1383,6 +1385,17 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         }
     }
 
+    private void logGlassDebug(String msg) {
+        android.util.Log.d("TermuxGlassDebug", msg);
+        try {
+            java.io.FileWriter fw = new java.io.FileWriter("/storage/emulated/0/Download/termux_glass_debug.txt", true);
+            fw.append(msg).append("\n");
+            fw.close();
+        } catch (Throwable ignored) {
+            // File write optional: the same line is in logcat (TermuxGlassDebug).
+        }
+    }
+
     /**
      * Anchor an ImageView to the fixed full-screen wallpaper scene: center-crop the
      * bitmap over the physical screen once, then offset by the view's screen position.
@@ -1399,6 +1412,11 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         float dy = (sceneH - bitmap.getHeight() * s) / 2f;
         int[] loc = new int[2];
         view.getLocationOnScreen(loc);
+        // Temporary diagnostic for the right-edge column investigation.
+        logGlassDebug("outerBg anchor: view=" + view.getWidth() + "x" + view.getHeight()
+            + " loc=" + loc[0] + "," + loc[1] + " scene=" + sceneW + "x" + sceneH
+            + " s=" + s + " dx=" + dx + " dy=" + dy
+            + " bitmap=" + bitmap.getWidth() + "x" + bitmap.getHeight());
         Matrix matrix = new Matrix();
         matrix.setScale(s, s);
         matrix.preTranslate(dx - loc[0], dy - loc[1]);
@@ -1534,10 +1552,12 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
             mTerminalBackgroundImage.setImageMatrix(matrix);
         }
 
-        // Toolbar image: the scene region behind the extra keys bar at its current position.
+        // Toolbar image: the wallpaper region continuing right below the terminal's
+        // bottom edge. The content stays fixed regardless of where the bar sits on
+        // screen (keyboard open/closed), so the wallpaper keeps its position.
         Matrix barMatrix = new Matrix();
         barMatrix.setScale(scale, scale);
-        barMatrix.preTranslate(dx - barLoc[0], dy - barLoc[1]);
+        barMatrix.preTranslate(dx - cardLoc[0], dy - (cardLoc[1] + cardH));
         mTerminalToolbarBackgroundImage.setScaleType(ImageView.ScaleType.MATRIX);
         mTerminalToolbarBackgroundImage.setImageMatrix(barMatrix);
         mTerminalToolbarBackgroundImage.setImageBitmap(bitmap);
@@ -1865,6 +1885,23 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         srcH = cardH / s;
         matrix.setScale(s, s);
         matrix.preTranslate(dx - cardLoc[0], dy - cardLoc[1]);
+
+        // Temporary diagnostic for the right-edge column investigation.
+        String sig = "backdrop: api=" + Build.VERSION.SDK_INT + " bmp=" + bw + "x" + bh
+            + " scene=" + rootW + "x" + rootH + " s=" + s + " dx=" + dx + " dy=" + dy
+            + " cardLoc=" + cardLoc[0] + "," + cardLoc[1] + " card=" + cardW + "x" + cardH
+            + " backdropView=" + mTerminalGlassBackdrop.getWidth() + "x" + mTerminalGlassBackdrop.getHeight()
+            + " frameLayer=" + (mTerminalFrameLayer != null
+                ? mTerminalFrameLayer.getWidth() + "x" + mTerminalFrameLayer.getHeight() : "null");
+        if (!sig.equals(mLastGlassDebugSig)) {
+            mLastGlassDebugSig = sig;
+            logGlassDebug(sig);
+            if (mTerminalView != null && mTerminalView.mEmulator != null) {
+                logGlassDebug("terminal: view=" + mTerminalView.getWidth() + "x" + mTerminalView.getHeight()
+                    + " grid=" + mTerminalView.getPointX(mTerminalView.mEmulator.mColumns)
+                    + " cols=" + mTerminalView.mEmulator.mColumns);
+            }
+        }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             mTerminalGlassBackdrop.setImageBitmap(bitmap);
