@@ -79,10 +79,12 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Matrix;
+import android.graphics.Outline;
 import android.graphics.RenderEffect;
 import android.graphics.RuntimeShader;
 import android.graphics.Shader;
 import android.text.TextUtils;
+import android.view.ViewOutlineProvider;
 import android.widget.ImageView;
 import java.io.File;
 import java.util.Arrays;
@@ -197,7 +199,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
                     mLastBackgroundBlurRadius * density);
             }
             if (getPreferences().isGlassEffectEnabled()) {
-                applyGlassBackdrop(mLastBackgroundBitmap, getGlassBlurPx());
+                applyGlassBackdrop(mLastBackgroundBitmap, getGlassBlurPx(density));
             }
         }
     };
@@ -1131,6 +1133,17 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
                     }
                 }
             }
+
+            final int cardRadius = getPreferences().isTerminalBorderCornerEnabled()
+                ? (int) (getPreferences().getTerminalBorderCornerRadius() * density) : 0;
+            mTerminalCardContainer.setRadius(cardRadius);
+            mTerminalCardContainer.setOutlineProvider(new ViewOutlineProvider() {
+                @Override
+                public void getOutline(View view, Outline outline) {
+                    outline.setRoundRect(0, 0, view.getWidth(), view.getHeight(), cardRadius);
+                }
+            });
+            mTerminalCardContainer.setClipToOutline(cardRadius > 0);
         }
 
         // 2. Terminal Background Image & Opacity Overlay (with blur + glass)
@@ -1199,6 +1212,17 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
                     mTerminalToolbarCard.setLayoutParams(lp);
                 }
             }
+
+            final int barRadius = getPreferences().isExtraKeysBarCornerEnabled()
+                ? (int) (getPreferences().getExtraKeysBarBorderCornerRadius() * density) : 0;
+            mTerminalToolbarCard.setRadius(barRadius);
+            mTerminalToolbarCard.setOutlineProvider(new ViewOutlineProvider() {
+                @Override
+                public void getOutline(View view, Outline outline) {
+                    outline.setRoundRect(0, 0, view.getWidth(), view.getHeight(), barRadius);
+                }
+            });
+            mTerminalToolbarCard.setClipToOutline(barRadius > 0);
         }
 
         // 5. Extra Keys Styling & Config
@@ -1484,7 +1508,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         }
 
         if (glassEnabled) {
-            applyGlassBackdrop(bitmap, getGlassBlurPx());
+            applyGlassBackdrop(bitmap, getGlassBlurPx(getResources().getDisplayMetrics().density));
             if (mTerminalBackgroundOverlay != null) {
                 mTerminalBackgroundOverlay.setVisibility(View.GONE);
             }
@@ -1642,9 +1666,9 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         "    vec2 p = fragCoord - uSize * 0.5;\n" +
         "    vec2 halfSize = uSize * 0.5;\n" +
         "    float d = sdRoundRect(p, halfSize, uRadius);\n" +
-        "    // Outside the rounded rectangle: pass through original pixel in canvas coordinates\n" +
-        "    if (d >= 0.0) {\n" +
-        "        return content.eval(fragCoord);\n" +
+        "    // Outside the rounded rectangle: transparent so corners are strictly clipped\n" +
+        "    if (d > 0.0) {\n" +
+        "        return half4(0.0);\n" +
         "    }\n" +
         "    float dist = -d;\n" +
         "    // Flat center of the glass: crystal clear, no rim refraction\n" +
@@ -1671,12 +1695,15 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         "}\n";
 
     /**
-     * Light backdrop blur for the glass, in RAW PIXELS. Real Liquid Glass presets
-     * (expo-liquid-glass, liquidGL 'crystal', QWEA0 XML samples) use ~2-4px frost —
-     * the liquid clarity comes from the refraction lens, not from heavy blur.
+     * Light backdrop blur for the glass, density-scaled (~4dp, e.g. ~14px on 1440p).
+     * Diffuses fine background lines so text is easy to read, while keeping the
+     * wallpaper subject clearly recognizable.
      */
-    private float getGlassBlurPx() {
-        return 3f;
+    private float getGlassBlurPx(float density) {
+        if (getPreferences() != null && getPreferences().isBackgroundBlurEnabled()) {
+            return Math.max(2f, getPreferences().getBackgroundBlurRadius() * density);
+        }
+        return Math.max(6f, 4f * density);
     }
 
     /**
@@ -1794,8 +1821,8 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         if (mLastBackgroundBitmap != null) {
             if (glassEnabled) {
                 // The glass blurs the wallpaper behind the window with a genuinely
-                // light blur (8-12px) and, on API 33+, refracts the rim via the lens.
-                applyGlassBackdrop(mLastBackgroundBitmap, getGlassBlurPx());
+                // light blur (~4dp) and, on API 33+, refracts the rim via the lens.
+                applyGlassBackdrop(mLastBackgroundBitmap, getGlassBlurPx(density));
                 if (mTerminalBackgroundImage != null) {
                     mTerminalBackgroundImage.setVisibility(View.GONE);
                 }

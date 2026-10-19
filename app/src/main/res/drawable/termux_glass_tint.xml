@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Liquid Glass tint base color (10, 15, 25): the view alpha carries the
-     adaptive veil strength computed from the backdrop luminance. -->
+<!-- Apple Liquid Glass material tint: a translucent specular gradient
+     that gives genuine glass reflections and depth. -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <solid android:color="#0A0F19" />
+    <gradient
+        android:angle="270"
+        android:type="linear"
+        android:startColor="#26FFFFFF"
+        android:centerColor="#0AFFFFFF"
+        android:endColor="#200A0F19" />
 </shape>

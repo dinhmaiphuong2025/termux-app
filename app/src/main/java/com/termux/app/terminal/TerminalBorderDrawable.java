@@ -81,6 +81,13 @@ public class TerminalBorderDrawable extends Drawable {
         float bottom = bounds.bottom - halfStroke;
         float r = Math.min(mCornerRadius, Math.min(bounds.width(), bounds.height()) / 2.0f);
 
+        canvas.save();
+        if (r > 0) {
+            Path clipPath = new Path();
+            clipPath.addRoundRect(new RectF(bounds), r, r, Path.Direction.CW);
+            canvas.clipPath(clipPath);
+        }
+
         if (mStrokeWidth > 0) {
             if (STYLE_BRACKETS.equals(mStyle)) {
                 // Hermes / Bracket style:
@@ -172,6 +179,7 @@ public class TerminalBorderDrawable extends Drawable {
                 canvas.drawRect(eLeft + rimWidth, hlTop, eRight - rimWidth, Math.min(hlBottom, eBottom), mInnerPaint);
             }
         }
+        canvas.restore();
     }
 
     @Override
