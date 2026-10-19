@@ -1397,6 +1397,20 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
     }
 
     /**
+     * Get the real full-screen dimensions in physical pixels matching getLocationOnScreen.
+     */
+    private int[] getRealScreenSize() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            android.graphics.Rect bounds = getWindowManager().getCurrentWindowMetrics().getBounds();
+            return new int[]{bounds.width(), bounds.height()};
+        } else {
+            android.util.DisplayMetrics dm = new android.util.DisplayMetrics();
+            getWindowManager().getDefaultDisplay().getRealMetrics(dm);
+            return new int[]{dm.widthPixels, dm.heightPixels};
+        }
+    }
+
+    /**
      * Anchor an ImageView to the fixed full-screen wallpaper scene: center-crop the
      * bitmap over the physical screen once, then offset by the view's screen position.
      * The transform never changes when the keyboard opens/closes — the wallpaper
@@ -1404,22 +1418,17 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
      */
     private void applyFixedSceneMatrix(ImageView view, Bitmap bitmap) {
         if (view == null || bitmap == null || bitmap.getWidth() <= 0) return;
-        android.util.DisplayMetrics dm = getResources().getDisplayMetrics();
-        float sceneW = dm.widthPixels;
-        float sceneH = dm.heightPixels;
+        int[] screen = getRealScreenSize();
+        float sceneW = screen[0];
+        float sceneH = screen[1];
         float s = Math.max(sceneW / bitmap.getWidth(), sceneH / bitmap.getHeight());
         float dx = (sceneW - bitmap.getWidth() * s) / 2f;
         float dy = (sceneH - bitmap.getHeight() * s) / 2f;
         int[] loc = new int[2];
         view.getLocationOnScreen(loc);
-        // Temporary diagnostic for the right-edge column investigation.
-        logGlassDebug("outerBg anchor: view=" + view.getWidth() + "x" + view.getHeight()
-            + " loc=" + loc[0] + "," + loc[1] + " scene=" + sceneW + "x" + sceneH
-            + " s=" + s + " dx=" + dx + " dy=" + dy
-            + " bitmap=" + bitmap.getWidth() + "x" + bitmap.getHeight());
         Matrix matrix = new Matrix();
         matrix.setScale(s, s);
-        matrix.preTranslate(dx - loc[0], dy - loc[1]);
+        matrix.postTranslate(dx - loc[0], dy - loc[1]);
         view.setScaleType(ImageView.ScaleType.MATRIX);
         view.setImageMatrix(matrix);
     }
@@ -1534,9 +1543,9 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         // Fixed full-screen scene: the wallpaper is anchored to the physical screen
         // and never re-crops when the keyboard resizes the layout. Card and bar are
         // windows into it at their current screen positions.
-        android.util.DisplayMetrics dm = getResources().getDisplayMetrics();
-        float sceneW = dm.widthPixels;
-        float sceneH = dm.heightPixels;
+        int[] screen = getRealScreenSize();
+        float sceneW = screen[0];
+        float sceneH = screen[1];
         int bw = bitmap.getWidth();
         int bh = bitmap.getHeight();
         float scale = Math.max(sceneW / bw, sceneH / bh);
@@ -1547,17 +1556,15 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         if (mTerminalBackgroundImage != null) {
             Matrix matrix = new Matrix();
             matrix.setScale(scale, scale);
-            matrix.preTranslate(dx - cardLoc[0], dy - cardLoc[1]);
+            matrix.postTranslate(dx - cardLoc[0], dy - cardLoc[1]);
             mTerminalBackgroundImage.setScaleType(ImageView.ScaleType.MATRIX);
             mTerminalBackgroundImage.setImageMatrix(matrix);
         }
 
-        // Toolbar image: the wallpaper region continuing right below the terminal's
-        // bottom edge. The content stays fixed regardless of where the bar sits on
-        // screen (keyboard open/closed), so the wallpaper keeps its position.
+        // Toolbar image: the scene region behind the extra keys bar at its current position.
         Matrix barMatrix = new Matrix();
         barMatrix.setScale(scale, scale);
-        barMatrix.preTranslate(dx - cardLoc[0], dy - (cardLoc[1] + cardH));
+        barMatrix.postTranslate(dx - barLoc[0], dy - barLoc[1]);
         mTerminalToolbarBackgroundImage.setScaleType(ImageView.ScaleType.MATRIX);
         mTerminalToolbarBackgroundImage.setImageMatrix(barMatrix);
         mTerminalToolbarBackgroundImage.setImageBitmap(bitmap);
@@ -1635,34 +1642,31 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         "    vec2 p = fragCoord - uSize * 0.5;\n" +
         "    vec2 halfSize = uSize * 0.5;\n" +
         "    float d = sdRoundRect(p, halfSize, uRadius);\n" +
-        "    vec2 uv = fragCoord / uSize;\n" +
+        "    // Outside the rounded rectangle: pass through original pixel in canvas coordinates\n" +
         "    if (d >= 0.0) {\n" +
-        "        return content.eval(uv);\n" +
+        "        return content.eval(fragCoord);\n" +
         "    }\n" +
-        "    // Rim band 0..uRim px inside the edge.\n" +
-        "    float strength = clamp(-d, 0.0, uRim) / uRim;\n" +
-        "    if (strength < 0.002) {\n" +
-        "        return content.eval(uv);\n" +
+        "    float dist = -d;\n" +
+        "    // Flat center of the glass: crystal clear, no rim refraction\n" +
+        "    if (dist >= uRim) {\n" +
+        "        return content.eval(fragCoord);\n" +
         "    }\n" +
+        "    // Rim band [0..uRim]: strength is 1.0 at edge, smoothly decaying to 0.0 inward\n" +
+        "    float t = 1.0 - (dist / uRim);\n" +
+        "    float strength = t * t;\n" +
         "    vec2 e = vec2(1.0, 0.0);\n" +
         "    vec2 grad = vec2(\n" +
         "        sdRoundRect(p + e, halfSize, uRadius) - sdRoundRect(p - e, halfSize, uRadius),\n" +
         "        sdRoundRect(p + e.yx, halfSize, uRadius) - sdRoundRect(p - e.yx, halfSize, uRadius));\n" +
         "    float gradLen = length(grad);\n" +
         "    grad = gradLen > 0.0001 ? grad / gradLen : vec2(0.0);\n" +
-        "    // iOS-style lens: sample INWARD (refractionOutward = false). The rim\n" +
-        "    // becomes a compressed mirror of the interior; displacement piles up at\n" +
-        "    // the edge along an inverse-power profile.\n" +
-        "    float lens = strength * strength * uRim * 0.35;\n" +
-        "    // Light chromatic dispersion: R/B offset in opposite directions at the rim.\n" +
-        "    float ca = strength * 1.2;\n" +
-        "    vec2 dir = -grad / uSize;\n" +
-        "    vec2 uvR = uv + dir * (lens + ca);\n" +
-        "    vec2 uvG = uv + dir * lens;\n" +
-        "    vec2 uvB = uv + dir * (lens - ca);\n" +
-        "    half4 cR = content.eval(uvR);\n" +
-        "    half4 cG = content.eval(uvG);\n" +
-        "    half4 cB = content.eval(uvB);\n" +
+        "    // Inward refraction in physical pixels:\n" +
+        "    float lens = strength * uRim * 0.35;\n" +
+        "    float ca = strength * 1.5;\n" +
+        "    vec2 dir = -grad;\n" +
+        "    half4 cR = content.eval(fragCoord + dir * (lens + ca));\n" +
+        "    half4 cG = content.eval(fragCoord + dir * lens);\n" +
+        "    half4 cB = content.eval(fragCoord + dir * (lens - ca));\n" +
         "    return half4(cR.r, cG.g, cB.b, max(cR.a, max(cG.a, cB.a)));\n" +
         "}\n";
 
@@ -1736,20 +1740,6 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         // bright glass backdrop.
         if (mTerminalView != null) {
             mTerminalView.setTextShadowEnabled(glassEnabled);
-        }
-
-        // The terminal window container gets the same glass formula as the tab
-        // buttons: dark translucent fill (argb 40, 10, 15, 25) + diagonal specular
-        // rim, so the frame reads as one glass material even without the backdrop.
-        if (mTerminalFrameLayer != null) {
-            if (glassEnabled) {
-                int frameCornerPx = getPreferences().isTerminalBorderCornerEnabled()
-                    ? (int) (getPreferences().getTerminalBorderCornerRadius() * density) : 0;
-                mTerminalFrameLayer.setBackground(new LiquidGlassButtonDrawable(
-                    frameCornerPx, 0, density, 0x280A0F19, 0x280A0F19, false));
-            } else {
-                mTerminalFrameLayer.setBackground(null);
-            }
         }
 
         // The window (decor view) must stay transparent in glass mode so the
@@ -1873,9 +1863,9 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         // Fixed full-screen scene (same anchor as the sync slices and the outer
         // background): the wallpaper keeps its position on screen; the window is
         // just a window into it.
-        android.util.DisplayMetrics dm = getResources().getDisplayMetrics();
-        rootW = dm.widthPixels;
-        rootH = dm.heightPixels;
+        int[] screen = getRealScreenSize();
+        rootW = screen[0];
+        rootH = screen[1];
         s = Math.max((float) rootW / bw, (float) rootH / bh);
         float dx = (rootW - bw * s) / 2f;
         float dy = (rootH - bh * s) / 2f;
@@ -1884,7 +1874,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         srcW = cardW / s;
         srcH = cardH / s;
         matrix.setScale(s, s);
-        matrix.preTranslate(dx - cardLoc[0], dy - cardLoc[1]);
+        matrix.postTranslate(dx - cardLoc[0], dy - cardLoc[1]);
 
         // Temporary diagnostic for the right-edge column investigation.
         String sig = "backdrop: api=" + Build.VERSION.SDK_INT + " bmp=" + bw + "x" + bh
