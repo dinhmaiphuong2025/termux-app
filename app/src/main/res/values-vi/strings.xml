@@ -58,7 +58,7 @@
     <string name="termux_glass_effect_enabled_title">Liquid Glass</string>
     <string name="termux_glass_effect_enabled_summary">Apple Liquid Glass cho cửa sổ terminal, nút tab bar và thanh phím phụ: khúc xạ mép (API 33+) trên nền mờ nhẹ, tint tối giữ độ tương phản, viền phản quang và bóng đổ chữ</string>
     <string name="termux_glass_tint_opacity_title">Độ đậm lớp kính (%)</string>
-    <string name="termux_glass_tint_opacity_summary">Cường độ tint tối giữ độ tương phản trên bề mặt kính (0 = không, 100 = đầy đủ)</string>
+    <string name="termux_glass_tint_opacity_summary">Cường độ lớp màn tối cố định trên thanh phím phụ và các nút; màn tối của cửa sổ terminal tự thích ứng theo độ sáng hình nền</string>
     <string name="termux_background_blur_enabled_title">Làm mờ hình nền</string>
     <string name="termux_background_blur_enabled_summary">Làm mờ gaussian thật cho ảnh nền (RenderScript / RenderEffect)</string>
     <string name="termux_background_blur_radius_title">Bán kính làm mờ (dp)</string>

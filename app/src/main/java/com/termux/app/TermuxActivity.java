@@ -1359,12 +1359,15 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
 
     /**
      * Show the wallpaper behind the whole activity (the area outside the terminal card:
-     * margins, tab bar gaps, extra keys gaps), blurred or sharp.
+     * margins, tab bar gaps, extra keys gaps), blurred or sharp. The image is anchored
+     * to the FIXED full-screen scene (never re-crops when the keyboard resizes the
+     * layout), so the window, the bar and the outside stay one continuous wallpaper.
      */
     @SuppressLint("NewApi")
     private void applyActivityBackground(Bitmap bitmap, boolean blurred) {
         if (mActivityBackgroundImage == null) return;
         mActivityBackgroundImage.setImageBitmap(bitmap);
+        applyFixedSceneMatrix(mActivityBackgroundImage, bitmap);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             if (blurred) {
                 float blurPx = 14 * getResources().getDisplayMetrics().density;
@@ -1378,6 +1381,29 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         if (mActivityBackgroundOverlay != null) {
             mActivityBackgroundOverlay.setVisibility(View.VISIBLE);
         }
+    }
+
+    /**
+     * Anchor an ImageView to the fixed full-screen wallpaper scene: center-crop the
+     * bitmap over the physical screen once, then offset by the view's screen position.
+     * The transform never changes when the keyboard opens/closes — the wallpaper
+     * keeps its position and the view simply reveals whichever part it covers.
+     */
+    private void applyFixedSceneMatrix(ImageView view, Bitmap bitmap) {
+        if (view == null || bitmap == null || bitmap.getWidth() <= 0) return;
+        android.util.DisplayMetrics dm = getResources().getDisplayMetrics();
+        float sceneW = dm.widthPixels;
+        float sceneH = dm.heightPixels;
+        float s = Math.max(sceneW / bitmap.getWidth(), sceneH / bitmap.getHeight());
+        float dx = (sceneW - bitmap.getWidth() * s) / 2f;
+        float dy = (sceneH - bitmap.getHeight() * s) / 2f;
+        int[] loc = new int[2];
+        view.getLocationOnScreen(loc);
+        Matrix matrix = new Matrix();
+        matrix.setScale(s, s);
+        matrix.preTranslate(dx - loc[0], dy - loc[1]);
+        view.setScaleType(ImageView.ScaleType.MATRIX);
+        view.setImageMatrix(matrix);
     }
 
     private void hideActivityBackground() {
@@ -1464,24 +1490,17 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
     private void applyToolbarBackgroundSlice(Bitmap bitmap, int blurRadius, float blurPx) {
         if (mTerminalToolbarBackgroundImage == null || mTerminalToolbarCard == null || mTerminalCardContainer == null) return;
 
-        View scene = findViewById(R.id.activity_termux_root_relative_layout);
-        if (scene == null) return;
-
         int[] cardLoc = new int[2];
         int[] barLoc = new int[2];
-        int[] sceneLoc = new int[2];
         mTerminalCardContainer.getLocationOnScreen(cardLoc);
         mTerminalToolbarCard.getLocationOnScreen(barLoc);
-        scene.getLocationOnScreen(sceneLoc);
 
         int cardW = mTerminalCardContainer.getWidth();
         int cardH = mTerminalCardContainer.getHeight();
         int barW = mTerminalToolbarCard.getWidth();
         int barH = mTerminalToolbarCard.getHeight();
-        int sceneW = scene.getWidth();
-        int sceneH = scene.getHeight();
 
-        if (cardW <= 0 || cardH <= 0 || barW <= 0 || barH <= 0 || sceneW <= 0 || sceneH <= 0) {
+        if (cardW <= 0 || cardH <= 0 || barW <= 0 || barH <= 0) {
             // Layout not ready yet (or the bar is hidden): retry once after a layout pass,
             // but never spin-retry while the toolbar card stays zero-sized.
             mTerminalCardContainer.post(() -> {
@@ -1494,21 +1513,23 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
             return;
         }
 
+        // Fixed full-screen scene: the wallpaper is anchored to the physical screen
+        // and never re-crops when the keyboard resizes the layout. Card and bar are
+        // windows into it at their current screen positions.
+        android.util.DisplayMetrics dm = getResources().getDisplayMetrics();
+        float sceneW = dm.widthPixels;
+        float sceneH = dm.heightPixels;
         int bw = bitmap.getWidth();
         int bh = bitmap.getHeight();
-        float scale = Math.max((float) sceneW / bw, (float) sceneH / bh);
+        float scale = Math.max(sceneW / bw, sceneH / bh);
         float dx = (sceneW - bw * scale) / 2f;
         float dy = (sceneH - bh * scale) / 2f;
-        float cardRelX = cardLoc[0] - sceneLoc[0];
-        float cardRelY = cardLoc[1] - sceneLoc[1];
-        float barRelX = barLoc[0] - sceneLoc[0];
-        float barRelY = barLoc[1] - sceneLoc[1];
 
         // Terminal image: the scene region behind the terminal card.
         if (mTerminalBackgroundImage != null) {
             Matrix matrix = new Matrix();
             matrix.setScale(scale, scale);
-            matrix.preTranslate(dx - cardRelX, dy - cardRelY);
+            matrix.preTranslate(dx - cardLoc[0], dy - cardLoc[1]);
             mTerminalBackgroundImage.setScaleType(ImageView.ScaleType.MATRIX);
             mTerminalBackgroundImage.setImageMatrix(matrix);
         }
@@ -1516,7 +1537,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         // Toolbar image: the scene region behind the extra keys bar at its current position.
         Matrix barMatrix = new Matrix();
         barMatrix.setScale(scale, scale);
-        barMatrix.preTranslate(dx - barRelX, dy - barRelY);
+        barMatrix.preTranslate(dx - barLoc[0], dy - barLoc[1]);
         mTerminalToolbarBackgroundImage.setScaleType(ImageView.ScaleType.MATRIX);
         mTerminalToolbarBackgroundImage.setImageMatrix(barMatrix);
         mTerminalToolbarBackgroundImage.setImageBitmap(bitmap);
@@ -1663,12 +1684,13 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
 
     /**
      * REGULAR-material adaptive veil: brighter backdrop -> stronger dark tint
-     * (up to ~55%), darker backdrop -> nearly clear (~15%). Keeps white terminal
-     * text readable without smothering dark wallpaper regions.
+     * (15-60%), darker backdrop -> nearly clear. Keeps white terminal text
+     * readable without smothering dark wallpaper regions. Independent of the
+     * tint preference so readability never collapses.
      */
     private float adaptiveTintAlpha(float luminance) {
         float t = Math.max(0f, Math.min(1f, luminance / 255f));
-        return 0.15f + t * 0.40f;
+        return 0.15f + t * 0.45f;
     }
 
     /**
@@ -1828,31 +1850,21 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         float s, srcX, srcY, srcW, srcH;
         Matrix matrix = new Matrix();
 
-        // Standard mode: match the center-crop transform of the activity background
-        // (the same scene the wallpaper sync slices use, so the window stays
-        // continuous with the bar and the outer background layer).
-        View scene = findViewById(R.id.activity_termux_root_relative_layout);
-        if (scene == null || scene.getWidth() <= 0) {
-            mTerminalCardContainer.post(() -> {
-                if (!isFinishing() && mLastBackgroundBitmap == bitmap) {
-                    applyGlassBackdrop(bitmap, blurPx);
-                }
-            });
-            return;
-        }
-        int[] sceneLoc = new int[2];
-        scene.getLocationOnScreen(sceneLoc);
-        rootW = scene.getWidth();
-        rootH = scene.getHeight();
+        // Fixed full-screen scene (same anchor as the sync slices and the outer
+        // background): the wallpaper keeps its position on screen; the window is
+        // just a window into it.
+        android.util.DisplayMetrics dm = getResources().getDisplayMetrics();
+        rootW = dm.widthPixels;
+        rootH = dm.heightPixels;
         s = Math.max((float) rootW / bw, (float) rootH / bh);
         float dx = (rootW - bw * s) / 2f;
         float dy = (rootH - bh * s) / 2f;
-        srcX = (cardLoc[0] - sceneLoc[0] - dx) / s;
-        srcY = (cardLoc[1] - sceneLoc[1] - dy) / s;
+        srcX = (cardLoc[0] - dx) / s;
+        srcY = (cardLoc[1] - dy) / s;
         srcW = cardW / s;
         srcH = cardH / s;
         matrix.setScale(s, s);
-        matrix.preTranslate(dx - (cardLoc[0] - sceneLoc[0]), dy - (cardLoc[1] - sceneLoc[1]));
+        matrix.preTranslate(dx - cardLoc[0], dy - cardLoc[1]);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             mTerminalGlassBackdrop.setImageBitmap(bitmap);
@@ -1900,9 +1912,8 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         // REGULAR-material adaptive tint: strengthen the dark veil over bright
         // backdrop regions so white text always stays readable.
         float luminance = computeRegionLuminance(bitmap, srcX, srcY, srcW, srcH);
-        float tintStrength = getPreferences() != null ? getPreferences().getGlassTintOpacity() / 100f : 1f;
         if (mTerminalGlassTint != null) {
-            mTerminalGlassTint.setAlpha(Math.max(0f, Math.min(1f, adaptiveTintAlpha(luminance) * tintStrength)));
+            mTerminalGlassTint.setAlpha(adaptiveTintAlpha(luminance));
         }
         mTerminalGlassBackdrop.setVisibility(View.VISIBLE);
     }

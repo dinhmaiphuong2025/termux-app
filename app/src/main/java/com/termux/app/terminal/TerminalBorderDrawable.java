@@ -165,10 +165,10 @@ public class TerminalBorderDrawable extends Drawable {
             // 2. Inner highlight: a thin bright band just inside the top edge,
             //    giving the pane its 3D droplet thickness.
             float hlTop = eTop + rimWidth;
-            float hlBottom = hlTop + 4f * mDensity;
+            float hlBottom = hlTop + 5f * mDensity;
             if (hlTop < eBottom) {
                 mInnerPaint.setShader(new LinearGradient(0, hlTop, 0, Math.min(hlBottom, eBottom),
-                    0x59FFFFFF, 0x00FFFFFF, Shader.TileMode.CLAMP));
+                    0x73FFFFFF, 0x00FFFFFF, Shader.TileMode.CLAMP));
                 canvas.drawRect(eLeft + rimWidth, hlTop, eRight - rimWidth, Math.min(hlBottom, eBottom), mInnerPaint);
             }
         }
