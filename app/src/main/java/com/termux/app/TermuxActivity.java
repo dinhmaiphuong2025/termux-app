@@ -1686,8 +1686,10 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
      * - Smooth chromatic dispersion (R/B split at the edge).
      * - Fresnel specular glint curving precisely around the SDF rounded corners.
      * - Smooth dark glass veil mixed directly in the shader so no separate
-     *   tint/shape layer is needed, guaranteeing zero edge-bleeding outside corners.
-     * Outside the rounded rectangle (d > 0): strictly transparent (half4(0.0)).
+     *   tint/shape layer is needed.
+     * Evaluates content with full opacity (half4(outColor, 1.0)) across all coordinates,
+     * allowing the MaterialCardView hardware outline to cleanly clip corners without
+     * any 1-frame black dropouts during tiling translations.
      */
     private static final String GLASS_LENS_SHADER =
         "uniform shader content;\n" +
@@ -1705,14 +1707,11 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         "    vec2 halfSize = uSize * 0.5;\n" +
         "    vec2 p = fragCoord - halfSize;\n" +
         "    float d = sdRoundRect(p, halfSize, uRadius);\n" +
-        "    if (d > 0.0) {\n" +
-        "        return half4(0.0);\n" +
-        "    }\n" +
         "    float dist = -d;\n" +
         "    half4 col;\n" +
         "    float fresnel = 0.0;\n" +
         "    float light = 0.0;\n" +
-        "    if (dist < uRim) {\n" +
+        "    if (dist > 0.0 && dist < uRim) {\n" +
         "        float t = 1.0 - (dist / uRim);\n" +
         "        float strength = t * t;\n" +
         "        vec2 e = vec2(1.0, 0.0);\n" +

@@ -125,17 +125,30 @@ public class TerminalToolbarViewPager {
 
     /**
      * The system text magnifier (the zoom bubble shown while dragging the cursor)
-     * looks like rendering noise over the translucent glass toolbar. TextView has
-     * no public kill-switch on older platforms, so try the hidden setter and
-     * silently keep the magnifier when it is not available.
+     * looks like rendering noise over the translucent glass toolbar. Disable insertion
+     * handle gestures and cursor dragging in the internal Editor so the magnifier is
+     * never invoked.
      */
     private static void disableTextMagnifier(EditText editText) {
         if (editText == null || Build.VERSION.SDK_INT < Build.VERSION_CODES.P) return;
         try {
-            java.lang.reflect.Method method = TextView.class.getMethod("setMagnifierEnabled", boolean.class);
-            method.invoke(editText, false);
+            java.lang.reflect.Field editorField = TextView.class.getDeclaredField("mEditor");
+            editorField.setAccessible(true);
+            Object editor = editorField.get(editText);
+            if (editor != null) {
+                for (String methodName : new String[]{
+                    "setFlagInsertionHandleGesturesEnabled",
+                    "setCursorDragFromAnywhereEnabled"
+                }) {
+                    try {
+                        java.lang.reflect.Method m = editor.getClass().getDeclaredMethod(methodName, boolean.class);
+                        m.setAccessible(true);
+                        m.invoke(editor, false);
+                    } catch (Throwable ignored) {}
+                }
+            }
         } catch (Throwable ignored) {
-            // Platform skin without the method: the magnifier stays enabled.
+            // Platform skin without the field/methods.
         }
     }
 
