@@ -2351,7 +2351,16 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
             }
         }
 
-        mTransitionSnapshotBitmap.eraseColor(Color.TRANSPARENT);
+        int bgColor = Color.TRANSPARENT;
+        if (getPreferences() == null || !getPreferences().isGlassEffectEnabled()) {
+            TerminalSession current = getCurrentSession();
+            if (current != null && current.getEmulator() != null) {
+                bgColor = current.getEmulator().mColors.mCurrentColors[TextStyle.COLOR_INDEX_BACKGROUND];
+            } else {
+                bgColor = 0xFF000000;
+            }
+        }
+        mTransitionSnapshotBitmap.eraseColor(bgColor);
         try {
             android.graphics.Canvas canvas = new android.graphics.Canvas(mTransitionSnapshotBitmap);
             mTerminalCardContainer.draw(canvas);
@@ -2369,24 +2378,40 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
             mTerminalCardSnapshot.setLayoutParams(snapLp);
         }
 
-        mTerminalCardSnapshot.setTranslationX(0f);
-        mTerminalCardSnapshot.setAlpha(1.0f);
-        mTerminalCardSnapshot.setVisibility(View.VISIBLE);
-
-        onAttachSession.run();
+        float density = getResources().getDisplayMetrics().density;
+        float cornerPx = (getPreferences() != null && getPreferences().isTerminalBorderCornerEnabled())
+            ? getPreferences().getTerminalBorderCornerRadius() * density : 0f;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            if (cornerPx > 0) {
+                mTerminalCardSnapshot.setOutlineProvider(new android.view.ViewOutlineProvider() {
+                    @Override
+                    public void getOutline(View view, android.graphics.Outline outline) {
+                        outline.setRoundRect(0, 0, view.getWidth(), view.getHeight(), cornerPx);
+                    }
+                });
+                mTerminalCardSnapshot.setClipToOutline(true);
+            } else {
+                mTerminalCardSnapshot.setClipToOutline(false);
+            }
+        }
 
         int marginHorizontal = cardLp != null ? (cardLp.leftMargin + cardLp.rightMargin) : 0;
         final float slideDistance = width + marginHorizontal;
         final float startNewX = forward ? slideDistance : -slideDistance;
         final float endOldX = forward ? -slideDistance : slideDistance;
 
+        // Position the new session container off-screen BEFORE attaching the new session,
+        // so it never renders at position 0 even for a single frame:
         mTerminalCardContainer.setTranslationX(startNewX);
         mTerminalCardContainer.setAlpha(1.0f);
 
-        // Hardware layers for butter-smooth GPU composited sliding
-        mTerminalCardContainer.setLayerType(View.LAYER_TYPE_HARDWARE, null);
-        mTerminalCardSnapshot.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+        mTerminalCardSnapshot.setTranslationX(0f);
+        mTerminalCardSnapshot.setAlpha(1.0f);
+        mTerminalCardSnapshot.setVisibility(View.VISIBLE);
 
+        onAttachSession.run();
+
+        // Animate the two cards sliding on the ribbon in GPU RenderNode:
         android.animation.ValueAnimator animator = android.animation.ValueAnimator.ofFloat(0f, 1f);
         animator.setDuration(280);
         // Modern cubic bezier ease-out for Niri ribbon tiling feel
@@ -2395,7 +2420,6 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
             float fraction = (float) animation.getAnimatedValue();
             if (mTerminalCardSnapshot != null) {
                 mTerminalCardSnapshot.setTranslationX(endOldX * fraction);
-                mTerminalCardSnapshot.setAlpha(1.0f - (fraction * 0.2f));
             }
             if (mTerminalCardContainer != null) {
                 mTerminalCardContainer.setTranslationX(startNewX * (1f - fraction));
@@ -2423,12 +2447,10 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
             mTerminalCardSnapshot.setImageBitmap(null);
             mTerminalCardSnapshot.setTranslationX(0f);
             mTerminalCardSnapshot.setAlpha(1.0f);
-            mTerminalCardSnapshot.setLayerType(View.LAYER_TYPE_NONE, null);
         }
         if (mTerminalCardContainer != null) {
             mTerminalCardContainer.setTranslationX(0f);
             mTerminalCardContainer.setAlpha(1.0f);
-            mTerminalCardContainer.setLayerType(View.LAYER_TYPE_NONE, null);
         }
         mTabTransitionAnimator = null;
     }

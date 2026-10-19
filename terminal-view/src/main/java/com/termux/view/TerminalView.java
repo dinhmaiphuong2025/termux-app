@@ -266,14 +266,12 @@ public final class TerminalView extends View {
                     @Override
                     public void run() {
                         if (mScroller.isFinished()) {
-                            snapToRow();
                             return;
                         }
                         boolean more = mScroller.computeScrollOffset();
                         int newY = mScroller.getCurrY();
                         applyTopRowF(newY / lineSpacing);
                         if (more) post(this);
-                        else snapToRow();
                     }
                 });
 
@@ -716,30 +714,35 @@ public final class TerminalView extends View {
     /**
      * Apply a fractional top-row position: {@code topRowF} is the topmost visible row position
      * where the fractional part shifts the content up by that fraction of a row.
-     * Positions between -1 and 0 (over-scroll past the transcript bottom) are rendered with
-     * a smooth rubber-band: the last row slides off and an empty gap appears below.
+     * Uses continuous floor-based mapping so the row and fraction transition smoothly
+     * across integer boundaries without any backward jerking or mathematical discontinuities.
      */
     void applyTopRowF(float topRowF) {
         if (mEmulator == null) return;
         int minRow = -(mEmulator.getScreen().getActiveTranscriptRows());
-        if (topRowF > 0.f) topRowF = 0.f;
-        if (topRowF < minRow) topRowF = minRow;
+        int topRow;
+        float fraction;
 
-        int topRow = (int) Math.ceil(topRowF - 0.001f);
-        float fraction = topRow - topRowF;
-        if (fraction < 0.001f || fraction > 0.999f) {
-            // Snap tiny fractions to keep rows stable and avoid redundant redraws.
-            topRow = Math.round(topRowF);
+        if (topRowF >= 0.f) {
+            topRowF = 0.f;
+            topRow = 0;
             fraction = 0.f;
-        }
-        if (fraction > 0.f && topRow == 0) {
-            // Over-scroll past the transcript bottom: shift the last row down instead of
-            // hard-clamping, so the content glides smoothly all the way to the end.
-            topRow = -1;
-            fraction = 1.f + topRowF;
+        } else if (topRowF <= minRow) {
+            topRowF = minRow;
+            topRow = minRow;
+            fraction = 0.f;
+        } else {
+            topRow = (int) Math.floor(topRowF);
+            fraction = topRowF - topRow;
+            if (fraction < 0.0005f) {
+                fraction = 0.f;
+            } else if (fraction > 0.9995f) {
+                topRow += 1;
+                fraction = 0.f;
+            }
         }
 
-        if (topRow == mTopRow && fraction == mTopRowFraction) return;
+        if (topRow == mTopRow && Math.abs(fraction - mTopRowFraction) < 0.0001f) return;
 
         mTopRowPosition = topRowF;
         mApplyingSmoothScroll = true;
@@ -853,15 +856,8 @@ public final class TerminalView extends View {
         }
 
         if (action == MotionEvent.ACTION_DOWN) {
-            // A new touch takes over immediately: cancel any in-flight snap animation.
+            // A new touch takes over immediately: cancel any in-flight smooth scroll animation.
             cancelSmoothScrollAnimator();
-        }
-        if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
-            // When the finger lifts after a drag, snap the fractional scroll offset
-            // back to a whole row so all row-based logic stays consistent.
-            if (mSmoothScrollEnabled) {
-                snapToRow();
-            }
         }
 
         mGestureRecognizer.onTouchEvent(event);
@@ -1246,19 +1242,19 @@ public final class TerminalView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         if (mEmulator == null) {
-            canvas.drawColor(0XFF000000);
-        } else {
-            // render the terminal view and highlight any selected text
-            int[] sel = mDefaultSelectors;
-            if (mTextSelectionCursorController != null) {
-                mTextSelectionCursorController.getSelectors(sel);
-            }
-
-            mRenderer.render(mEmulator, canvas, mTopRow, mTopRowFraction, sel[0], sel[1], sel[2], sel[3]);
-
-            // render the text selection handles
-            renderTextSelection();
+            return;
         }
+
+        // render the terminal view and highlight any selected text
+        int[] sel = mDefaultSelectors;
+        if (mTextSelectionCursorController != null) {
+            mTextSelectionCursorController.getSelectors(sel);
+        }
+
+        mRenderer.render(mEmulator, canvas, mTopRow, mTopRowFraction, sel[0], sel[1], sel[2], sel[3]);
+
+        // render the text selection handles
+        renderTextSelection();
     }
 
     public TerminalSession getCurrentSession() {
