@@ -34,6 +34,7 @@ import android.widget.Toast;
 import com.termux.R;
 import com.termux.app.api.file.FileReceiverActivity;
 import com.termux.app.terminal.TerminalBorderDrawable;
+import com.termux.app.terminal.LiquidGlassButtonDrawable;
 import com.termux.app.terminal.TermuxActivityRootView;
 import com.termux.app.terminal.TermuxTerminalSessionActivityClient;
 import com.termux.app.terminal.io.TermuxTerminalExtraKeys;
@@ -163,6 +164,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
     MaterialCardView mTerminalToolbarCard;
     ImageView mTerminalBackgroundImage;
     ImageView mTerminalGlassBackdrop;
+    View mTerminalFrameLayer;
     ImageView mTerminalCardSnapshot;
     View mTerminalBackgroundOverlay;
     View mTerminalBorderOverlay;
@@ -582,6 +584,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         mTerminalCardSnapshot = findViewById(R.id.terminal_card_snapshot);
         mTerminalBackgroundImage = findViewById(R.id.terminal_background_image);
         mTerminalGlassBackdrop = findViewById(R.id.terminal_glass_backdrop);
+        mTerminalFrameLayer = findViewById(R.id.terminal_frame_layer);
         mTerminalBackgroundOverlay = findViewById(R.id.terminal_background_overlay);
         mTerminalToolbarCard = findViewById(R.id.terminal_toolbar_card);
         mTerminalToolbarCard.addOnLayoutChangeListener(mLiveWallpaperSyncListener);
@@ -1597,11 +1600,15 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         "    }\n" +
         "    // Rim band 0..uRim px inside the edge.\n" +
         "    float strength = clamp(-d, 0.0, uRim) / uRim;\n" +
+        "    if (strength < 0.002) {\n" +
+        "        return content.eval(uv);\n" +
+        "    }\n" +
         "    vec2 e = vec2(1.0, 0.0);\n" +
         "    vec2 grad = vec2(\n" +
         "        sdRoundRect(p + e, halfSize, uRadius) - sdRoundRect(p - e, halfSize, uRadius),\n" +
         "        sdRoundRect(p + e.yx, halfSize, uRadius) - sdRoundRect(p - e.yx, halfSize, uRadius));\n" +
-        "    grad = normalize(grad);\n" +
+        "    float gradLen = length(grad);\n" +
+        "    grad = gradLen > 0.0001 ? grad / gradLen : vec2(0.0);\n" +
         "    // Convex lens bulge: sample slightly outward (grad points outward).\n" +
         "    float lens = strength * uRim * 0.45;\n" +
         "    // Chromatic aberration: R/B channels offset in opposite directions at the rim.\n" +
@@ -1648,6 +1655,27 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         // bright glass backdrop.
         if (mTerminalView != null) {
             mTerminalView.setTextShadowEnabled(glassEnabled);
+        }
+
+        // The terminal window container gets the same glass formula as the tab
+        // buttons: dark translucent fill (argb 40, 10, 15, 25) + diagonal specular
+        // rim, so the frame reads as one glass material even without the backdrop.
+        if (mTerminalFrameLayer != null) {
+            if (glassEnabled) {
+                int frameCornerPx = getPreferences().isTerminalBorderCornerEnabled()
+                    ? (int) (getPreferences().getTerminalBorderCornerRadius() * density) : 0;
+                mTerminalFrameLayer.setBackground(new LiquidGlassButtonDrawable(
+                    frameCornerPx, 0, density, 0x280A0F19, 0x280A0F19, false));
+            } else {
+                mTerminalFrameLayer.setBackground(null);
+            }
+        }
+
+        // The window (decor view) must stay transparent in glass mode so the
+        // backdrop or the wallpaper behind shows through instead of the opaque
+        // terminal background color.
+        if (mTermuxTerminalSessionActivityClient != null) {
+            mTermuxTerminalSessionActivityClient.updateBackgroundColor();
         }
 
         // Glass edge: gradient stroke around the window (bright top, faint bottom),

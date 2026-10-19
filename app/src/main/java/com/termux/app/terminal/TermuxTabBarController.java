@@ -147,7 +147,8 @@ public class TermuxTabBarController {
         // fill + diagonal specular rim + top inner highlight).
         if (mActivity.getPreferences() != null && mActivity.getPreferences().isGlassEffectEnabled()) {
             float density = mActivity.getResources().getDisplayMetrics().density;
-            return new LiquidGlassButtonDrawable(cornerRadius, strokeWidth, density, isActive);
+            return new LiquidGlassButtonDrawable(cornerRadius, strokeWidth, density,
+                0x2D0A0F19, 0x4A0A0F19, isActive);
         }
 
         GradientDrawable gd = new GradientDrawable();

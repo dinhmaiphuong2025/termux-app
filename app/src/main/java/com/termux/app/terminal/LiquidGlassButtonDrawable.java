@@ -26,13 +26,18 @@ public class LiquidGlassButtonDrawable extends Drawable {
 
     private final int mCornerRadius;
     private final int mStrokeWidth;
+    private final int mFillColor;
+    private final int mActiveFillColor;
     private final boolean mActive;
     private final float mDensity;
 
-    public LiquidGlassButtonDrawable(int cornerRadius, int strokeWidth, float density, boolean active) {
+    public LiquidGlassButtonDrawable(int cornerRadius, int strokeWidth, float density,
+                                     int fillColor, int activeFillColor, boolean active) {
         mCornerRadius = Math.max(0, cornerRadius);
         mStrokeWidth = strokeWidth > 0 ? strokeWidth : Math.max(1, Math.round(1.2f * density));
         mDensity = density;
+        mFillColor = fillColor;
+        mActiveFillColor = activeFillColor;
         mActive = active;
         mStrokePaint.setStyle(Paint.Style.STROKE);
     }
@@ -46,7 +51,7 @@ public class LiquidGlassButtonDrawable extends Drawable {
         float r = Math.min(mCornerRadius, Math.min(bounds.width(), bounds.height()) / 2f);
 
         // Translucent dark glass fill (slightly stronger when active).
-        mFillPaint.setColor(mActive ? 0x4A0A0F19 : 0x2D0A0F19);
+        mFillPaint.setColor(mActive ? mActiveFillColor : mFillColor);
         canvas.drawRoundRect(bounds, r, r, mFillPaint);
 
         // Specular rim: 135° diagonal gradient like light wrapping the droplet.

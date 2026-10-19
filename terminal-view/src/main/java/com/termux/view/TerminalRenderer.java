@@ -72,7 +72,7 @@ public final class TerminalRenderer {
      */
     public void setTextShadowEnabled(boolean enabled) {
         if (enabled) {
-            mTextPaint.setShadowLayer(4f, 0f, 1f, 0xAA000000);
+            mTextPaint.setShadowLayer(2f, 0f, 1f, 0x80000000);
         } else {
             mTextPaint.clearShadowLayer();
         }

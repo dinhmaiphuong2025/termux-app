@@ -7,6 +7,7 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.media.AudioAttributes;
 import android.media.SoundPool;
@@ -554,7 +555,14 @@ public class TermuxTerminalSessionActivityClient extends TermuxTerminalSessionCl
         if (!mActivity.isVisible()) return;
         TerminalSession session = mActivity.getCurrentSession();
         if (session != null && session.getEmulator() != null) {
-            mActivity.getWindow().getDecorView().setBackgroundColor(session.getEmulator().mColors.mCurrentColors[TextStyle.COLOR_INDEX_BACKGROUND]);
+            // Liquid Glass mode: the window must stay transparent so the glass
+            // backdrop (or the wallpaper behind it) shows through. The terminal
+            // background color would paint an opaque slab over everything.
+            if (mActivity.getPreferences() != null && mActivity.getPreferences().isGlassEffectEnabled()) {
+                mActivity.getWindow().getDecorView().setBackgroundColor(Color.TRANSPARENT);
+            } else {
+                mActivity.getWindow().getDecorView().setBackgroundColor(session.getEmulator().mColors.mCurrentColors[TextStyle.COLOR_INDEX_BACKGROUND]);
+            }
         }
     }
 
