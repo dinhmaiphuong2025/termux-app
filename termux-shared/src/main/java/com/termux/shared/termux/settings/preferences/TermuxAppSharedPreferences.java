@@ -626,6 +626,14 @@ public class TermuxAppSharedPreferences extends AppSharedPreferences {
         SharedPreferenceUtils.setBoolean(mSharedPreferences, TERMUX_APP.KEY_EXTRA_KEYS_BAR_CORNER_ENABLED, value, false);
     }
 
+    public boolean isKeepBorderLayoutEnabled() {
+        return SharedPreferenceUtils.getBoolean(mSharedPreferences, TERMUX_APP.KEY_KEEP_BORDER_LAYOUT_ENABLED, TERMUX_APP.DEFAULT_VALUE_KEEP_BORDER_LAYOUT_ENABLED);
+    }
+
+    public void setKeepBorderLayoutEnabled(boolean value) {
+        SharedPreferenceUtils.setBoolean(mSharedPreferences, TERMUX_APP.KEY_KEEP_BORDER_LAYOUT_ENABLED, value, false);
+    }
+
     public int getExtraKeysCornerRadius() {
         return SharedPreferenceUtils.getInt(mSharedPreferences, TERMUX_APP.KEY_EXTRA_KEYS_CORNER_RADIUS, TERMUX_APP.DEFAULT_VALUE_EXTRA_KEYS_CORNER_RADIUS);
     }

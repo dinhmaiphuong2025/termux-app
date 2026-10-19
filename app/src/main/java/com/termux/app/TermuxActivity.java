@@ -161,6 +161,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
     MaterialCardView mTerminalCardContainer;
     MaterialCardView mTerminalToolbarCard;
     ImageView mTerminalBackgroundImage;
+    ImageView mTerminalGlassBackdrop;
     ImageView mTerminalCardSnapshot;
     View mTerminalBackgroundOverlay;
     View mTerminalBorderOverlay;
@@ -175,6 +176,28 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
     /** Last decoded background bitmap and blur radius, kept for re-applying layout matrices. */
     Bitmap mLastBackgroundBitmap;
     int mLastBackgroundBlurRadius;
+    /**
+     * Tracks layout changes of the activity scene and the extra keys bar so the
+     * wallpaper sync slices and the glass backdrop follow their real positions in
+     * real time (e.g. while the soft keyboard opens/closes).
+     */
+    private final View.OnLayoutChangeListener mLiveWallpaperSyncListener = new View.OnLayoutChangeListener() {
+        @Override
+        public void onLayoutChange(View v, int left, int top, int right, int bottom,
+            int oldLeft, int oldTop, int oldRight, int oldBottom) {
+            if (isFinishing() || mLastBackgroundBitmap == null || getPreferences() == null) return;
+            float density = getResources().getDisplayMetrics().density;
+            if (isBarBackgroundEnabled()) {
+                applyToolbarBackgroundSlice(mLastBackgroundBitmap, mLastBackgroundBlurRadius,
+                    mLastBackgroundBlurRadius * density);
+            }
+            if (getPreferences().isGlassEffectEnabled()) {
+                int glassBlurRadius = getPreferences().isBackgroundBlurEnabled()
+                    ? Math.max(1, getPreferences().getBackgroundBlurRadius()) : 16;
+                applyGlassBackdrop(mLastBackgroundBitmap, glassBlurRadius * density);
+            }
+        }
+    };
     /** Last toolbar card height applied to the toolbar background views. */
     private int mLastToolbarBackgroundHeight;
 
@@ -559,8 +582,14 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         mTerminalCardContainer = findViewById(R.id.terminal_card_container);
         mTerminalCardSnapshot = findViewById(R.id.terminal_card_snapshot);
         mTerminalBackgroundImage = findViewById(R.id.terminal_background_image);
+        mTerminalGlassBackdrop = findViewById(R.id.terminal_glass_backdrop);
         mTerminalBackgroundOverlay = findViewById(R.id.terminal_background_overlay);
         mTerminalToolbarCard = findViewById(R.id.terminal_toolbar_card);
+        mTerminalToolbarCard.addOnLayoutChangeListener(mLiveWallpaperSyncListener);
+        View activityScene = findViewById(R.id.activity_termux_root_relative_layout);
+        if (activityScene != null) {
+            activityScene.addOnLayoutChangeListener(mLiveWallpaperSyncListener);
+        }
         mTerminalBorderOverlay = findViewById(R.id.terminal_border_overlay);
         mTerminalBorderDrawable = new TerminalBorderDrawable();
         if (mTerminalBorderOverlay != null) {
@@ -1066,15 +1095,19 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
                 if (mTerminalBorderOverlay != null) {
                     mTerminalBorderOverlay.setVisibility(View.GONE);
                 }
+                // With "Keep Layout When Border Off" the window keeps the exact size and
+                // position it would have with the border drawn, minus the stroke itself.
+                int gaps = getPreferences().isKeepBorderLayoutEnabled()
+                    ? (int) (getPreferences().getTerminalBorderGaps() * density) : 0;
                 ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) mTerminalCardContainer.getLayoutParams();
                 if (lp != null) {
-                    lp.setMargins(0, 0, 0, 0);
+                    lp.setMargins(gaps, gaps, gaps, gaps);
                     mTerminalCardContainer.setLayoutParams(lp);
                 }
                 if (mTerminalCardSnapshot != null) {
                     ViewGroup.MarginLayoutParams snapLp = (ViewGroup.MarginLayoutParams) mTerminalCardSnapshot.getLayoutParams();
                     if (snapLp != null) {
-                        snapLp.setMargins(0, 0, 0, 0);
+                        snapLp.setMargins(gaps, gaps, gaps, gaps);
                         mTerminalCardSnapshot.setLayoutParams(snapLp);
                     }
                 }
@@ -1082,7 +1115,14 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
                 if (mTerminalView != null) {
                     ViewGroup.MarginLayoutParams viewLp = (ViewGroup.MarginLayoutParams) mTerminalView.getLayoutParams();
                     if (viewLp != null) {
-                        viewLp.setMargins(0, 0, 0, 0);
+                        if (getPreferences().isKeepBorderLayoutEnabled()) {
+                            int strokeWidth = (int) (getPreferences().getTerminalBorderWidth() * density);
+                            int outerGap = (int) ((getPreferences().getTerminalHorizontalMargin() + getPreferences().getTerminalBorderGaps()) * density);
+                            int borderToText = outerGap + strokeWidth;
+                            viewLp.setMargins(borderToText, borderToText, borderToText, borderToText);
+                        } else {
+                            viewLp.setMargins(0, 0, 0, 0);
+                        }
                         mTerminalView.setLayoutParams(viewLp);
                     }
                 }
@@ -1145,9 +1185,13 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
                 mTerminalToolbarCard.setRadius(cornerRadius);
                 mTerminalToolbarCard.setStrokeWidth(0);
                 mTerminalToolbarCard.setCardBackgroundColor(Color.TRANSPARENT);
+                // With "Keep Layout When Border Off" the bar keeps the exact size and
+                // position it would have with the border drawn, minus the stroke itself.
+                int gaps = getPreferences().isKeepBorderLayoutEnabled()
+                    ? (int) (getPreferences().getExtraKeysBarBorderGaps() * density) : 0;
                 ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) mTerminalToolbarCard.getLayoutParams();
                 if (lp != null) {
-                    lp.setMargins(0, 0, 0, 0);
+                    lp.setMargins(gaps, gaps, gaps, gaps);
                     mTerminalToolbarCard.setLayoutParams(lp);
                 }
             }
@@ -1362,6 +1406,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
      */
     @SuppressLint("NewApi")
     private void applyBackgroundBitmap(Bitmap bitmap, int blurRadius) {
+        boolean glassEnabled = getPreferences() != null && getPreferences().isGlassEffectEnabled();
         float blurPx = blurRadius * getResources().getDisplayMetrics().density;
 
         mLastBackgroundBitmap = bitmap;
@@ -1379,7 +1424,19 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
                     mTerminalBackgroundImage.setRenderEffect(null);
                 }
             }
-            mTerminalBackgroundImage.setVisibility(View.VISIBLE);
+            // In glass mode the inner wallpaper is replaced by the blurred backdrop.
+            mTerminalBackgroundImage.setVisibility(glassEnabled ? View.GONE : View.VISIBLE);
+        }
+
+        if (glassEnabled) {
+            int glassBlurRadius = getPreferences().isBackgroundBlurEnabled()
+                ? Math.max(1, getPreferences().getBackgroundBlurRadius()) : 16;
+            applyGlassBackdrop(bitmap, glassBlurRadius * getResources().getDisplayMetrics().density);
+            if (mTerminalBackgroundOverlay != null) {
+                mTerminalBackgroundOverlay.setVisibility(View.GONE);
+            }
+        } else {
+            hideGlassBackdrop();
         }
 
         if (isBarBackgroundEnabled()) {
@@ -1394,24 +1451,37 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
     }
 
     /**
-     * Show the wallpaper slice behind the extra keys bar using a union center-crop
-     * transform shared with the terminal card so the image is continuous across the seam.
+     * Wallpaper sync: the terminal card and the extra keys bar are two windows into
+     * one full-screen wallpaper scene (center-crop over the whole activity area, the
+     * same transform as the outer background layer). Each view shows the scene region
+     * at its CURRENT position, so while the keyboard is open the bar shows the
+     * wallpaper continuation right below the terminal, and when the keyboard is
+     * closed the bar (now at the bottom of the screen) shows the bottom of the
+     * wallpaper. Re-applied on every layout change, the wallpaper slides with the
+     * bar in real time while the keyboard animates.
      */
     @SuppressLint("NewApi")
     private void applyToolbarBackgroundSlice(Bitmap bitmap, int blurRadius, float blurPx) {
         if (mTerminalToolbarBackgroundImage == null || mTerminalToolbarCard == null || mTerminalCardContainer == null) return;
 
+        View scene = findViewById(R.id.activity_termux_root_relative_layout);
+        if (scene == null) return;
+
         int[] cardLoc = new int[2];
         int[] barLoc = new int[2];
+        int[] sceneLoc = new int[2];
         mTerminalCardContainer.getLocationOnScreen(cardLoc);
         mTerminalToolbarCard.getLocationOnScreen(barLoc);
+        scene.getLocationOnScreen(sceneLoc);
 
         int cardW = mTerminalCardContainer.getWidth();
         int cardH = mTerminalCardContainer.getHeight();
         int barW = mTerminalToolbarCard.getWidth();
         int barH = mTerminalToolbarCard.getHeight();
+        int sceneW = scene.getWidth();
+        int sceneH = scene.getHeight();
 
-        if (cardW <= 0 || cardH <= 0 || barW <= 0 || barH <= 0) {
+        if (cardW <= 0 || cardH <= 0 || barW <= 0 || barH <= 0 || sceneW <= 0 || sceneH <= 0) {
             // Layout not ready yet (or the bar is hidden): retry once after a layout pass,
             // but never spin-retry while the toolbar card stays zero-sized.
             mTerminalCardContainer.post(() -> {
@@ -1424,28 +1494,29 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
             return;
         }
 
-        int unionW = Math.max(cardW, barW);
-        int barOffsetInUnion = barLoc[1] - cardLoc[1];
-        int unionH = barOffsetInUnion + barH;
-        float scale = Math.max((float) unionW / bitmap.getWidth(), (float) unionH / bitmap.getHeight());
-        float scaledW = bitmap.getWidth() * scale;
-        float scaledH = bitmap.getHeight() * scale;
-        float dx = (unionW - scaledW) / 2f;
-        float dy = (unionH - scaledH) / 2f;
+        int bw = bitmap.getWidth();
+        int bh = bitmap.getHeight();
+        float scale = Math.max((float) sceneW / bw, (float) sceneH / bh);
+        float dx = (sceneW - bw * scale) / 2f;
+        float dy = (sceneH - bh * scale) / 2f;
+        float cardRelX = cardLoc[0] - sceneLoc[0];
+        float cardRelY = cardLoc[1] - sceneLoc[1];
+        float barRelX = barLoc[0] - sceneLoc[0];
+        float barRelY = barLoc[1] - sceneLoc[1];
 
-        // Terminal image: top part of the union crop.
+        // Terminal image: the scene region behind the terminal card.
         if (mTerminalBackgroundImage != null) {
             Matrix matrix = new Matrix();
             matrix.setScale(scale, scale);
-            matrix.postTranslate(dx, dy);
+            matrix.preTranslate(dx - cardRelX, dy - cardRelY);
             mTerminalBackgroundImage.setScaleType(ImageView.ScaleType.MATRIX);
             mTerminalBackgroundImage.setImageMatrix(matrix);
         }
 
-        // Toolbar image: bottom part of the union crop.
+        // Toolbar image: the scene region behind the extra keys bar at its current position.
         Matrix barMatrix = new Matrix();
         barMatrix.setScale(scale, scale);
-        barMatrix.postTranslate(dx, dy - barOffsetInUnion);
+        barMatrix.preTranslate(dx - barRelX, dy - barRelY);
         mTerminalToolbarBackgroundImage.setScaleType(ImageView.ScaleType.MATRIX);
         mTerminalToolbarBackgroundImage.setImageMatrix(barMatrix);
         mTerminalToolbarBackgroundImage.setImageBitmap(bitmap);
@@ -1501,26 +1572,42 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
     }
 
     /**
-     * Apply Liquid Glass (Apple-style clear glass) to the terminal window only:
-     * a uniform translucent white tint plus a slight wallpaper saturation boost.
-     * No glow, no frosted layer and no bar styling — the extra keys bar keeps its
-     * own colors unless the wallpaper sync theme is selected.
+     * Apply Liquid Glass (frosted glassmorphism) to the terminal window only:
+     * a blurred wallpaper backdrop behind the window, a vertical white gradient
+     * tint (bright top, faint bottom) and a gradient glass edge. No glow, no
+     * saturation, and no bar styling — the extra keys bar keeps its own colors
+     * unless the wallpaper sync theme is selected.
      */
     private void applyGlassAndBlurEffects(float density) {
         boolean glassEnabled = getPreferences().isGlassEffectEnabled();
         float tintAlpha = Math.max(0f, Math.min(1f, getPreferences().getGlassTintOpacity() / 100f));
 
-        // Terminal clear-glass tint.
+        // Frosted-glass tint: vertical gradient, brighter at the top.
         if (mTerminalGlassTint != null) {
             mTerminalGlassTint.setAlpha(glassEnabled ? tintAlpha : 1f);
             mTerminalGlassTint.setVisibility(glassEnabled ? View.VISIBLE : View.GONE);
         }
 
-        // Apple-style specular rim along the top edge inside the window border.
-        if (mTerminalBorderDrawable != null) {
-            mTerminalBorderDrawable.setGlassHighlight(glassEnabled);
-        }
-        if (mTerminalBorderOverlay != null) {
+        // Glass edge: gradient stroke around the window (bright top, faint bottom),
+        // drawn even when the border itself is disabled.
+        if (mTerminalBorderDrawable != null && mTerminalBorderOverlay != null) {
+            mTerminalBorderDrawable.setGlassEdge(glassEnabled);
+            if (glassEnabled) {
+                int strokeWidth = getPreferences().isTerminalBorderEnabled()
+                    ? (int) (getPreferences().getTerminalBorderWidth() * density) : 0;
+                int cornerRadius = getPreferences().isTerminalBorderCornerEnabled()
+                    ? (int) (getPreferences().getTerminalBorderCornerRadius() * density) : 0;
+                String colorStr = getPreferences().getTerminalBorderColor();
+                int strokeColor;
+                try {
+                    strokeColor = Color.parseColor(colorStr);
+                } catch (Exception e) {
+                    strokeColor = 0xFFFFFFFF;
+                }
+                mTerminalBorderDrawable.setConfig(density, strokeWidth, cornerRadius, strokeColor,
+                    getPreferences().getTerminalBorderStyle());
+                mTerminalBorderOverlay.setVisibility(View.VISIBLE);
+            }
             mTerminalBorderOverlay.invalidate();
         }
 
@@ -1541,18 +1628,132 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         // Size the toolbar background views to the extra keys card.
         syncToolbarBackgroundViews();
 
-        // Re-apply blur layout on already-loaded wallpaper. No saturation filter:
-        // Liquid Glass keeps the wallpaper colors natural.
-        if (mTerminalBackgroundImage != null && mLastBackgroundBitmap != null) {
-            mTerminalBackgroundImage.setColorFilter(null);
+        // Glass backdrop vs inner wallpaper, on an already-loaded wallpaper.
+        if (mLastBackgroundBitmap != null) {
+            if (glassEnabled) {
+                // The glass blurs the wallpaper behind the window (always blurred:
+                // uses the blur radius pref when blur is on, otherwise 16dp).
+                int glassBlurRadius = getPreferences().isBackgroundBlurEnabled()
+                    ? Math.max(1, getPreferences().getBackgroundBlurRadius()) : 16;
+                applyGlassBackdrop(mLastBackgroundBitmap, glassBlurRadius * density);
+                if (mTerminalBackgroundImage != null) {
+                    mTerminalBackgroundImage.setVisibility(View.GONE);
+                }
+                if (mTerminalBackgroundOverlay != null) {
+                    mTerminalBackgroundOverlay.setVisibility(View.GONE);
+                }
+            } else {
+                hideGlassBackdrop();
+                if (mTerminalBackgroundImage != null) {
+                    mTerminalBackgroundImage.setColorFilter(null);
+                    mTerminalBackgroundImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                    mTerminalBackgroundImage.setImageMatrix(null);
+                    if (!TextUtils.isEmpty(getPreferences().getTerminalBackgroundImagePath())) {
+                        mTerminalBackgroundImage.setVisibility(View.VISIBLE);
+                    }
+                }
+                if (mTerminalBackgroundOverlay != null
+                    && !TextUtils.isEmpty(getPreferences().getTerminalBackgroundImagePath())) {
+                    mTerminalBackgroundOverlay.setVisibility(View.VISIBLE);
+                }
+            }
             if (isBarBackgroundEnabled()) {
                 applyToolbarBackgroundSlice(mLastBackgroundBitmap, mLastBackgroundBlurRadius,
                     mLastBackgroundBlurRadius * density);
             } else {
-                mTerminalBackgroundImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                mTerminalBackgroundImage.setImageMatrix(null);
                 hideToolbarBackground();
             }
+        }
+    }
+
+    /**
+     * Glass backdrop: draw the wallpaper behind the terminal window, cropped with
+     * the same center-crop transform as the activity-level background so the scene
+     * continues seamlessly across the window edges, then blur it. On API 31+ the
+     * blur is a view RenderEffect (no pixel work); below that the window region is
+     * cropped and blurred with RenderScript once per layout.
+     */
+    @SuppressLint("NewApi")
+    private void applyGlassBackdrop(Bitmap bitmap, float blurPx) {
+        if (mTerminalGlassBackdrop == null || mTerminalCardContainer == null) return;
+
+        if (mTerminalCardContainer.getWidth() <= 0) {
+            // Layout not ready yet: retry after the next layout pass.
+            mTerminalCardContainer.post(() -> {
+                if (!isFinishing() && mLastBackgroundBitmap == bitmap) {
+                    applyGlassBackdrop(bitmap, blurPx);
+                }
+            });
+            return;
+        }
+
+        int[] cardLoc = new int[2];
+        mTerminalCardContainer.getLocationOnScreen(cardLoc);
+
+        int rootW, rootH;
+        int cardW = mTerminalCardContainer.getWidth();
+        int cardH = mTerminalCardContainer.getHeight();
+        int bw = bitmap.getWidth();
+        int bh = bitmap.getHeight();
+        if (cardW <= 0 || cardH <= 0 || bw <= 0 || bh <= 0) return;
+
+        float s, srcX, srcY, srcW, srcH;
+        Matrix matrix = new Matrix();
+
+        // Standard mode: match the center-crop transform of the activity background
+        // (the same scene the wallpaper sync slices use, so the window stays
+        // continuous with the bar and the outer background layer).
+        View scene = findViewById(R.id.activity_termux_root_relative_layout);
+        if (scene == null || scene.getWidth() <= 0) {
+            mTerminalCardContainer.post(() -> {
+                if (!isFinishing() && mLastBackgroundBitmap == bitmap) {
+                    applyGlassBackdrop(bitmap, blurPx);
+                }
+            });
+            return;
+        }
+        int[] sceneLoc = new int[2];
+        scene.getLocationOnScreen(sceneLoc);
+        rootW = scene.getWidth();
+        rootH = scene.getHeight();
+        s = Math.max((float) rootW / bw, (float) rootH / bh);
+        float dx = (rootW - bw * s) / 2f;
+        float dy = (rootH - bh * s) / 2f;
+        srcX = (cardLoc[0] - sceneLoc[0] - dx) / s;
+        srcY = (cardLoc[1] - sceneLoc[1] - dy) / s;
+        srcW = cardW / s;
+        srcH = cardH / s;
+        matrix.setScale(s, s);
+        matrix.preTranslate(dx - (cardLoc[0] - sceneLoc[0]), dy - (cardLoc[1] - sceneLoc[1]));
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            mTerminalGlassBackdrop.setImageBitmap(bitmap);
+            mTerminalGlassBackdrop.setScaleType(ImageView.ScaleType.MATRIX);
+            mTerminalGlassBackdrop.setImageMatrix(matrix);
+            mTerminalGlassBackdrop.setRenderEffect(blurPx > 0
+                ? RenderEffect.createBlurEffect(blurPx, blurPx, Shader.TileMode.CLAMP) : null);
+        } else {
+            int ix = Math.max(0, Math.min(bw - 1, (int) srcX));
+            int iy = Math.max(0, Math.min(bh - 1, (int) srcY));
+            int iw = Math.min(bw - ix, Math.max(1, (int) srcW));
+            int ih = Math.min(bh - iy, Math.max(1, (int) srcH));
+            Bitmap crop = Bitmap.createBitmap(bitmap, ix, iy, iw, ih);
+            if (blurPx > 0) {
+                crop = blurBitmapRenderScript(crop, (int) blurPx);
+            }
+            mTerminalGlassBackdrop.setImageBitmap(crop);
+            mTerminalGlassBackdrop.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            mTerminalGlassBackdrop.setImageMatrix(null);
+        }
+        mTerminalGlassBackdrop.setVisibility(View.VISIBLE);
+    }
+
+    /** Remove the glass backdrop (glass effect off). */
+    private void hideGlassBackdrop() {
+        if (mTerminalGlassBackdrop == null) return;
+        mTerminalGlassBackdrop.setVisibility(View.GONE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            mTerminalGlassBackdrop.setRenderEffect(null);
         }
     }
 

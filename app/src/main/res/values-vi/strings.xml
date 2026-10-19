@@ -4,6 +4,8 @@
     <string name="termux_custom_ui_preferences_summary">Thanh tab bar, nút cử chỉ nổi, viền Niri, theme phím phụ &amp; hình nền</string>
     <string name="termux_tab_animation_title">Hiệu ứng chuyển tab Niri Ribbon</string>
     <string name="termux_tab_animation_summary">Hiệu ứng cuộn ngang mượt mà giữa các tab giống Niri WM</string>
+    <string name="termux_keep_border_layout_title">Giữ bố cục khi tắt viền</string>
+    <string name="termux_keep_border_layout_summary">Khi tắt viền của cửa sổ terminal hoặc thanh phím phụ, vẫn giữ nguyên kích thước và vị trí như lúc viền bật (chỉ đường viền biến mất)</string>
     <string name="termux_tab_bar_show_session_name_without_tab_bar_title">Ghim tên session khi tắt tab bar</string>
     <string name="termux_tab_bar_show_session_name_without_tab_bar_summary">Hiển thị thẻ tên phiên làm việc phía trên viền terminal khi tắt thanh tab</string>
     <string name="termux_session_name_alignment_title">Vị trí căn chỉnh tên session</string>
@@ -54,9 +56,9 @@
     <!-- Glass & Blur Effect Preferences -->
     <string name="termux_glass_effects_header">Hiệu ứng Liquid Glass &amp; làm mờ</string>
     <string name="termux_glass_effect_enabled_title">Liquid Glass</string>
-    <string name="termux_glass_effect_enabled_summary">Kính trong kiểu Apple cho cửa sổ terminal: lớp tint trong suốt và viền sáng nhẹ ở cạnh trên. Không tăng bão hòa — bật kèm làm mờ hình nền để có hiệu ứng kính mờ thật</string>
+    <string name="termux_glass_effect_enabled_summary">Kính mờ glassmorphism cho cửa sổ terminal: làm mờ hình nền phía sau cửa sổ (dùng bán kính làm mờ nếu bật, mặc định 16dp), kèm tint trắng gradient và viền sáng gradient quanh mép</string>
     <string name="termux_glass_tint_opacity_title">Độ đậm lớp kính (%)</string>
-    <string name="termux_glass_tint_opacity_summary">Cường độ lớp kính trong phủ lên cửa sổ terminal</string>
+    <string name="termux_glass_tint_opacity_summary">Cường độ tint gradient của lớp kính phủ lên cửa sổ (0 = trong suốt, 100 = đậm nhất)</string>
     <string name="termux_background_blur_enabled_title">Làm mờ hình nền</string>
     <string name="termux_background_blur_enabled_summary">Làm mờ gaussian thật cho ảnh nền (RenderScript / RenderEffect)</string>
     <string name="termux_background_blur_radius_title">Bán kính làm mờ (dp)</string>

@@ -286,6 +286,7 @@ public class CustomUIPreferencesFragment extends PreferenceFragmentCompat {
             "terminal_shadow_enabled",
             "terminal_border_corner_enabled",
             "extra_keys_bar_corner_enabled",
+            "keep_border_layout_enabled",
             "extra_keys_use_custom",
             "extra_keys_preset",
             "extra_keys_custom_json",
@@ -369,6 +370,9 @@ class CustomUIPreferencesDataStore extends PreferenceDataStore {
             case "extra_keys_bar_corner_enabled":
                 mPreferences.setExtraKeysBarCornerEnabled(value);
                 break;
+            case "keep_border_layout_enabled":
+                mPreferences.setKeepBorderLayoutEnabled(value);
+                break;
             case "extra_keys_use_custom":
                 mPreferences.setExtraKeysUseCustom(value);
                 break;
@@ -419,6 +423,8 @@ class CustomUIPreferencesDataStore extends PreferenceDataStore {
                 return mPreferences.isTerminalBorderCornerEnabled();
             case "extra_keys_bar_corner_enabled":
                 return mPreferences.isExtraKeysBarCornerEnabled();
+            case "keep_border_layout_enabled":
+                return mPreferences.isKeepBorderLayoutEnabled();
             case "extra_keys_use_custom":
                 return mPreferences.isExtraKeysUseCustom();
             case "tab_animation_enabled":

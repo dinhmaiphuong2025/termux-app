@@ -254,6 +254,8 @@
     <string name="termux_tab_bar_active_title_length_summary">Number of leading characters shown for active tab title (0 = number only)</string>
     <string name="termux_tab_animation_title">Niri Ribbon Tab Animation</string>
     <string name="termux_tab_animation_summary">Smooth horizontal sliding transition between tabs like Niri WM</string>
+    <string name="termux_keep_border_layout_title">Keep Layout When Border Off</string>
+    <string name="termux_keep_border_layout_summary">When the terminal window or extra keys bar border is disabled, keep the exact size and position they would have with the border drawn (only the stroke disappears)</string>
     <string name="termux_tab_bar_show_session_name_without_tab_bar_title">Show Pinned Session Name</string>
     <string name="termux_tab_bar_show_session_name_without_tab_bar_summary">Pin current session title above terminal border when tab bar is disabled</string>
     <string name="termux_session_name_alignment_title">Pinned Session Name Alignment</string>
@@ -331,9 +333,9 @@
     <!-- Glass & Blur Effect Preferences -->
     <string name="termux_glass_effects_header">Liquid Glass &amp; Blur Effects</string>
     <string name="termux_glass_effect_enabled_title">Liquid Glass</string>
-    <string name="termux_glass_effect_enabled_summary">Apple-style clear glass for the terminal window: a translucent tint and a subtle light rim on the top edge. No saturation boost — combine with background blur for a real frosted look</string>
+    <string name="termux_glass_effect_enabled_summary">Frosted glassmorphism for the terminal window: blurs the wallpaper behind the window (uses the blur radius when blur is on, otherwise 16dp), with a white gradient tint and a light gradient edge</string>
     <string name="termux_glass_tint_opacity_title">Glass Tint Opacity (%)</string>
-    <string name="termux_glass_tint_opacity_summary">Strength of the clear glass tint over the terminal window</string>
+    <string name="termux_glass_tint_opacity_summary">Strength of the glass tint gradient over the window (0 = clear, 100 = full)</string>
     <string name="termux_background_blur_enabled_title">Blur Background Wallpaper</string>
     <string name="termux_background_blur_enabled_summary">Real gaussian blur on the background image (RenderScript / RenderEffect)</string>
     <string name="termux_background_blur_radius_title">Blur Radius (dp)</string>

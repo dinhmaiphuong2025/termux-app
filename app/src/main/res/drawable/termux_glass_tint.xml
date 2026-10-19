@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Apple-style Liquid Glass: a clear, uniform translucent white pane.
-     Opacity is driven by the glass tint preference; no glow, no frost. -->
+<!-- Frosted-glass tint: brighter at the top (light catches the upper pane),
+     fading toward the bottom, like a real glass panel over a blurred backdrop. -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <solid android:color="#FFFFFF" />
+    <gradient
+        android:angle="270"
+        android:type="linear"
+        android:startColor="#30FFFFFF"
+        android:endColor="#12FFFFFF" />
 </shape>

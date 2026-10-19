@@ -313,7 +313,7 @@ public final class TermuxPreferenceConstants {
         public static final boolean DEFAULT_VALUE_GLASS_EFFECT_ENABLED = false;
 
         public static final String KEY_GLASS_TINT_OPACITY = "glass_tint_opacity";
-        public static final int DEFAULT_VALUE_GLASS_TINT_OPACITY = 18; // 0-100
+        public static final int DEFAULT_VALUE_GLASS_TINT_OPACITY = 100; // 0-100, scales the gradient glass tint
 
         public static final String KEY_BACKGROUND_BLUR_ENABLED = "background_blur_enabled";
         public static final boolean DEFAULT_VALUE_BACKGROUND_BLUR_ENABLED = false;
@@ -332,6 +332,9 @@ public final class TermuxPreferenceConstants {
 
         public static final String KEY_TERMINAL_BORDER_CORNER_ENABLED = "terminal_border_corner_enabled";
         public static final boolean DEFAULT_VALUE_TERMINAL_BORDER_CORNER_ENABLED = true;
+
+        public static final String KEY_KEEP_BORDER_LAYOUT_ENABLED = "keep_border_layout_enabled";
+        public static final boolean DEFAULT_VALUE_KEEP_BORDER_LAYOUT_ENABLED = false;
 
         public static final String KEY_EXTRA_KEYS_BAR_CORNER_ENABLED = "extra_keys_bar_corner_enabled";
         public static final boolean DEFAULT_VALUE_EXTRA_KEYS_BAR_CORNER_ENABLED = true;

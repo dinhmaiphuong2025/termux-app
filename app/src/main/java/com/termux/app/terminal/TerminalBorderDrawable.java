@@ -26,48 +26,51 @@ public class TerminalBorderDrawable extends Drawable {
     public static final String STYLE_BRACKETS = "brackets";
 
     private final Paint mStrokePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-    private final Paint mRimPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint mEdgePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
-    private int mStrokeWidth = 1;
+    private int mStrokeWidth = 0;
     private int mCornerRadius = 1;
     private int mStrokeColor = 0xFFFFFFFF;
     private String mStyle = STYLE_FULL;
-    private boolean mGlassHighlight = false;
+    private boolean mGlassEdge = false;
 
     private float mDensity = 1.0f;
 
     public TerminalBorderDrawable() {
         mStrokePaint.setStyle(Paint.Style.STROKE);
+        mEdgePaint.setStyle(Paint.Style.STROKE);
     }
 
     public void setConfig(float density, int strokeWidth, int cornerRadius, int strokeColor, String style) {
         mDensity = density;
-        mStrokeWidth = Math.max(1, strokeWidth);
+        mStrokeWidth = Math.max(0, strokeWidth);
         mCornerRadius = Math.max(0, cornerRadius);
         mStrokeColor = strokeColor;
         mStyle = style != null ? style : STYLE_FULL;
 
-        mStrokePaint.setStrokeWidth(mStrokeWidth);
+        mStrokePaint.setStrokeWidth(Math.max(0, mStrokeWidth));
         mStrokePaint.setColor(mStrokeColor);
 
         invalidateSelf();
     }
 
     /**
-     * Enable or disable the Apple-style specular rim used by the liquid glass
-     * effect: a thin light band along the top edge that fades downward, like
-     * light catching the upper lip of a glass pane. No full-box glow.
+     * Enable or disable the glass edge: a thin stroke whose brightness fades from
+     * top to bottom, mimicking light catching the bevelled rim of a glass pane.
+     * Drawn independently of the user border, so it also shows when the border
+     * stroke width is 0 (border disabled).
      */
-    public void setGlassHighlight(boolean enabled) {
-        if (mGlassHighlight == enabled) return;
-        mGlassHighlight = enabled;
+    public void setGlassEdge(boolean enabled) {
+        if (mGlassEdge == enabled) return;
+        mGlassEdge = enabled;
         invalidateSelf();
     }
 
     @Override
     public void draw(@NonNull Canvas canvas) {
         Rect bounds = getBounds();
-        if (bounds.width() <= 0 || bounds.height() <= 0 || mStrokeWidth <= 0) return;
+        if (bounds.width() <= 0 || bounds.height() <= 0) return;
+        if (mStrokeWidth <= 0 && !mGlassEdge) return;
 
         float halfStroke = mStrokeWidth / 2.0f;
         float left = bounds.left + halfStroke;
@@ -76,71 +79,81 @@ public class TerminalBorderDrawable extends Drawable {
         float bottom = bounds.bottom - halfStroke;
         float r = Math.min(mCornerRadius, Math.min(bounds.width(), bounds.height()) / 2.0f);
 
-        if (STYLE_BRACKETS.equals(mStyle)) {
-            // Hermes / Bracket style:
-            // Top full line
-            // Bottom full line
-            // Left & Right: only draw corner accents
-            float cornerArm = Math.max(r + 14 * mDensity, 20 * mDensity);
-            cornerArm = Math.min(cornerArm, (bottom - top) / 3.0f);
+        if (mStrokeWidth > 0) {
+            if (STYLE_BRACKETS.equals(mStyle)) {
+                // Hermes / Bracket style:
+                // Top full line
+                // Bottom full line
+                // Left & Right: only draw corner accents
+                float cornerArm = Math.max(r + 14 * mDensity, 20 * mDensity);
+                cornerArm = Math.min(cornerArm, (bottom - top) / 3.0f);
 
-            Path path = new Path();
+                Path path = new Path();
 
-            // 1. Top edge & top-left / top-right corners
-            path.moveTo(left, top + cornerArm);
-            path.lineTo(left, top + r);
-            if (r > 0) {
-                path.quadTo(left, top, left + r, top);
-            } else {
-                path.lineTo(left, top);
-            }
-            path.lineTo(right - r, top);
-            if (r > 0) {
-                path.quadTo(right, top, right, top + r);
-            } else {
-                path.lineTo(right, top);
-            }
-            path.lineTo(right, top + cornerArm);
+                // 1. Top edge & top-left / top-right corners
+                path.moveTo(left, top + cornerArm);
+                path.lineTo(left, top + r);
+                if (r > 0) {
+                    path.quadTo(left, top, left + r, top);
+                } else {
+                    path.lineTo(left, top);
+                }
+                path.lineTo(right - r, top);
+                if (r > 0) {
+                    path.quadTo(right, top, right, top + r);
+                } else {
+                    path.lineTo(right, top);
+                }
+                path.lineTo(right, top + cornerArm);
 
-            // 2. Bottom edge & bottom-left / bottom-right corners
-            path.moveTo(left, bottom - cornerArm);
-            path.lineTo(left, bottom - r);
-            if (r > 0) {
-                path.quadTo(left, bottom, left + r, bottom);
-            } else {
-                path.lineTo(left, bottom);
-            }
-            path.lineTo(right - r, bottom);
-            if (r > 0) {
-                path.quadTo(right, bottom, right, bottom - r);
-            } else {
-                path.lineTo(right, bottom);
-            }
-            path.lineTo(right, bottom - cornerArm);
+                // 2. Bottom edge & bottom-left / bottom-right corners
+                path.moveTo(left, bottom - cornerArm);
+                path.lineTo(left, bottom - r);
+                if (r > 0) {
+                    path.quadTo(left, bottom, left + r, bottom);
+                } else {
+                    path.lineTo(left, bottom);
+                }
+                path.lineTo(right - r, bottom);
+                if (r > 0) {
+                    path.quadTo(right, bottom, right, bottom - r);
+                } else {
+                    path.lineTo(right, bottom);
+                }
+                path.lineTo(right, bottom - cornerArm);
 
-            canvas.drawPath(path, mStrokePaint);
+                canvas.drawPath(path, mStrokePaint);
 
-        } else {
-            // Full rectangle / rounded rectangle border
-            if (r > 0) {
-                canvas.drawRoundRect(new RectF(left, top, right, bottom), r, r, mStrokePaint);
             } else {
-                canvas.drawRect(left, top, right, bottom, mStrokePaint);
+                // Full rectangle / rounded rectangle border
+                if (r > 0) {
+                    canvas.drawRoundRect(new RectF(left, top, right, bottom), r, r, mStrokePaint);
+                } else {
+                    canvas.drawRect(left, top, right, bottom, mStrokePaint);
+                }
             }
         }
 
-        if (mGlassHighlight) {
-            // Specular rim: light concentrated along the top edge, fading downward
-            // over ~6dp. Subtle by design — no glow around the whole window.
+        if (mGlassEdge) {
+            // Glass edge: thin stroke with a vertical brightness gradient —
+            // bright at the top, faint at the bottom, like light on a bevelled
+            // glass rim. Sits just inside the user border (or at the window
+            // edge when the border is disabled).
             float inset = mStrokeWidth / 2.0f + Math.max(1f, mDensity);
-            float rimLeft = left + inset;
-            float rimRight = right - inset;
-            float rimTop = top + inset;
-            float rimBottom = Math.min(bottom, rimTop + 6 * mDensity);
-            if (rimLeft < rimRight && rimTop < rimBottom) {
-                mRimPaint.setShader(new LinearGradient(0, rimTop, 0, rimBottom,
-                    0x59FFFFFF, 0x00FFFFFF, Shader.TileMode.CLAMP));
-                canvas.drawRect(rimLeft, rimTop, rimRight, rimBottom, mRimPaint);
+            float eLeft = left + inset;
+            float eTop = top + inset;
+            float eRight = right - inset;
+            float eBottom = bottom - inset;
+            float eRadius = Math.max(0f, r - inset);
+            if (eLeft < eRight && eTop < eBottom) {
+                mEdgePaint.setStrokeWidth(Math.max(1f, mDensity));
+                mEdgePaint.setShader(new LinearGradient(0, eTop, 0, eBottom,
+                    0x66FFFFFF, 0x1AFFFFFF, Shader.TileMode.CLAMP));
+                if (eRadius > 0) {
+                    canvas.drawRoundRect(new RectF(eLeft, eTop, eRight, eBottom), eRadius, eRadius, mEdgePaint);
+                } else {
+                    canvas.drawRect(eLeft, eTop, eRight, eBottom, mEdgePaint);
+                }
             }
         }
     }

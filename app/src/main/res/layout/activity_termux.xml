@@ -74,6 +74,14 @@
                                 android:visibility="gone"
                                 tools:ignore="ContentDescription" />
 
+                            <ImageView
+                                android:id="@+id/terminal_glass_backdrop"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:scaleType="matrix"
+                                android:visibility="gone"
+                                tools:ignore="ContentDescription" />
+
                             <View
                                 android:id="@+id/terminal_background_overlay"
                                 android:layout_width="match_parent"
