@@ -169,6 +169,9 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
     ImageView mTerminalGlassBackdrop;
     View mTerminalFrameLayer;
     ImageView mTerminalCardSnapshot;
+    ImageView mTerminalCardIncomingSnapshot;
+    Bitmap mTransitionSnapshotBitmapA;
+    Bitmap mTransitionSnapshotBitmapB;
     View mTerminalBackgroundOverlay;
     View mTerminalBorderOverlay;
     TerminalBorderDrawable mTerminalBorderDrawable;
@@ -589,6 +592,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
 
         mTerminalCardContainer = findViewById(R.id.terminal_card_container);
         mTerminalCardSnapshot = findViewById(R.id.terminal_card_snapshot);
+        mTerminalCardIncomingSnapshot = findViewById(R.id.terminal_card_incoming_snapshot);
         mTerminalBackgroundImage = findViewById(R.id.terminal_background_image);
         mTerminalGlassBackdrop = findViewById(R.id.terminal_glass_backdrop);
         mTerminalFrameLayer = findViewById(R.id.terminal_frame_layer);
@@ -2317,8 +2321,34 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         return mTermuxGesturePillView;
     }
 
+    private void captureSessionSnapshot(Bitmap targetBitmap, View sourceContainer) {
+        if (targetBitmap == null || sourceContainer == null) return;
+        try {
+            android.graphics.Canvas canvas = new android.graphics.Canvas(targetBitmap);
+            if (mLastBackgroundBitmap != null && !mLastBackgroundBitmap.isRecycled()) {
+                if (mTerminalGlassBackdrop != null && mTerminalGlassBackdrop.getImageMatrix() != null) {
+                    canvas.drawBitmap(mLastBackgroundBitmap, mTerminalGlassBackdrop.getImageMatrix(), null);
+                    canvas.drawColor(0x330A0F19);
+                } else {
+                    canvas.drawColor(0xFF000000);
+                }
+            } else {
+                int bgColor = 0xFF000000;
+                TerminalSession current = getCurrentSession();
+                if (current != null && current.getEmulator() != null) {
+                    bgColor = current.getEmulator().mColors.mCurrentColors[TextStyle.COLOR_INDEX_BACKGROUND];
+                }
+                canvas.drawColor(bgColor);
+            }
+            sourceContainer.draw(canvas);
+        } catch (Throwable t) {
+            Logger.logStackTraceWithMessage(LOG_TAG, "Failed to capture transition snapshot", t);
+        }
+    }
+
     public void animateTabTransition(boolean forward, Runnable onAttachSession) {
-        if (!isTabAnimationEnabled() || mTerminalCardContainer == null || mTerminalCardSnapshot == null || !mIsVisible) {
+        if (!isTabAnimationEnabled() || mTerminalCardContainer == null
+                || mTerminalCardSnapshot == null || mTerminalCardIncomingSnapshot == null || !mIsVisible) {
             onAttachSession.run();
             return;
         }
@@ -2335,69 +2365,63 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
             mTabTransitionAnimator = null;
         }
 
-        // Reuse bitmap to prevent memory churn and GC freezes
-        if (mTransitionSnapshotBitmap == null || mTransitionSnapshotBitmap.isRecycled()
-                || mTransitionSnapshotBitmap.getWidth() != width || mTransitionSnapshotBitmap.getHeight() != height) {
-            if (mTransitionSnapshotBitmap != null && !mTransitionSnapshotBitmap.isRecycled()) {
-                mTransitionSnapshotBitmap.recycle();
-            }
+        // 1. Allocate / reuse both snapshot bitmaps
+        if (mTransitionSnapshotBitmapA == null || mTransitionSnapshotBitmapA.isRecycled()
+                || mTransitionSnapshotBitmapA.getWidth() != width || mTransitionSnapshotBitmapA.getHeight() != height) {
+            if (mTransitionSnapshotBitmapA != null && !mTransitionSnapshotBitmapA.isRecycled()) mTransitionSnapshotBitmapA.recycle();
+            if (mTransitionSnapshotBitmapB != null && !mTransitionSnapshotBitmapB.isRecycled()) mTransitionSnapshotBitmapB.recycle();
             try {
-                mTransitionSnapshotBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+                mTransitionSnapshotBitmapA = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+                mTransitionSnapshotBitmapB = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
             } catch (Throwable t) {
-                Logger.logStackTraceWithMessage(LOG_TAG, "Failed to allocate transition snapshot bitmap", t);
-                mTransitionSnapshotBitmap = null;
+                Logger.logStackTraceWithMessage(LOG_TAG, "Failed to allocate transition snapshot bitmaps", t);
+                mTransitionSnapshotBitmapA = null;
+                mTransitionSnapshotBitmapB = null;
                 onAttachSession.run();
                 return;
             }
         }
 
-        try {
-            android.graphics.Canvas canvas = new android.graphics.Canvas(mTransitionSnapshotBitmap);
-            if (mLastBackgroundBitmap != null && !mLastBackgroundBitmap.isRecycled()) {
-                if (mTerminalGlassBackdrop != null && mTerminalGlassBackdrop.getImageMatrix() != null) {
-                    canvas.drawBitmap(mLastBackgroundBitmap, mTerminalGlassBackdrop.getImageMatrix(), null);
-                    canvas.drawColor(0x330A0F19);
-                } else {
-                    canvas.drawColor(0xFF000000);
-                }
-            } else {
-                int bgColor = 0xFF000000;
-                TerminalSession current = getCurrentSession();
-                if (current != null && current.getEmulator() != null) {
-                    bgColor = current.getEmulator().mColors.mCurrentColors[TextStyle.COLOR_INDEX_BACKGROUND];
-                }
-                canvas.drawColor(bgColor);
-            }
-            mTerminalCardContainer.draw(canvas);
-        } catch (Throwable t) {
-            Logger.logStackTraceWithMessage(LOG_TAG, "Failed to capture transition snapshot", t);
-            onAttachSession.run();
-            return;
-        }
+        // 2. Capture Snapshot A (Old Session):
+        captureSessionSnapshot(mTransitionSnapshotBitmapA, mTerminalCardContainer);
+        mTerminalCardSnapshot.setImageBitmap(mTransitionSnapshotBitmapA);
 
-        mTerminalCardSnapshot.setImageBitmap(mTransitionSnapshotBitmap);
+        // 3. Attach New Session:
+        onAttachSession.run();
+
+        // 4. Capture Snapshot B (New Session):
+        captureSessionSnapshot(mTransitionSnapshotBitmapB, mTerminalCardContainer);
+        mTerminalCardIncomingSnapshot.setImageBitmap(mTransitionSnapshotBitmapB);
+
+        // 5. Hide live container during animation so no GPU Shader / RenderEffect translation occurs:
+        mTerminalCardContainer.setVisibility(View.INVISIBLE);
+        mTerminalCardContainer.setTranslationX(0f);
+
+        // Configure layout params & rounded corners for both snapshots:
         ViewGroup.MarginLayoutParams cardLp = (ViewGroup.MarginLayoutParams) mTerminalCardContainer.getLayoutParams();
-        ViewGroup.MarginLayoutParams snapLp = (ViewGroup.MarginLayoutParams) mTerminalCardSnapshot.getLayoutParams();
-        if (cardLp != null && snapLp != null) {
-            snapLp.setMargins(cardLp.leftMargin, cardLp.topMargin, cardLp.rightMargin, cardLp.bottomMargin);
-            mTerminalCardSnapshot.setLayoutParams(snapLp);
+        for (ImageView snap : new ImageView[]{mTerminalCardSnapshot, mTerminalCardIncomingSnapshot}) {
+            ViewGroup.MarginLayoutParams snapLp = (ViewGroup.MarginLayoutParams) snap.getLayoutParams();
+            if (cardLp != null && snapLp != null) {
+                snapLp.setMargins(cardLp.leftMargin, cardLp.topMargin, cardLp.rightMargin, cardLp.bottomMargin);
+                snap.setLayoutParams(snapLp);
+            }
         }
 
         float density = getResources().getDisplayMetrics().density;
         float cornerPx = (getPreferences() != null && getPreferences().isTerminalBorderCornerEnabled())
             ? getPreferences().getTerminalBorderCornerRadius() * density : 0f;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            if (cornerPx > 0) {
-                mTerminalCardSnapshot.setOutlineProvider(new android.view.ViewOutlineProvider() {
+            android.view.ViewOutlineProvider outlineProvider = cornerPx > 0
+                ? new android.view.ViewOutlineProvider() {
                     @Override
                     public void getOutline(View view, android.graphics.Outline outline) {
                         outline.setRoundRect(0, 0, view.getWidth(), view.getHeight(), cornerPx);
                     }
-                });
-                mTerminalCardSnapshot.setClipToOutline(true);
-            } else {
-                mTerminalCardSnapshot.setClipToOutline(false);
-            }
+                } : null;
+            mTerminalCardSnapshot.setOutlineProvider(outlineProvider);
+            mTerminalCardSnapshot.setClipToOutline(cornerPx > 0);
+            mTerminalCardIncomingSnapshot.setOutlineProvider(outlineProvider);
+            mTerminalCardIncomingSnapshot.setClipToOutline(cornerPx > 0);
         }
 
         int marginHorizontal = cardLp != null ? (cardLp.leftMargin + cardLp.rightMargin) : 0;
@@ -2405,29 +2429,25 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         final float startNewX = forward ? slideDistance : -slideDistance;
         final float endOldX = forward ? -slideDistance : slideDistance;
 
-        // Position the new session container off-screen BEFORE attaching the new session,
-        // so it never renders at position 0 even for a single frame:
-        mTerminalCardContainer.setTranslationX(startNewX);
-        mTerminalCardContainer.setAlpha(1.0f);
-
         mTerminalCardSnapshot.setTranslationX(0f);
         mTerminalCardSnapshot.setAlpha(1.0f);
         mTerminalCardSnapshot.setVisibility(View.VISIBLE);
 
-        onAttachSession.run();
+        mTerminalCardIncomingSnapshot.setTranslationX(startNewX);
+        mTerminalCardIncomingSnapshot.setAlpha(1.0f);
+        mTerminalCardIncomingSnapshot.setVisibility(View.VISIBLE);
 
-        // Animate the two cards sliding on the ribbon in GPU RenderNode:
+        // 6. Animate both snapshots sliding side by side on the Niri ribbon:
         android.animation.ValueAnimator animator = android.animation.ValueAnimator.ofFloat(0f, 1f);
         animator.setDuration(280);
-        // Modern cubic bezier ease-out for Niri ribbon tiling feel
         animator.setInterpolator(new android.view.animation.PathInterpolator(0.18f, 0.9f, 0.2f, 1.0f));
         animator.addUpdateListener(animation -> {
             float fraction = (float) animation.getAnimatedValue();
             if (mTerminalCardSnapshot != null) {
                 mTerminalCardSnapshot.setTranslationX(endOldX * fraction);
             }
-            if (mTerminalCardContainer != null) {
-                mTerminalCardContainer.setTranslationX(startNewX * (1f - fraction));
+            if (mTerminalCardIncomingSnapshot != null) {
+                mTerminalCardIncomingSnapshot.setTranslationX(startNewX * (1f - fraction));
             }
         });
         animator.addListener(new android.animation.AnimatorListenerAdapter() {
@@ -2453,9 +2473,16 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
             mTerminalCardSnapshot.setTranslationX(0f);
             mTerminalCardSnapshot.setAlpha(1.0f);
         }
+        if (mTerminalCardIncomingSnapshot != null) {
+            mTerminalCardIncomingSnapshot.setVisibility(View.INVISIBLE);
+            mTerminalCardIncomingSnapshot.setImageBitmap(null);
+            mTerminalCardIncomingSnapshot.setTranslationX(0f);
+            mTerminalCardIncomingSnapshot.setAlpha(1.0f);
+        }
         if (mTerminalCardContainer != null) {
             mTerminalCardContainer.setTranslationX(0f);
             mTerminalCardContainer.setAlpha(1.0f);
+            mTerminalCardContainer.setVisibility(View.VISIBLE);
         }
         mTabTransitionAnimator = null;
     }
