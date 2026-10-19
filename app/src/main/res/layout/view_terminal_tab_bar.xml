@@ -40,7 +40,7 @@
             android:background="@drawable/shape_tab_pill_inactive"
             android:foreground="?attr/selectableItemBackgroundBorderless"
             android:clickable="true"
-            android:focusable="true"
+            android:focusable="false"
             android:contentDescription="@string/action_new_session">
 
             <ImageView
@@ -60,7 +60,7 @@
             android:background="@drawable/shape_tab_pill_inactive"
             android:foreground="?attr/selectableItemBackgroundBorderless"
             android:clickable="true"
-            android:focusable="true"
+            android:focusable="false"
             android:contentDescription="@string/action_close_session">
 
             <ImageView
@@ -80,7 +80,7 @@
             android:background="@drawable/shape_tab_pill_inactive"
             android:foreground="?attr/selectableItemBackgroundBorderless"
             android:clickable="true"
-            android:focusable="true"
+            android:focusable="false"
             android:contentDescription="@string/action_open_settings">
 
             <ImageView

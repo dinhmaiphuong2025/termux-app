@@ -11,7 +11,7 @@
     android:paddingEnd="8dp"
     android:background="@drawable/shape_tab_pill_inactive"
     android:clickable="true"
-    android:focusable="true">
+    android:focusable="false">
 
     <TextView
         android:id="@+id/tab_item_title"

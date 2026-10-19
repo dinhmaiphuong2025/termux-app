@@ -185,6 +185,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
     /** Last decoded background bitmap and blur radius, kept for re-applying layout matrices. */
     Bitmap mLastBackgroundBitmap;
     int mLastBackgroundBlurRadius;
+    float mLastVeilAlpha = 0.35f;
     /** Temporary diagnostic signature for the right-edge column investigation. */
     String mLastGlassDebugSig = "";
     /**
@@ -1968,6 +1969,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         // REGULAR-material adaptive tint: compute dark veil alpha from backdrop luminance
         float luminance = computeRegionLuminance(bitmap, srcX, srcY, srcW, srcH);
         float veilAlpha = adaptiveTintAlpha(luminance);
+        mLastVeilAlpha = veilAlpha;
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             mTerminalGlassBackdrop.setImageBitmap(bitmap);
@@ -2328,7 +2330,8 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
             if (mLastBackgroundBitmap != null && !mLastBackgroundBitmap.isRecycled()) {
                 if (mTerminalGlassBackdrop != null && mTerminalGlassBackdrop.getImageMatrix() != null) {
                     canvas.drawBitmap(mLastBackgroundBitmap, mTerminalGlassBackdrop.getImageMatrix(), null);
-                    canvas.drawColor(0x330A0F19);
+                    int alpha = Math.round(mLastVeilAlpha * 255);
+                    canvas.drawColor(Color.argb(alpha, 10, 15, 25));
                 } else {
                     canvas.drawColor(0xFF000000);
                 }
@@ -2340,7 +2343,13 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
                 }
                 canvas.drawColor(bgColor);
             }
+            if (mTerminalGlassBackdrop != null) {
+                mTerminalGlassBackdrop.setVisibility(View.INVISIBLE);
+            }
             sourceContainer.draw(canvas);
+            if (mTerminalGlassBackdrop != null) {
+                mTerminalGlassBackdrop.setVisibility(View.VISIBLE);
+            }
         } catch (Throwable t) {
             Logger.logStackTraceWithMessage(LOG_TAG, "Failed to capture transition snapshot", t);
         }
@@ -2393,9 +2402,10 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         captureSessionSnapshot(mTransitionSnapshotBitmapB, mTerminalCardContainer);
         mTerminalCardIncomingSnapshot.setImageBitmap(mTransitionSnapshotBitmapB);
 
-        // 5. Hide live container during animation so no GPU Shader / RenderEffect translation occurs:
-        mTerminalCardContainer.setVisibility(View.INVISIBLE);
+        // 5. Keep live container VISIBLE (alpha = 0f) so it retains focus and IMM never closes the keyboard!
+        mTerminalCardContainer.setVisibility(View.VISIBLE);
         mTerminalCardContainer.setTranslationX(0f);
+        mTerminalCardContainer.setAlpha(0f);
 
         // Configure layout params & rounded corners for both snapshots:
         ViewGroup.MarginLayoutParams cardLp = (ViewGroup.MarginLayoutParams) mTerminalCardContainer.getLayoutParams();
@@ -2483,6 +2493,9 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
             mTerminalCardContainer.setTranslationX(0f);
             mTerminalCardContainer.setAlpha(1.0f);
             mTerminalCardContainer.setVisibility(View.VISIBLE);
+        }
+        if (mTerminalView != null) {
+            mTerminalView.requestFocus();
         }
         mTabTransitionAnimator = null;
     }
