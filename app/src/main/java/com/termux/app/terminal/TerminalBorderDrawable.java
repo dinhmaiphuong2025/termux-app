@@ -27,6 +27,7 @@ public class TerminalBorderDrawable extends Drawable {
 
     private final Paint mStrokePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint mEdgePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint mInnerPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
     private int mStrokeWidth = 0;
     private int mCornerRadius = 1;
@@ -55,10 +56,11 @@ public class TerminalBorderDrawable extends Drawable {
     }
 
     /**
-     * Enable or disable the glass edge: a thin stroke whose brightness fades from
-     * top to bottom, mimicking light catching the bevelled rim of a glass pane.
-     * Drawn independently of the user border, so it also shows when the border
-     * stroke width is 0 (border disabled).
+     * Enable or disable the liquid-glass specular rim: a two-layer highlight
+     * (diagonal gradient outer rim + bright inner band along the top edge) that
+     * gives the window the 3D thickness of a glass droplet. Drawn independently
+     * of the user border, so it also shows when the border stroke width is 0
+     * (border disabled).
      */
     public void setGlassEdge(boolean enabled) {
         if (mGlassEdge == enabled) return;
@@ -135,25 +137,39 @@ public class TerminalBorderDrawable extends Drawable {
         }
 
         if (mGlassEdge) {
-            // Glass edge: thin stroke with a vertical brightness gradient —
-            // bright at the top, faint at the bottom, like light on a bevelled
-            // glass rim. Sits just inside the user border (or at the window
-            // edge when the border is disabled).
+            // Liquid-glass specular rim, two layers:
+            // 1. Outer rim: 1.2dp stroke with a 135° diagonal gradient
+            //    (bright top-left, faint middle, mid bottom-right) like light
+            //    wrapping around a glass droplet.
             float inset = mStrokeWidth / 2.0f + Math.max(1f, mDensity);
             float eLeft = left + inset;
             float eTop = top + inset;
             float eRight = right - inset;
             float eBottom = bottom - inset;
             float eRadius = Math.max(0f, r - inset);
+            float rimWidth = 1.2f * mDensity;
+            float hw = rimWidth / 2f;
             if (eLeft < eRight && eTop < eBottom) {
-                mEdgePaint.setStrokeWidth(Math.max(1f, mDensity));
-                mEdgePaint.setShader(new LinearGradient(0, eTop, 0, eBottom,
-                    0x66FFFFFF, 0x1AFFFFFF, Shader.TileMode.CLAMP));
+                mEdgePaint.setStrokeWidth(rimWidth);
+                mEdgePaint.setShader(new LinearGradient(eLeft, eTop, eRight, eBottom,
+                    new int[]{0xCCFFFFFF, 0x1AFFFFFF, 0x80FFFFFF},
+                    new float[]{0f, 0.5f, 1f},
+                    Shader.TileMode.CLAMP));
                 if (eRadius > 0) {
-                    canvas.drawRoundRect(new RectF(eLeft, eTop, eRight, eBottom), eRadius, eRadius, mEdgePaint);
+                    canvas.drawRoundRect(new RectF(eLeft + hw, eTop + hw, eRight - hw, eBottom - hw),
+                        eRadius, eRadius, mEdgePaint);
                 } else {
-                    canvas.drawRect(eLeft, eTop, eRight, eBottom, mEdgePaint);
+                    canvas.drawRect(eLeft + hw, eTop + hw, eRight - hw, eBottom - hw, mEdgePaint);
                 }
+            }
+            // 2. Inner highlight: a thin bright band just inside the top edge,
+            //    giving the pane its 3D droplet thickness.
+            float hlTop = eTop + rimWidth;
+            float hlBottom = hlTop + 4f * mDensity;
+            if (hlTop < eBottom) {
+                mInnerPaint.setShader(new LinearGradient(0, hlTop, 0, Math.min(hlBottom, eBottom),
+                    0x59FFFFFF, 0x00FFFFFF, Shader.TileMode.CLAMP));
+                canvas.drawRect(eLeft + rimWidth, hlTop, eRight - rimWidth, Math.min(hlBottom, eBottom), mInnerPaint);
             }
         }
     }

@@ -333,9 +333,9 @@
     <!-- Glass & Blur Effect Preferences -->
     <string name="termux_glass_effects_header">Liquid Glass &amp; Blur Effects</string>
     <string name="termux_glass_effect_enabled_title">Liquid Glass</string>
-    <string name="termux_glass_effect_enabled_summary">Frosted glassmorphism for the terminal window: blurs the wallpaper behind the window (uses the blur radius when blur is on, otherwise 16dp), with a white gradient tint and a light gradient edge</string>
-    <string name="termux_glass_tint_opacity_title">Glass Tint Opacity (%)</string>
-    <string name="termux_glass_tint_opacity_summary">Strength of the glass tint gradient over the window (0 = clear, 100 = full)</string>
+    <string name="termux_glass_effect_enabled_summary">Apple Liquid Glass for the terminal window, tab buttons and extra keys bar: edge refraction (API 33+) over a light blur, dark readability tint, specular rim and text shadow</string>
+    <string name="termux_glass_tint_opacity_title">Glass Tint Strength (%)</string>
+    <string name="termux_glass_tint_opacity_summary">Strength of the dark readability tint over the glass surfaces (0 = none, 100 = full)</string>
     <string name="termux_background_blur_enabled_title">Blur Background Wallpaper</string>
     <string name="termux_background_blur_enabled_summary">Real gaussian blur on the background image (RenderScript / RenderEffect)</string>
     <string name="termux_background_blur_radius_title">Blur Radius (dp)</string>

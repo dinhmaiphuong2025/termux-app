@@ -57,6 +57,8 @@ public final class TerminalView extends View {
 
     public TerminalRenderer mRenderer;
     private int mCellBackgroundAlpha = -1;
+    /** Subtle drop shadow behind terminal text (readability over bright glass backdrops). */
+    private boolean mTextShadowEnabled = false;
 
     public TerminalViewClient mClient;
 
@@ -546,13 +548,27 @@ public final class TerminalView extends View {
     public void setTextSize(int textSize) {
         mRenderer = new TerminalRenderer(textSize, mRenderer == null ? Typeface.MONOSPACE : mRenderer.mTypeface);
         mRenderer.mCellBackgroundAlpha = mCellBackgroundAlpha;
+        mRenderer.setTextShadowEnabled(mTextShadowEnabled);
         updateSize();
     }
 
     public void setTypeface(Typeface newTypeface) {
         mRenderer = new TerminalRenderer(mRenderer.mTextSize, newTypeface);
         mRenderer.mCellBackgroundAlpha = mCellBackgroundAlpha;
+        mRenderer.setTextShadowEnabled(mTextShadowEnabled);
         updateSize();
+        invalidate();
+    }
+
+    /**
+     * Enable or disable a subtle drop shadow behind terminal text so it stays
+     * readable over bright glass backdrops.
+     */
+    public void setTextShadowEnabled(boolean enabled) {
+        mTextShadowEnabled = enabled;
+        if (mRenderer != null) {
+            mRenderer.setTextShadowEnabled(enabled);
+        }
         invalidate();
     }
 

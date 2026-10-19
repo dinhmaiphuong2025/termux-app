@@ -3,6 +3,7 @@ package com.termux.app.terminal;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.text.TextUtils;
 import android.view.Gravity;
@@ -141,7 +142,14 @@ public class TermuxTabBarController {
         }
     }
 
-    private static GradientDrawable createTabDrawable(boolean isActive, int cornerRadius, int strokeWidth, int strokeColor) {
+    private Drawable createTabDrawable(boolean isActive, int cornerRadius, int strokeWidth, int strokeColor) {
+        // Liquid Glass on: tab buttons become glass droplets (dark translucent
+        // fill + diagonal specular rim + top inner highlight).
+        if (mActivity.getPreferences() != null && mActivity.getPreferences().isGlassEffectEnabled()) {
+            float density = mActivity.getResources().getDisplayMetrics().density;
+            return new LiquidGlassButtonDrawable(cornerRadius, strokeWidth, density, isActive);
+        }
+
         GradientDrawable gd = new GradientDrawable();
         gd.setShape(GradientDrawable.RECTANGLE);
         gd.setCornerRadius(cornerRadius);

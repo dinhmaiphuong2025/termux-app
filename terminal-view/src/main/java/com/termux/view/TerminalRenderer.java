@@ -66,6 +66,18 @@ public final class TerminalRenderer {
         }
     }
 
+    /**
+     * Enable or disable a subtle drop shadow behind terminal text so it stays
+     * readable over bright glass backdrops.
+     */
+    public void setTextShadowEnabled(boolean enabled) {
+        if (enabled) {
+            mTextPaint.setShadowLayer(4f, 0f, 1f, 0xAA000000);
+        } else {
+            mTextPaint.clearShadowLayer();
+        }
+    }
+
     /** Render the terminal to a canvas with at a specified row scroll, and an optional rectangular selection. */
     public final void render(TerminalEmulator mEmulator, Canvas canvas, int topRow,
                              int selectionY1, int selectionY2, int selectionX1, int selectionX2) {

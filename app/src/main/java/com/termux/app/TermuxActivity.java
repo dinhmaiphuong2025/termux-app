@@ -79,6 +79,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.RenderEffect;
+import android.graphics.RuntimeShader;
 import android.graphics.Shader;
 import android.text.TextUtils;
 import android.widget.ImageView;
@@ -192,9 +193,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
                     mLastBackgroundBlurRadius * density);
             }
             if (getPreferences().isGlassEffectEnabled()) {
-                int glassBlurRadius = getPreferences().isBackgroundBlurEnabled()
-                    ? Math.max(1, getPreferences().getBackgroundBlurRadius()) : 16;
-                applyGlassBackdrop(mLastBackgroundBitmap, glassBlurRadius * density);
+                applyGlassBackdrop(mLastBackgroundBitmap, getGlassBlurRadiusDp() * density);
             }
         }
     };
@@ -1429,9 +1428,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         }
 
         if (glassEnabled) {
-            int glassBlurRadius = getPreferences().isBackgroundBlurEnabled()
-                ? Math.max(1, getPreferences().getBackgroundBlurRadius()) : 16;
-            applyGlassBackdrop(bitmap, glassBlurRadius * getResources().getDisplayMetrics().density);
+            applyGlassBackdrop(bitmap, getGlassBlurRadiusDp() * getResources().getDisplayMetrics().density);
             if (mTerminalBackgroundOverlay != null) {
                 mTerminalBackgroundOverlay.setVisibility(View.GONE);
             }
@@ -1572,20 +1569,85 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
     }
 
     /**
-     * Apply Liquid Glass (frosted glassmorphism) to the terminal window only:
-     * a blurred wallpaper backdrop behind the window, a vertical white gradient
-     * tint (bright top, faint bottom) and a gradient glass edge. No glow, no
-     * saturation, and no bar styling — the extra keys bar keeps its own colors
-     * unless the wallpaper sync theme is selected.
+     * AGSL lens shader for the Liquid Glass optics (API 33+): computes the signed
+     * distance field of the rounded window rectangle, then inside the 0-18dp rim
+     * band bends the sampling coordinates along the SDF normal (convex lens
+     * distortion) and offsets the R/B channels in opposite directions for a light
+     * chromatic aberration at the edge. The center stays clear with only a light
+     * input blur underneath.
+     */
+    private static final String GLASS_LENS_SHADER =
+        "uniform shader content;\n" +
+        "uniform vec2 uSize;\n" +
+        "uniform float uRadius;\n" +
+        "uniform float uRim;\n" +
+        "\n" +
+        "float sdRoundRect(vec2 p, vec2 halfSize, float r) {\n" +
+        "    vec2 q = abs(p) - halfSize + vec2(r);\n" +
+        "    return min(max(q.x, q.y), 0.0) + length(max(q, vec2(0.0))) - r;\n" +
+        "}\n" +
+        "\n" +
+        "half4 main(float2 fragCoord) {\n" +
+        "    vec2 p = fragCoord - uSize * 0.5;\n" +
+        "    vec2 halfSize = uSize * 0.5;\n" +
+        "    float d = sdRoundRect(p, halfSize, uRadius);\n" +
+        "    vec2 uv = fragCoord / uSize;\n" +
+        "    if (d >= 0.0) {\n" +
+        "        return content.eval(uv);\n" +
+        "    }\n" +
+        "    // Rim band 0..uRim px inside the edge.\n" +
+        "    float strength = clamp(-d, 0.0, uRim) / uRim;\n" +
+        "    vec2 e = vec2(1.0, 0.0);\n" +
+        "    vec2 grad = vec2(\n" +
+        "        sdRoundRect(p + e, halfSize, uRadius) - sdRoundRect(p - e, halfSize, uRadius),\n" +
+        "        sdRoundRect(p + e.yx, halfSize, uRadius) - sdRoundRect(p - e.yx, halfSize, uRadius));\n" +
+        "    grad = normalize(grad);\n" +
+        "    // Convex lens bulge: sample slightly outward (grad points outward).\n" +
+        "    float lens = strength * uRim * 0.45;\n" +
+        "    // Chromatic aberration: R/B channels offset in opposite directions at the rim.\n" +
+        "    float ca = strength * 2.2;\n" +
+        "    vec2 dir = grad / uSize;\n" +
+        "    vec2 uvR = uv + dir * (lens + ca);\n" +
+        "    vec2 uvG = uv + dir * lens;\n" +
+        "    vec2 uvB = uv + dir * (lens - ca);\n" +
+        "    half4 cR = content.eval(uvR);\n" +
+        "    half4 cG = content.eval(uvG);\n" +
+        "    half4 cB = content.eval(uvB);\n" +
+        "    return half4(cR.r, cG.g, cB.b, max(cR.a, max(cG.a, cB.a)));\n" +
+        "}\n";
+
+    /**
+     * Light backdrop blur for the glass (8-12dp): heavy gaussian blur kills the
+     * liquid clarity, so the glass always uses a light blur before the lens step.
+     */
+    private int getGlassBlurRadiusDp() {
+        int base = getPreferences() != null && getPreferences().isBackgroundBlurEnabled()
+            ? Math.max(1, getPreferences().getBackgroundBlurRadius()) : 16;
+        return Math.max(8, Math.min(12, base));
+    }
+
+    /**
+     * Apply Apple Liquid Glass to the terminal window, the tab bar buttons and the
+     * extra keys bar: a blurred wallpaper backdrop with an AGSL edge-refraction lens
+     * on API 33+ (SDF round-rect distortion + chromatic aberration inside the
+     * 0-18dp rim, light 8-12dp blur so the center stays clear), a very light dark
+     * tint that keeps white text readable, a two-layer specular rim, and a subtle
+     * drop shadow behind the terminal text. No saturation, no white overlay.
      */
     private void applyGlassAndBlurEffects(float density) {
         boolean glassEnabled = getPreferences().isGlassEffectEnabled();
         float tintAlpha = Math.max(0f, Math.min(1f, getPreferences().getGlassTintOpacity() / 100f));
 
-        // Frosted-glass tint: vertical gradient, brighter at the top.
+        // Frosted-glass tint: very light dark tint to keep white text readable.
         if (mTerminalGlassTint != null) {
             mTerminalGlassTint.setAlpha(glassEnabled ? tintAlpha : 1f);
             mTerminalGlassTint.setVisibility(glassEnabled ? View.VISIBLE : View.GONE);
+        }
+
+        // Subtle drop shadow behind terminal text so it never washes out on the
+        // bright glass backdrop.
+        if (mTerminalView != null) {
+            mTerminalView.setTextShadowEnabled(glassEnabled);
         }
 
         // Glass edge: gradient stroke around the window (bright top, faint bottom),
@@ -1611,10 +1673,11 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
             mTerminalBorderOverlay.invalidate();
         }
 
-        // The toolbar sheen layer is never shown: the bar keeps its own colors
-        // unless the wallpaper sync theme is selected.
+        // Liquid glass also covers the extra keys bar: the same light dark tint
+        // sits below the keys so the whole surface reads as one glass material.
         if (mTerminalToolbarGlassTint != null) {
-            mTerminalToolbarGlassTint.setVisibility(View.GONE);
+            mTerminalToolbarGlassTint.setAlpha(glassEnabled ? tintAlpha : 1f);
+            mTerminalToolbarGlassTint.setVisibility(glassEnabled ? View.VISIBLE : View.GONE);
         }
 
         // Extra keys bar wallpaper mode (only the sync theme triggers it).
@@ -1631,11 +1694,9 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         // Glass backdrop vs inner wallpaper, on an already-loaded wallpaper.
         if (mLastBackgroundBitmap != null) {
             if (glassEnabled) {
-                // The glass blurs the wallpaper behind the window (always blurred:
-                // uses the blur radius pref when blur is on, otherwise 16dp).
-                int glassBlurRadius = getPreferences().isBackgroundBlurEnabled()
-                    ? Math.max(1, getPreferences().getBackgroundBlurRadius()) : 16;
-                applyGlassBackdrop(mLastBackgroundBitmap, glassBlurRadius * density);
+                // The glass blurs the wallpaper behind the window with a light blur
+                // (8-12dp) and, on API 33+, refracts the rim through the lens shader.
+                applyGlassBackdrop(mLastBackgroundBitmap, getGlassBlurRadiusDp() * density);
                 if (mTerminalBackgroundImage != null) {
                     mTerminalBackgroundImage.setVisibility(View.GONE);
                 }
@@ -1730,8 +1791,31 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
             mTerminalGlassBackdrop.setImageBitmap(bitmap);
             mTerminalGlassBackdrop.setScaleType(ImageView.ScaleType.MATRIX);
             mTerminalGlassBackdrop.setImageMatrix(matrix);
-            mTerminalGlassBackdrop.setRenderEffect(blurPx > 0
-                ? RenderEffect.createBlurEffect(blurPx, blurPx, Shader.TileMode.CLAMP) : null);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                // Liquid glass optics: light blur + AGSL edge refraction (convex
+                // lens distortion and chromatic aberration inside the 0-18dp rim).
+                try {
+                    float density = getResources().getDisplayMetrics().density;
+                    float cornerPx = getPreferences() != null && getPreferences().isTerminalBorderCornerEnabled()
+                        ? getPreferences().getTerminalBorderCornerRadius() * density : 0f;
+                    RuntimeShader lensShader = new RuntimeShader(GLASS_LENS_SHADER);
+                    lensShader.setFloatUniform("uSize", (float) cardW, (float) cardH);
+                    lensShader.setFloatUniform("uRadius", cornerPx);
+                    lensShader.setFloatUniform("uRim", 18f * density);
+                    float effectiveBlur = Math.max(1f, blurPx);
+                    lensShader.setInputShader("content",
+                        RenderEffect.createBlurEffect(effectiveBlur, effectiveBlur, Shader.TileMode.CLAMP));
+                    mTerminalGlassBackdrop.setRenderEffect(
+                        RenderEffect.createRuntimeShaderEffect(lensShader, "content"));
+                } catch (Throwable t) {
+                    // Fall back to a light blur if the lens shader cannot run.
+                    mTerminalGlassBackdrop.setRenderEffect(blurPx > 0
+                        ? RenderEffect.createBlurEffect(blurPx, blurPx, Shader.TileMode.CLAMP) : null);
+                }
+            } else {
+                mTerminalGlassBackdrop.setRenderEffect(blurPx > 0
+                    ? RenderEffect.createBlurEffect(blurPx, blurPx, Shader.TileMode.CLAMP) : null);
+            }
         } else {
             int ix = Math.max(0, Math.min(bw - 1, (int) srcX));
             int iy = Math.max(0, Math.min(bh - 1, (int) srcY));

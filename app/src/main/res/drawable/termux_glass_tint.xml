@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Frosted-glass tint: brighter at the top (light catches the upper pane),
-     fading toward the bottom, like a real glass panel over a blurred backdrop. -->
+<!-- Liquid Glass tint: a very light dark tint (argb(45, 10, 15, 25)) that keeps
+     white terminal text readable without the washed-out look of a white overlay. -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <gradient
-        android:angle="270"
-        android:type="linear"
-        android:startColor="#30FFFFFF"
-        android:endColor="#12FFFFFF" />
+    <solid android:color="#2D0A0F19" />
 </shape>
