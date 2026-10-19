@@ -1609,11 +1609,13 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         "        sdRoundRect(p + e.yx, halfSize, uRadius) - sdRoundRect(p - e.yx, halfSize, uRadius));\n" +
         "    float gradLen = length(grad);\n" +
         "    grad = gradLen > 0.0001 ? grad / gradLen : vec2(0.0);\n" +
-        "    // Convex lens bulge: sample slightly outward (grad points outward).\n" +
-        "    float lens = strength * uRim * 0.45;\n" +
-        "    // Chromatic aberration: R/B channels offset in opposite directions at the rim.\n" +
-        "    float ca = strength * 2.2;\n" +
-        "    vec2 dir = grad / uSize;\n" +
+        "    // iOS-style lens: sample INWARD (refractionOutward = false). The rim\n" +
+        "    // becomes a compressed mirror of the interior; displacement piles up at\n" +
+        "    // the edge along an inverse-power profile.\n" +
+        "    float lens = strength * strength * uRim * 0.35;\n" +
+        "    // Light chromatic dispersion: R/B offset in opposite directions at the rim.\n" +
+        "    float ca = strength * 1.2;\n" +
+        "    vec2 dir = -grad / uSize;\n" +
         "    vec2 uvR = uv + dir * (lens + ca);\n" +
         "    vec2 uvG = uv + dir * lens;\n" +
         "    vec2 uvB = uv + dir * (lens - ca);\n" +
@@ -1624,13 +1626,49 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         "}\n";
 
     /**
-     * Light backdrop blur for the glass, in RAW PIXELS (8-12px per the Liquid Glass
-     * spec). Density-scaled 8-12dp turns into a 24-36px sigma and mushes a bright
-     * wallpaper into a flat opaque-looking slab, which reads as "grey" — the lens
-     * clarity comes from a genuinely light blur.
+     * Light backdrop blur for the glass, in RAW PIXELS. Real Liquid Glass presets
+     * (expo-liquid-glass, liquidGL 'crystal', QWEA0 XML samples) use ~2-4px frost —
+     * the liquid clarity comes from the refraction lens, not from heavy blur.
      */
     private float getGlassBlurPx() {
-        return 10f;
+        return 3f;
+    }
+
+    /**
+     * Average perceived luminance of the wallpaper region shown behind the window,
+     * sampled on a ~40x40 grid (cheap enough to run per layout change).
+     */
+    private float computeRegionLuminance(Bitmap bitmap, float srcX, float srcY, float srcW, float srcH) {
+        int bw = bitmap.getWidth();
+        int bh = bitmap.getHeight();
+        int ix = Math.max(0, Math.min(bw - 1, (int) srcX));
+        int iy = Math.max(0, Math.min(bh - 1, (int) srcY));
+        int iw = Math.min(bw - ix, Math.max(1, (int) srcW));
+        int ih = Math.min(bh - iy, Math.max(1, (int) srcH));
+        int stepX = Math.max(1, iw / 40);
+        int stepY = Math.max(1, ih / 40);
+        int[] row = new int[iw];
+        float sum = 0f;
+        int count = 0;
+        for (int y = 0; y < ih; y += stepY) {
+            bitmap.getPixels(row, 0, iw, ix, iy + y, iw, 1);
+            for (int x = 0; x < iw; x += stepX) {
+                int c = row[x];
+                sum += 0.2126f * Color.red(c) + 0.7152f * Color.green(c) + 0.0722f * Color.blue(c);
+                count++;
+            }
+        }
+        return count > 0 ? sum / count : 128f;
+    }
+
+    /**
+     * REGULAR-material adaptive veil: brighter backdrop -> stronger dark tint
+     * (up to ~55%), darker backdrop -> nearly clear (~15%). Keeps white terminal
+     * text readable without smothering dark wallpaper regions.
+     */
+    private float adaptiveTintAlpha(float luminance) {
+        float t = Math.max(0f, Math.min(1f, luminance / 255f));
+        return 0.15f + t * 0.40f;
     }
 
     /**
@@ -1645,9 +1683,10 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         boolean glassEnabled = getPreferences().isGlassEffectEnabled();
         float tintAlpha = Math.max(0f, Math.min(1f, getPreferences().getGlassTintOpacity() / 100f));
 
-        // Frosted-glass tint: very light dark tint to keep white text readable.
+        // Frosted-glass tint: very light dark veil, alpha adapted to the backdrop
+        // luminance by applyGlassBackdrop() (REGULAR-material adaptive tint).
         if (mTerminalGlassTint != null) {
-            mTerminalGlassTint.setAlpha(glassEnabled ? tintAlpha : 1f);
+            mTerminalGlassTint.setAlpha(glassEnabled ? 0.25f * tintAlpha : 1f);
             mTerminalGlassTint.setVisibility(glassEnabled ? View.VISIBLE : View.GONE);
         }
 
@@ -1701,10 +1740,10 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
             mTerminalBorderOverlay.invalidate();
         }
 
-        // Liquid glass also covers the extra keys bar: the same light dark tint
+        // Liquid glass also covers the extra keys bar: a fixed light dark veil
         // sits below the keys so the whole surface reads as one glass material.
         if (mTerminalToolbarGlassTint != null) {
-            mTerminalToolbarGlassTint.setAlpha(glassEnabled ? tintAlpha : 1f);
+            mTerminalToolbarGlassTint.setAlpha(glassEnabled ? 0.18f * tintAlpha : 1f);
             mTerminalToolbarGlassTint.setVisibility(glassEnabled ? View.VISIBLE : View.GONE);
         }
 
@@ -1857,6 +1896,13 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
             mTerminalGlassBackdrop.setImageBitmap(crop);
             mTerminalGlassBackdrop.setScaleType(ImageView.ScaleType.CENTER_CROP);
             mTerminalGlassBackdrop.setImageMatrix(null);
+        }
+        // REGULAR-material adaptive tint: strengthen the dark veil over bright
+        // backdrop regions so white text always stays readable.
+        float luminance = computeRegionLuminance(bitmap, srcX, srcY, srcW, srcH);
+        float tintStrength = getPreferences() != null ? getPreferences().getGlassTintOpacity() / 100f : 1f;
+        if (mTerminalGlassTint != null) {
+            mTerminalGlassTint.setAlpha(Math.max(0f, Math.min(1f, adaptiveTintAlpha(luminance) * tintStrength)));
         }
         mTerminalGlassBackdrop.setVisibility(View.VISIBLE);
     }

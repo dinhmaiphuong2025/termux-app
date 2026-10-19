@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Liquid Glass tint: a very light dark tint (argb(45, 10, 15, 25)) that keeps
-     white terminal text readable without the washed-out look of a white overlay. -->
+<!-- Liquid Glass tint base color (10, 15, 25): the view alpha carries the
+     adaptive veil strength computed from the backdrop luminance. -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <solid android:color="#2D0A0F19" />
+    <solid android:color="#0A0F19" />
 </shape>
