@@ -143,28 +143,39 @@ public class TermuxTabBarController {
     }
 
     private Drawable createTabDrawable(boolean isActive, int cornerRadius, int strokeWidth, int strokeColor) {
-        // Liquid Glass on: tab buttons become glass droplets (dark translucent
-        // fill + diagonal specular rim + top inner highlight).
-        if (mActivity.getPreferences() != null && mActivity.getPreferences().isGlassEffectEnabled()) {
-            float density = mActivity.getResources().getDisplayMetrics().density;
-            return new LiquidGlassButtonDrawable(cornerRadius, strokeWidth, density,
-                0x2D0A0F19, 0x4A0A0F19, isActive);
-        }
-
         GradientDrawable gd = new GradientDrawable();
         gd.setShape(GradientDrawable.RECTANGLE);
         gd.setCornerRadius(cornerRadius);
 
+        boolean glassEnabled = mActivity.getPreferences() != null && mActivity.getPreferences().isGlassEffectEnabled();
+        float density = mActivity.getResources().getDisplayMetrics().density;
+        int effectiveStrokeWidth = strokeWidth > 0 ? strokeWidth : (glassEnabled ? Math.max(1, Math.round(1f * density)) : 0);
+
         if (isActive) {
-            int bgTint = Color.argb(0x33, Color.red(strokeColor), Color.green(strokeColor), Color.blue(strokeColor));
-            gd.setColor(bgTint);
-            if (strokeWidth > 0) {
-                gd.setStroke(strokeWidth, strokeColor);
+            if (glassEnabled) {
+                int activeTint = strokeWidth > 0
+                    ? Color.argb(0x55, Color.red(strokeColor), Color.green(strokeColor), Color.blue(strokeColor))
+                    : 0x4A0A0F19;
+                gd.setColor(activeTint);
+                gd.setStroke(effectiveStrokeWidth, strokeWidth > 0 ? strokeColor : 0x80FFFFFF);
+            } else {
+                int bgTint = Color.argb(0x33, Color.red(strokeColor), Color.green(strokeColor), Color.blue(strokeColor));
+                gd.setColor(bgTint);
+                if (strokeWidth > 0) {
+                    gd.setStroke(strokeWidth, strokeColor);
+                }
             }
         } else {
-            gd.setColor(0x22FFFFFF);
-            if (strokeWidth > 0) {
-                gd.setStroke(strokeWidth, 0x33FFFFFF);
+            if (glassEnabled) {
+                gd.setColor(0x220A0F19);
+                gd.setStroke(effectiveStrokeWidth, strokeWidth > 0
+                    ? Color.argb(0x44, Color.red(strokeColor), Color.green(strokeColor), Color.blue(strokeColor))
+                    : 0x2AFFFFFF);
+            } else {
+                gd.setColor(0x22FFFFFF);
+                if (strokeWidth > 0) {
+                    gd.setStroke(strokeWidth, 0x33FFFFFF);
+                }
             }
         }
         return gd;

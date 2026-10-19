@@ -1473,12 +1473,13 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
     }
 
     /**
-     * Whether the toolbar should show the wallpaper slice behind it: only when the bar
-     * color theme is set to "sync_wallpaper". Liquid glass and blur never alter the bar.
+     * Whether the toolbar should show the wallpaper slice behind it: when the bar
+     * color theme is set to "sync_wallpaper" OR when liquid glass is enabled.
      */
     private boolean isBarBackgroundEnabled() {
         return getPreferences() != null
-            && "sync_wallpaper".equals(getPreferences().getExtraKeysColorTheme());
+            && (getPreferences().isGlassEffectEnabled()
+                || "sync_wallpaper".equals(getPreferences().getExtraKeysColorTheme()));
     }
 
     /**
@@ -1594,19 +1595,50 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         mTerminalToolbarBackgroundImage.setScaleType(ImageView.ScaleType.MATRIX);
         mTerminalToolbarBackgroundImage.setImageMatrix(barMatrix);
         mTerminalToolbarBackgroundImage.setImageBitmap(bitmap);
-        // Pure wallpaper in sync mode: no saturation or tint from the glass effect.
         mTerminalToolbarBackgroundImage.setColorFilter(null);
+
+        boolean glassEnabled = getPreferences() != null && getPreferences().isGlassEffectEnabled();
+        float density = getResources().getDisplayMetrics().density;
+        float barBlurPx = glassEnabled ? getGlassBlurPx(density) : blurPx;
+
+        float barSrcX = (barLoc[0] - dx) / scale;
+        float barSrcY = (barLoc[1] - dy) / scale;
+        float barSrcW = barW / scale;
+        float barSrcH = barH / scale;
+        float barLuminance = computeRegionLuminance(bitmap, barSrcX, barSrcY, barSrcW, barSrcH);
+        float barVeilAlpha = adaptiveTintAlpha(barLuminance);
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            if (blurRadius > 0) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && glassEnabled) {
+                try {
+                    int barRadius = getPreferences().isExtraKeysBarCornerEnabled()
+                        ? (int) (getPreferences().getExtraKeysBarBorderCornerRadius() * density) : 0;
+                    RuntimeShader lensShader = new RuntimeShader(GLASS_LENS_SHADER);
+                    lensShader.setFloatUniform("uSize", (float) barW, (float) barH);
+                    lensShader.setFloatUniform("uRadius", (float) barRadius);
+                    lensShader.setFloatUniform("uRim", Math.min(16f * density, barH * 0.45f));
+                    lensShader.setFloatUniform("uVeilAlpha", barVeilAlpha);
+                    float effectiveBlur = Math.max(1f, barBlurPx);
+                    RenderEffect blurEffect = RenderEffect.createBlurEffect(
+                        effectiveBlur, effectiveBlur, Shader.TileMode.CLAMP);
+                    RenderEffect lensEffect = RenderEffect.createRuntimeShaderEffect(lensShader, "content");
+                    mTerminalToolbarBackgroundImage.setRenderEffect(
+                        RenderEffect.createChainEffect(lensEffect, blurEffect));
+                } catch (Throwable t) {
+                    mTerminalToolbarBackgroundImage.setRenderEffect(barBlurPx > 0
+                        ? RenderEffect.createBlurEffect(barBlurPx, barBlurPx, Shader.TileMode.CLAMP) : null);
+                }
+            } else if (barBlurPx > 0) {
                 mTerminalToolbarBackgroundImage.setRenderEffect(
-                    RenderEffect.createBlurEffect(blurPx, blurPx, Shader.TileMode.CLAMP));
+                    RenderEffect.createBlurEffect(barBlurPx, barBlurPx, Shader.TileMode.CLAMP));
             } else {
                 mTerminalToolbarBackgroundImage.setRenderEffect(null);
             }
         }
         mTerminalToolbarBackgroundImage.setVisibility(View.VISIBLE);
         if (mTerminalToolbarBackgroundOverlay != null) {
-            mTerminalToolbarBackgroundOverlay.setVisibility(View.VISIBLE);
+            // When liquid glass is active, the shader directly blends the adaptive veil in GPU.
+            mTerminalToolbarBackgroundOverlay.setVisibility(glassEnabled ? View.GONE : View.VISIBLE);
         }
         syncToolbarBackgroundViews();
     }
@@ -2011,13 +2043,14 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
 
         if (enabled) {
             float density = getResources().getDisplayMetrics().density;
+            boolean glassEnabled = getPreferences().isGlassEffectEnabled();
             boolean cornerEnabled = getPreferences().isExtraKeysBarCornerEnabled();
             int barRadius = cornerEnabled
                 ? (int) (getPreferences().getExtraKeysBarBorderCornerRadius() * density) : 0;
 
-            // Semi-transparent dark glass card background so rounded corners are clearly
-            // visible against the wallpaper instead of being an invisible square box:
-            mTerminalToolbarCard.setCardBackgroundColor(0x400A0F19);
+            // In liquid glass mode, the AGSL shader renders the veil and Fresnel glint in GPU.
+            // In plain wallpaper-sync mode, use a translucent dark background so corners are visible.
+            mTerminalToolbarCard.setCardBackgroundColor(glassEnabled ? Color.TRANSPARENT : 0x400A0F19);
             mTerminalToolbarCard.setRadius(barRadius);
             mTerminalToolbarCard.setClipToOutline(barRadius > 0);
 
@@ -2031,8 +2064,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
                 }
                 mTerminalToolbarCard.setStrokeWidth(barStrokeWidth);
                 mTerminalToolbarCard.setStrokeColor(barStrokeColor);
-            } else if (cornerEnabled && barRadius > 0) {
-                // Subtle 1dp glass rim so the rounded corners are beautifully defined:
+            } else if (!glassEnabled && cornerEnabled && barRadius > 0) {
                 mTerminalToolbarCard.setStrokeWidth(Math.max(1, Math.round(1f * density)));
                 mTerminalToolbarCard.setStrokeColor(0x33FFFFFF);
             } else {

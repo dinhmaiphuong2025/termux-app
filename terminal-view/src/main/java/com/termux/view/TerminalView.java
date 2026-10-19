@@ -194,6 +194,12 @@ public final class TerminalView extends View {
                     // since we cannot just start sending these events without a starting press event,
                     // which we do not do for touch input, only mouse in onTouchEvent().
                     sendMouseEventCode(e, TerminalEmulator.MOUSE_LEFT_BUTTON_MOVED, true);
+                } else if (!mSmoothScrollEnabled) {
+                    scrolledWithFinger = true;
+                    distanceY += mScrollRemainder;
+                    int deltaRows = (int) (distanceY / mRenderer.mFontLineSpacing);
+                    mScrollRemainder = distanceY - deltaRows * mRenderer.mFontLineSpacing;
+                    doScrollRows(e, deltaRows);
                 } else {
                     scrolledWithFinger = true;
                     doScroll(e, distanceY);
@@ -219,41 +225,53 @@ public final class TerminalView extends View {
 
                 final boolean mouseTrackingAtStartOfFling = mEmulator.isMouseTrackingActive();
                 float SCALE = 0.25f;
-                final float lineSpacing = mRenderer.mFontLineSpacing;
-                if (mouseTrackingAtStartOfFling) {
-                    mScroller.fling(0, 0, 0, -(int) (velocityY * SCALE), 0, 0, -mEmulator.mRows / 2, mEmulator.mRows / 2);
-                } else {
-                    // Fling in pixel space so the terminal scrolls smoothly across
-                    // fractional rows instead of jumping one whole row per frame.
-                    int startPx = Math.round(mTopRowPosition * lineSpacing);
-                    int minPx = (int) (-mEmulator.getScreen().getActiveTranscriptRows() * lineSpacing);
-                    mScroller.fling(0, startPx, 0, -(int) (velocityY * SCALE * lineSpacing), 0, 0, minPx, 0);
+
+                if (!mSmoothScrollEnabled || mouseTrackingAtStartOfFling) {
+                    // Legacy Termux whole-row fling: strict integer row steps, no drifting.
+                    int totalTranscript = mEmulator.getScreen().getActiveTranscriptRows();
+                    int min = mouseTrackingAtStartOfFling ? -mEmulator.mRows / 2 : -totalTranscript;
+                    int max = mouseTrackingAtStartOfFling ? mEmulator.mRows / 2 : 0;
+                    int start = mouseTrackingAtStartOfFling ? 0 : mTopRow;
+                    mScroller.fling(0, start, 0, -(int) (velocityY * SCALE), 0, 0, min, max);
+
+                    post(new Runnable() {
+                        private int mLastY = mouseTrackingAtStartOfFling ? 0 : mTopRow;
+
+                        @Override
+                        public void run() {
+                            if (mouseTrackingAtStartOfFling != mEmulator.isMouseTrackingActive()) {
+                                mScroller.abortAnimation();
+                                return;
+                            }
+                            if (mScroller.isFinished()) return;
+                            boolean more = mScroller.computeScrollOffset();
+                            int newY = mScroller.getCurrY();
+                            int diff = newY - mLastY;
+                            doScrollRows(e2, diff);
+                            mLastY = newY;
+                            if (more) post(this);
+                        }
+                    });
+                    return true;
                 }
 
-                post(new Runnable() {
-                    private int mLastY = 0;
+                // Smooth scroll fling in pixel space: velocity is already in px/s,
+                // scaled by 0.3f for a short, responsive, natural glide (no runaway drifting).
+                final float lineSpacing = mRenderer.mFontLineSpacing;
+                int startPx = Math.round(mTopRowPosition * lineSpacing);
+                int minPx = (int) (-mEmulator.getScreen().getActiveTranscriptRows() * lineSpacing);
+                mScroller.fling(0, startPx, 0, -(int) (velocityY * 0.3f), 0, 0, minPx, 0);
 
+                post(new Runnable() {
                     @Override
                     public void run() {
-                        if (mouseTrackingAtStartOfFling != mEmulator.isMouseTrackingActive()) {
-                            mScroller.abortAnimation();
-                            return;
-                        }
                         if (mScroller.isFinished()) {
                             snapToRow();
                             return;
                         }
                         boolean more = mScroller.computeScrollOffset();
                         int newY = mScroller.getCurrY();
-                        if (mouseTrackingAtStartOfFling) {
-                            int diff = newY - mLastY;
-                            doScroll(e2, diff * lineSpacing);
-                        } else if (mSmoothScrollEnabled) {
-                            applyTopRowF(newY / lineSpacing);
-                        } else {
-                            applyTopRowF(Math.round(newY / lineSpacing));
-                        }
-                        mLastY = newY;
+                        applyTopRowF(newY / lineSpacing);
                         if (more) post(this);
                         else snapToRow();
                     }
@@ -665,7 +683,24 @@ public final class TerminalView extends View {
                 mScrollRemainder += distanceY;
                 int deltaRows = (int) (mScrollRemainder / mRenderer.mFontLineSpacing);
                 mScrollRemainder -= deltaRows * mRenderer.mFontLineSpacing;
-                if (deltaRows != 0) applyTopRowF(mTopRow + deltaRows);
+                if (deltaRows != 0) doScrollRows(event, deltaRows);
+            }
+        }
+    }
+
+    /** Legacy whole-row scroll step used when smooth scrolling is disabled. */
+    void doScrollRows(MotionEvent event, int rowsDown) {
+        if (mEmulator == null) return;
+        boolean up = rowsDown < 0;
+        int amount = Math.abs(rowsDown);
+        for (int i = 0; i < amount; i++) {
+            if (mEmulator.isMouseTrackingActive()) {
+                sendMouseEventCode(event, up ? TerminalEmulator.MOUSE_WHEELUP_BUTTON : TerminalEmulator.MOUSE_WHEELDOWN_BUTTON, true);
+            } else if (mEmulator.isAlternateBufferActive()) {
+                handleKeyCode(up ? KeyEvent.KEYCODE_DPAD_UP : KeyEvent.KEYCODE_DPAD_DOWN, 0);
+            } else {
+                setTopRow(Math.min(0, Math.max(-(mEmulator.getScreen().getActiveTranscriptRows()), mTopRow + (up ? -1 : 1))));
+                if (!awakenScrollBars()) invalidate();
             }
         }
     }
@@ -824,7 +859,9 @@ public final class TerminalView extends View {
         if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
             // When the finger lifts after a drag, snap the fractional scroll offset
             // back to a whole row so all row-based logic stays consistent.
-            snapToRow();
+            if (mSmoothScrollEnabled) {
+                snapToRow();
+            }
         }
 
         mGestureRecognizer.onTouchEvent(event);
