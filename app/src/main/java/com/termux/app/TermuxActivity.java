@@ -194,6 +194,8 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
             int oldLeft, int oldTop, int oldRight, int oldBottom) {
             if (isFinishing() || mLastBackgroundBitmap == null || getPreferences() == null) return;
             float density = getResources().getDisplayMetrics().density;
+            if (mTerminalCardContainer != null) mTerminalCardContainer.invalidateOutline();
+            if (mTerminalToolbarCard != null) mTerminalToolbarCard.invalidateOutline();
             if (isBarBackgroundEnabled()) {
                 applyToolbarBackgroundSlice(mLastBackgroundBitmap, mLastBackgroundBlurRadius,
                     mLastBackgroundBlurRadius * density);
@@ -1644,18 +1646,22 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
     }
 
     /**
-     * AGSL lens shader for the Liquid Glass optics (API 33+): computes the signed
-     * distance field of the rounded window rectangle, then inside the 0-18dp rim
-     * band bends the sampling coordinates along the SDF normal (convex lens
-     * distortion) and offsets the R/B channels in opposite directions for a light
-     * chromatic aberration at the edge. The center stays clear with only a light
-     * input blur underneath.
+     * AGSL lens shader for Apple Liquid Glass optics (API 33+):
+     * Computes the signed distance field (SDF) of the rounded window rectangle.
+     * At the rim band [0..uRim] (16dp):
+     * - Inward optical refraction (refractionOutward = false, matching iOS).
+     * - Smooth chromatic dispersion (R/B split at the edge).
+     * - Fresnel specular glint curving precisely around the SDF rounded corners.
+     * - Smooth dark glass veil mixed directly in the shader so no separate
+     *   tint/shape layer is needed, guaranteeing zero edge-bleeding outside corners.
+     * Outside the rounded rectangle (d > 0): strictly transparent (half4(0.0)).
      */
     private static final String GLASS_LENS_SHADER =
         "uniform shader content;\n" +
         "uniform vec2 uSize;\n" +
         "uniform float uRadius;\n" +
         "uniform float uRim;\n" +
+        "uniform float uVeilAlpha;\n" +
         "\n" +
         "float sdRoundRect(vec2 p, vec2 halfSize, float r) {\n" +
         "    vec2 q = abs(p) - halfSize + vec2(r);\n" +
@@ -1663,35 +1669,41 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         "}\n" +
         "\n" +
         "half4 main(float2 fragCoord) {\n" +
-        "    vec2 p = fragCoord - uSize * 0.5;\n" +
         "    vec2 halfSize = uSize * 0.5;\n" +
+        "    vec2 p = fragCoord - halfSize;\n" +
         "    float d = sdRoundRect(p, halfSize, uRadius);\n" +
-        "    // Outside the rounded rectangle: transparent so corners are strictly clipped\n" +
         "    if (d > 0.0) {\n" +
         "        return half4(0.0);\n" +
         "    }\n" +
         "    float dist = -d;\n" +
-        "    // Flat center of the glass: crystal clear, no rim refraction\n" +
-        "    if (dist >= uRim) {\n" +
-        "        return content.eval(fragCoord);\n" +
+        "    half4 col;\n" +
+        "    float fresnel = 0.0;\n" +
+        "    float light = 0.0;\n" +
+        "    if (dist < uRim) {\n" +
+        "        float t = 1.0 - (dist / uRim);\n" +
+        "        float strength = t * t;\n" +
+        "        vec2 e = vec2(1.0, 0.0);\n" +
+        "        vec2 grad = vec2(\n" +
+        "            sdRoundRect(p + e, halfSize, uRadius) - sdRoundRect(p - e, halfSize, uRadius),\n" +
+        "            sdRoundRect(p + e.yx, halfSize, uRadius) - sdRoundRect(p - e.yx, halfSize, uRadius));\n" +
+        "        float gradLen = length(grad);\n" +
+        "        grad = gradLen > 0.0001 ? grad / gradLen : vec2(0.0);\n" +
+        "        float lens = strength * uRim * 0.35;\n" +
+        "        float ca = strength * 1.5;\n" +
+        "        vec2 dir = -grad;\n" +
+        "        half4 cR = content.eval(fragCoord + dir * (lens + ca));\n" +
+        "        half4 cG = content.eval(fragCoord + dir * lens);\n" +
+        "        half4 cB = content.eval(fragCoord + dir * (lens - ca));\n" +
+        "        col = half4(cR.r, cG.g, cB.b, 1.0);\n" +
+        "        fresnel = pow(t, 5.0);\n" +
+        "        light = max(0.0, -grad.y * 0.65 - grad.x * 0.35 + 0.15);\n" +
+        "    } else {\n" +
+        "        col = content.eval(fragCoord);\n" +
         "    }\n" +
-        "    // Rim band [0..uRim]: strength is 1.0 at edge, smoothly decaying to 0.0 inward\n" +
-        "    float t = 1.0 - (dist / uRim);\n" +
-        "    float strength = t * t;\n" +
-        "    vec2 e = vec2(1.0, 0.0);\n" +
-        "    vec2 grad = vec2(\n" +
-        "        sdRoundRect(p + e, halfSize, uRadius) - sdRoundRect(p - e, halfSize, uRadius),\n" +
-        "        sdRoundRect(p + e.yx, halfSize, uRadius) - sdRoundRect(p - e.yx, halfSize, uRadius));\n" +
-        "    float gradLen = length(grad);\n" +
-        "    grad = gradLen > 0.0001 ? grad / gradLen : vec2(0.0);\n" +
-        "    // Inward refraction in physical pixels:\n" +
-        "    float lens = strength * uRim * 0.35;\n" +
-        "    float ca = strength * 1.5;\n" +
-        "    vec2 dir = -grad;\n" +
-        "    half4 cR = content.eval(fragCoord + dir * (lens + ca));\n" +
-        "    half4 cG = content.eval(fragCoord + dir * lens);\n" +
-        "    half4 cB = content.eval(fragCoord + dir * (lens - ca));\n" +
-        "    return half4(cR.r, cG.g, cB.b, max(cR.a, max(cG.a, cB.a)));\n" +
+        "    half3 veil = half3(0.04, 0.06, 0.10);\n" +
+        "    half3 outColor = mix(col.rgb, veil, uVeilAlpha);\n" +
+        "    outColor += half3(1.0) * (fresnel * 0.35 * light);\n" +
+        "    return half4(outColor, 1.0);\n" +
         "}\n";
 
     /**
@@ -1756,11 +1768,15 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         boolean glassEnabled = getPreferences().isGlassEffectEnabled();
         float tintAlpha = Math.max(0f, Math.min(1f, getPreferences().getGlassTintOpacity() / 100f));
 
-        // Frosted-glass tint: very light dark veil, alpha adapted to the backdrop
-        // luminance by applyGlassBackdrop() (REGULAR-material adaptive tint).
+        // In Liquid Glass mode, the AGSL shader renders the adaptive veil and optical
+        // Fresnel glint directly in GPU memory, perfectly clipped to the SDF roundRect.
+        // The separate 2D shape layer views (mTerminalGlassTint, mTerminalToolbarGlassTint)
+        // are hidden so there is zero artificial 2D overlay or edge-bleeding.
         if (mTerminalGlassTint != null) {
-            mTerminalGlassTint.setAlpha(glassEnabled ? 0.25f * tintAlpha : 1f);
-            mTerminalGlassTint.setVisibility(glassEnabled ? View.VISIBLE : View.GONE);
+            mTerminalGlassTint.setVisibility(View.GONE);
+        }
+        if (mTerminalToolbarGlassTint != null) {
+            mTerminalToolbarGlassTint.setVisibility(View.GONE);
         }
 
         // Subtle drop shadow behind terminal text so it never washes out on the
@@ -1776,13 +1792,14 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
             mTermuxTerminalSessionActivityClient.updateBackgroundColor();
         }
 
-        // Glass edge: gradient stroke around the window (bright top, faint bottom),
-        // drawn even when the border itself is disabled.
-        if (mTerminalBorderDrawable != null && mTerminalBorderOverlay != null) {
-            mTerminalBorderDrawable.setGlassEdge(glassEnabled);
-            if (glassEnabled) {
-                int strokeWidth = getPreferences().isTerminalBorderEnabled()
-                    ? (int) (getPreferences().getTerminalBorderWidth() * density) : 0;
+        // Terminal border overlay: ONLY visible when the user explicitly enables
+        // a window border in Settings. When border is off, the glass edge is defined
+        // 100% by optical refraction + Fresnel glint inside the shader.
+        if (mTerminalBorderOverlay != null) {
+            boolean borderEnabled = getPreferences().isTerminalBorderEnabled();
+            mTerminalBorderOverlay.setVisibility(borderEnabled ? View.VISIBLE : View.GONE);
+            if (borderEnabled && mTerminalBorderDrawable != null) {
+                int strokeWidth = (int) (getPreferences().getTerminalBorderWidth() * density);
                 int cornerRadius = getPreferences().isTerminalBorderCornerEnabled()
                     ? (int) (getPreferences().getTerminalBorderCornerRadius() * density) : 0;
                 String colorStr = getPreferences().getTerminalBorderColor();
@@ -1794,16 +1811,8 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
                 }
                 mTerminalBorderDrawable.setConfig(density, strokeWidth, cornerRadius, strokeColor,
                     getPreferences().getTerminalBorderStyle());
-                mTerminalBorderOverlay.setVisibility(View.VISIBLE);
+                mTerminalBorderOverlay.invalidate();
             }
-            mTerminalBorderOverlay.invalidate();
-        }
-
-        // Liquid glass also covers the extra keys bar: a fixed light dark veil
-        // sits below the keys so the whole surface reads as one glass material.
-        if (mTerminalToolbarGlassTint != null) {
-            mTerminalToolbarGlassTint.setAlpha(glassEnabled ? 0.18f * tintAlpha : 1f);
-            mTerminalToolbarGlassTint.setVisibility(glassEnabled ? View.VISIBLE : View.GONE);
         }
 
         // Extra keys bar wallpaper mode (only the sync theme triggers it).
@@ -1920,13 +1929,16 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
             }
         }
 
+        // REGULAR-material adaptive tint: compute dark veil alpha from backdrop luminance
+        float luminance = computeRegionLuminance(bitmap, srcX, srcY, srcW, srcH);
+        float veilAlpha = adaptiveTintAlpha(luminance);
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             mTerminalGlassBackdrop.setImageBitmap(bitmap);
             mTerminalGlassBackdrop.setScaleType(ImageView.ScaleType.MATRIX);
             mTerminalGlassBackdrop.setImageMatrix(matrix);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                // Liquid glass optics: light blur + AGSL edge refraction (convex
-                // lens distortion and chromatic aberration inside the 0-18dp rim).
+                // Liquid glass optics: light blur + AGSL edge refraction + Fresnel rim + veil in GPU.
                 try {
                     float density = getResources().getDisplayMetrics().density;
                     float cornerPx = getPreferences() != null && getPreferences().isTerminalBorderCornerEnabled()
@@ -1934,21 +1946,31 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
                     RuntimeShader lensShader = new RuntimeShader(GLASS_LENS_SHADER);
                     lensShader.setFloatUniform("uSize", (float) cardW, (float) cardH);
                     lensShader.setFloatUniform("uRadius", cornerPx);
-                    lensShader.setFloatUniform("uRim", 18f * density);
+                    lensShader.setFloatUniform("uRim", 16f * density);
+                    lensShader.setFloatUniform("uVeilAlpha", veilAlpha);
                     float effectiveBlur = Math.max(1f, blurPx);
                     RenderEffect blurEffect = RenderEffect.createBlurEffect(
                         effectiveBlur, effectiveBlur, Shader.TileMode.CLAMP);
                     RenderEffect lensEffect = RenderEffect.createRuntimeShaderEffect(lensShader, "content");
                     mTerminalGlassBackdrop.setRenderEffect(
                         RenderEffect.createChainEffect(lensEffect, blurEffect));
+                    if (mTerminalGlassTint != null) mTerminalGlassTint.setVisibility(View.GONE);
                 } catch (Throwable t) {
-                    // Fall back to a light blur if the lens shader cannot run.
+                    // Fall back to a light blur + shape layer if the lens shader cannot run.
                     mTerminalGlassBackdrop.setRenderEffect(blurPx > 0
                         ? RenderEffect.createBlurEffect(blurPx, blurPx, Shader.TileMode.CLAMP) : null);
+                    if (mTerminalGlassTint != null) {
+                        mTerminalGlassTint.setAlpha(veilAlpha);
+                        mTerminalGlassTint.setVisibility(View.VISIBLE);
+                    }
                 }
             } else {
                 mTerminalGlassBackdrop.setRenderEffect(blurPx > 0
                     ? RenderEffect.createBlurEffect(blurPx, blurPx, Shader.TileMode.CLAMP) : null);
+                if (mTerminalGlassTint != null) {
+                    mTerminalGlassTint.setAlpha(veilAlpha);
+                    mTerminalGlassTint.setVisibility(View.VISIBLE);
+                }
             }
         } else {
             int ix = Math.max(0, Math.min(bw - 1, (int) srcX));
@@ -1962,12 +1984,10 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
             mTerminalGlassBackdrop.setImageBitmap(crop);
             mTerminalGlassBackdrop.setScaleType(ImageView.ScaleType.CENTER_CROP);
             mTerminalGlassBackdrop.setImageMatrix(null);
-        }
-        // REGULAR-material adaptive tint: strengthen the dark veil over bright
-        // backdrop regions so white text always stays readable.
-        float luminance = computeRegionLuminance(bitmap, srcX, srcY, srcW, srcH);
-        if (mTerminalGlassTint != null) {
-            mTerminalGlassTint.setAlpha(adaptiveTintAlpha(luminance));
+            if (mTerminalGlassTint != null) {
+                mTerminalGlassTint.setAlpha(veilAlpha);
+                mTerminalGlassTint.setVisibility(View.VISIBLE);
+            }
         }
         mTerminalGlassBackdrop.setVisibility(View.VISIBLE);
     }
@@ -1982,14 +2002,43 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
     }
 
     /**
-     * Wallpaper-sync mode for the extra keys bar: fully transparent card, pager, bar and
-     * key backgrounds so only the wallpaper slice (with the dim overlay) shows through.
+     * Wallpaper-sync mode for the extra keys bar: translucent dark glass card,
+     * transparent pager and key buttons so the wallpaper slice shows through with
+     * cleanly defined rounded corners and an elegant 1dp glass rim.
      */
     private void applyExtraKeysBarGlass(boolean enabled) {
         if (mTerminalToolbarCard == null || getPreferences() == null) return;
 
         if (enabled) {
-            mTerminalToolbarCard.setCardBackgroundColor(Color.TRANSPARENT);
+            float density = getResources().getDisplayMetrics().density;
+            boolean cornerEnabled = getPreferences().isExtraKeysBarCornerEnabled();
+            int barRadius = cornerEnabled
+                ? (int) (getPreferences().getExtraKeysBarBorderCornerRadius() * density) : 0;
+
+            // Semi-transparent dark glass card background so rounded corners are clearly
+            // visible against the wallpaper instead of being an invisible square box:
+            mTerminalToolbarCard.setCardBackgroundColor(0x400A0F19);
+            mTerminalToolbarCard.setRadius(barRadius);
+            mTerminalToolbarCard.setClipToOutline(barRadius > 0);
+
+            if (getPreferences().isExtraKeysBarBorderEnabled()) {
+                int barStrokeWidth = (int) (getPreferences().getExtraKeysBarBorderWidth() * density);
+                int barStrokeColor;
+                try {
+                    barStrokeColor = Color.parseColor(getPreferences().getExtraKeysBarBorderColor());
+                } catch (Exception e) {
+                    barStrokeColor = 0xFFFFFFFF;
+                }
+                mTerminalToolbarCard.setStrokeWidth(barStrokeWidth);
+                mTerminalToolbarCard.setStrokeColor(barStrokeColor);
+            } else if (cornerEnabled && barRadius > 0) {
+                // Subtle 1dp glass rim so the rounded corners are beautifully defined:
+                mTerminalToolbarCard.setStrokeWidth(Math.max(1, Math.round(1f * density)));
+                mTerminalToolbarCard.setStrokeColor(0x33FFFFFF);
+            } else {
+                mTerminalToolbarCard.setStrokeWidth(0);
+            }
+
             if (mExtraKeysView != null) {
                 mExtraKeysView.setBackgroundColor(Color.TRANSPARENT);
                 // Fully transparent key backgrounds: only the glyphs float on the wallpaper.

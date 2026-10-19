@@ -26,20 +26,16 @@ public class TerminalBorderDrawable extends Drawable {
     public static final String STYLE_BRACKETS = "brackets";
 
     private final Paint mStrokePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-    private final Paint mEdgePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-    private final Paint mInnerPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
     private int mStrokeWidth = 0;
     private int mCornerRadius = 1;
     private int mStrokeColor = 0xFFFFFFFF;
     private String mStyle = STYLE_FULL;
-    private boolean mGlassEdge = false;
 
     private float mDensity = 1.0f;
 
     public TerminalBorderDrawable() {
         mStrokePaint.setStyle(Paint.Style.STROKE);
-        mEdgePaint.setStyle(Paint.Style.STROKE);
     }
 
     public void setConfig(float density, int strokeWidth, int cornerRadius, int strokeColor, String style) {
@@ -55,24 +51,10 @@ public class TerminalBorderDrawable extends Drawable {
         invalidateSelf();
     }
 
-    /**
-     * Enable or disable the liquid-glass specular rim: a two-layer highlight
-     * (diagonal gradient outer rim + bright inner band along the top edge) that
-     * gives the window the 3D thickness of a glass droplet. Drawn independently
-     * of the user border, so it also shows when the border stroke width is 0
-     * (border disabled).
-     */
-    public void setGlassEdge(boolean enabled) {
-        if (mGlassEdge == enabled) return;
-        mGlassEdge = enabled;
-        invalidateSelf();
-    }
-
     @Override
     public void draw(@NonNull Canvas canvas) {
         Rect bounds = getBounds();
-        if (bounds.width() <= 0 || bounds.height() <= 0) return;
-        if (mStrokeWidth <= 0 && !mGlassEdge) return;
+        if (bounds.width() <= 0 || bounds.height() <= 0 || mStrokeWidth <= 0) return;
 
         float halfStroke = mStrokeWidth / 2.0f;
         float left = bounds.left + halfStroke;
@@ -140,43 +122,6 @@ public class TerminalBorderDrawable extends Drawable {
                 } else {
                     canvas.drawRect(left, top, right, bottom, mStrokePaint);
                 }
-            }
-        }
-
-        if (mGlassEdge) {
-            // Liquid-glass specular rim, two layers:
-            // 1. Outer rim: 1.2dp stroke with a 135° diagonal gradient
-            //    (bright top-left, faint middle, mid bottom-right) like light
-            //    wrapping around a glass droplet.
-            float inset = mStrokeWidth / 2.0f + Math.max(1f, mDensity);
-            float eLeft = left + inset;
-            float eTop = top + inset;
-            float eRight = right - inset;
-            float eBottom = bottom - inset;
-            float eRadius = Math.max(0f, r - inset);
-            float rimWidth = 1.2f * mDensity;
-            float hw = rimWidth / 2f;
-            if (eLeft < eRight && eTop < eBottom) {
-                mEdgePaint.setStrokeWidth(rimWidth);
-                mEdgePaint.setShader(new LinearGradient(eLeft, eTop, eRight, eBottom,
-                    new int[]{0xCCFFFFFF, 0x1AFFFFFF, 0x80FFFFFF},
-                    new float[]{0f, 0.5f, 1f},
-                    Shader.TileMode.CLAMP));
-                if (eRadius > 0) {
-                    canvas.drawRoundRect(new RectF(eLeft + hw, eTop + hw, eRight - hw, eBottom - hw),
-                        eRadius, eRadius, mEdgePaint);
-                } else {
-                    canvas.drawRect(eLeft + hw, eTop + hw, eRight - hw, eBottom - hw, mEdgePaint);
-                }
-            }
-            // 2. Inner highlight: a thin bright band just inside the top edge,
-            //    giving the pane its 3D droplet thickness.
-            float hlTop = eTop + rimWidth;
-            float hlBottom = hlTop + 5f * mDensity;
-            if (hlTop < eBottom) {
-                mInnerPaint.setShader(new LinearGradient(0, hlTop, 0, Math.min(hlBottom, eBottom),
-                    0x73FFFFFF, 0x00FFFFFF, Shader.TileMode.CLAMP));
-                canvas.drawRect(eLeft + rimWidth, hlTop, eRight - rimWidth, Math.min(hlBottom, eBottom), mInnerPaint);
             }
         }
         canvas.restore();
