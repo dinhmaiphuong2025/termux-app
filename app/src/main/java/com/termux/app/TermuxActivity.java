@@ -195,7 +195,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
                     mLastBackgroundBlurRadius * density);
             }
             if (getPreferences().isGlassEffectEnabled()) {
-                applyGlassBackdrop(mLastBackgroundBitmap, getGlassBlurRadiusDp() * density);
+                applyGlassBackdrop(mLastBackgroundBitmap, getGlassBlurPx());
             }
         }
     };
@@ -1431,7 +1431,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         }
 
         if (glassEnabled) {
-            applyGlassBackdrop(bitmap, getGlassBlurRadiusDp() * getResources().getDisplayMetrics().density);
+            applyGlassBackdrop(bitmap, getGlassBlurPx());
             if (mTerminalBackgroundOverlay != null) {
                 mTerminalBackgroundOverlay.setVisibility(View.GONE);
             }
@@ -1624,13 +1624,13 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         "}\n";
 
     /**
-     * Light backdrop blur for the glass (8-12dp): heavy gaussian blur kills the
-     * liquid clarity, so the glass always uses a light blur before the lens step.
+     * Light backdrop blur for the glass, in RAW PIXELS (8-12px per the Liquid Glass
+     * spec). Density-scaled 8-12dp turns into a 24-36px sigma and mushes a bright
+     * wallpaper into a flat opaque-looking slab, which reads as "grey" — the lens
+     * clarity comes from a genuinely light blur.
      */
-    private int getGlassBlurRadiusDp() {
-        int base = getPreferences() != null && getPreferences().isBackgroundBlurEnabled()
-            ? Math.max(1, getPreferences().getBackgroundBlurRadius()) : 16;
-        return Math.max(8, Math.min(12, base));
+    private float getGlassBlurPx() {
+        return 10f;
     }
 
     /**
@@ -1722,9 +1722,9 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         // Glass backdrop vs inner wallpaper, on an already-loaded wallpaper.
         if (mLastBackgroundBitmap != null) {
             if (glassEnabled) {
-                // The glass blurs the wallpaper behind the window with a light blur
-                // (8-12dp) and, on API 33+, refracts the rim through the lens shader.
-                applyGlassBackdrop(mLastBackgroundBitmap, getGlassBlurRadiusDp() * density);
+                // The glass blurs the wallpaper behind the window with a genuinely
+                // light blur (8-12px) and, on API 33+, refracts the rim via the lens.
+                applyGlassBackdrop(mLastBackgroundBitmap, getGlassBlurPx());
                 if (mTerminalBackgroundImage != null) {
                     mTerminalBackgroundImage.setVisibility(View.GONE);
                 }
