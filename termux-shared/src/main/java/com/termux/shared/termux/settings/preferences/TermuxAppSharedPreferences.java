@@ -338,6 +338,14 @@ public class TermuxAppSharedPreferences extends AppSharedPreferences {
         SharedPreferenceUtils.setInt(mSharedPreferences, TERMUX_APP.KEY_TAB_ACTIVE_TITLE_LENGTH, value, false);
     }
 
+    public boolean isTabBarGlassEnabled() {
+        return SharedPreferenceUtils.getBoolean(mSharedPreferences, TERMUX_APP.KEY_TAB_BAR_GLASS_ENABLED, TERMUX_APP.DEFAULT_VALUE_TAB_BAR_GLASS_ENABLED);
+    }
+
+    public void setTabBarGlassEnabled(boolean value) {
+        SharedPreferenceUtils.setBoolean(mSharedPreferences, TERMUX_APP.KEY_TAB_BAR_GLASS_ENABLED, value, false);
+    }
+
     public boolean isTabAnimationEnabled() {
         return SharedPreferenceUtils.getBoolean(mSharedPreferences, TERMUX_APP.KEY_TAB_ANIMATION_ENABLED, TERMUX_APP.DEFAULT_VALUE_TAB_ANIMATION_ENABLED);
     }
@@ -786,6 +794,14 @@ public class TermuxAppSharedPreferences extends AppSharedPreferences {
 
     public void setExtraKeysFlatKeys(boolean value) {
         SharedPreferenceUtils.setBoolean(mSharedPreferences, TERMUX_APP.KEY_EXTRA_KEYS_FLAT_KEYS, value, false);
+    }
+
+    public String getExtraKeysPressedTextColor() {
+        return SharedPreferenceUtils.getString(mSharedPreferences, TERMUX_APP.KEY_EXTRA_KEYS_PRESSED_TEXT_COLOR, TERMUX_APP.DEFAULT_VALUE_EXTRA_KEYS_PRESSED_TEXT_COLOR, false);
+    }
+
+    public void setExtraKeysPressedTextColor(String value) {
+        SharedPreferenceUtils.setString(mSharedPreferences, TERMUX_APP.KEY_EXTRA_KEYS_PRESSED_TEXT_COLOR, value, true);
     }
 
     /**

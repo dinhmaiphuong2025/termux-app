@@ -167,6 +167,27 @@ public class CustomUIPreferencesFragment extends PreferenceFragmentCompat {
             });
         }
 
+        Preference pressedColorPref = findPreference("extra_keys_pressed_text_color");
+        if (pressedColorPref != null) {
+            TermuxAppSharedPreferences prefs = TermuxAppSharedPreferences.build(context, true);
+            if (prefs != null) {
+                String val = prefs.getExtraKeysPressedTextColor();
+                pressedColorPref.setSummary(TextUtils.isEmpty(val) ? "Theme Default" : val);
+            }
+            pressedColorPref.setOnPreferenceClickListener(preference -> {
+                String current = prefs != null ? prefs.getExtraKeysPressedTextColor() : "";
+                if (TextUtils.isEmpty(current)) current = "#89B4FA";
+                ColorPickerDialogUtils.showColorPickerDialog(context, "Pressed Key Text Color", current, hexColor -> {
+                    if (prefs != null) {
+                        prefs.setExtraKeysPressedTextColor(hexColor);
+                    }
+                    pressedColorPref.setSummary(hexColor);
+                    TermuxActivity.updateTermuxActivityStyling(context, false);
+                });
+                return true;
+            });
+        }
+
         Preference presetPref = findPreference("extra_keys_preset");
         if (presetPref != null) {
             presetPref.setOnPreferenceChangeListener((preference, newValue) -> {
@@ -340,6 +361,9 @@ class CustomUIPreferencesDataStore extends PreferenceDataStore {
             case "tab_border_sync":
                 mPreferences.setTabBorderSync(value);
                 break;
+            case "tab_bar_glass_enabled":
+                mPreferences.setTabBarGlassEnabled(value);
+                break;
             case "terminal_cell_background_transparency":
                 mPreferences.setTerminalCellBackgroundTransparencyEnabled(value);
                 break;
@@ -402,6 +426,8 @@ class CustomUIPreferencesDataStore extends PreferenceDataStore {
                 return mPreferences.isTerminalBorderEnabled();
             case "tab_border_sync":
                 return mPreferences.isTabBorderSync();
+            case "tab_bar_glass_enabled":
+                return mPreferences.isTabBarGlassEnabled();
             case "terminal_cell_background_transparency":
                 return mPreferences.isTerminalCellBackgroundTransparencyEnabled();
             case "terminal_smooth_scroll":
@@ -631,6 +657,9 @@ class CustomUIPreferencesDataStore extends PreferenceDataStore {
             case "extra_keys_bar_border_color":
                 mPreferences.setExtraKeysBarBorderColor(value != null ? value : "#FFFFFF");
                 break;
+            case "extra_keys_pressed_text_color":
+                mPreferences.setExtraKeysPressedTextColor(value != null ? value : "");
+                break;
             default:
                 break;
         }
@@ -675,6 +704,8 @@ class CustomUIPreferencesDataStore extends PreferenceDataStore {
                 return mPreferences.getExtraKeysColorTheme();
             case "extra_keys_bar_border_color":
                 return mPreferences.getExtraKeysBarBorderColor();
+            case "extra_keys_pressed_text_color":
+                return mPreferences.getExtraKeysPressedTextColor();
             default:
                 return defValue;
         }

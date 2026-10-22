@@ -445,6 +445,26 @@ public final class ExtraKeysView extends GridLayout {
         }
     }
 
+    private void restoreButtonState(View view, MaterialButton button) {
+        boolean isActive = false;
+        if (mSpecialButtons != null) {
+            for (SpecialButtonState state : mSpecialButtons.values()) {
+                if (state.buttons != null && state.buttons.contains(button)) {
+                    isActive = state.isActive;
+                    break;
+                }
+            }
+        }
+        int bgColor = isActive ? mButtonActiveBackgroundColor : mButtonBackgroundColor;
+        int textColor = isActive ? mButtonActiveTextColor : mButtonTextColor;
+        if (view instanceof MaterialButton) {
+            styleExtraKeyButton((MaterialButton) view, bgColor);
+        } else {
+            view.setBackgroundColor(bgColor);
+        }
+        button.setTextColor(textColor);
+    }
+
 
     /** Get {@link #mLongPressTimeout}. */
     public int getLongPressTimeout() {
@@ -542,6 +562,7 @@ public final class ExtraKeysView extends GridLayout {
                             } else {
                                 view.setBackgroundColor(mButtonActiveBackgroundColor);
                             }
+                            button.setTextColor(mButtonActiveTextColor);
                             // Start long press scheduled executors which will be stopped in next MotionEvent
                             startScheduledExecutors(view, buttonInfo, button);
                             return true;
@@ -551,11 +572,7 @@ public final class ExtraKeysView extends GridLayout {
                                 // Show popup on swipe up
                                 if (mPopupWindow == null && event.getY() < 0) {
                                     stopScheduledExecutors();
-                                    if (view instanceof MaterialButton) {
-                                        styleExtraKeyButton((MaterialButton) view, mButtonBackgroundColor);
-                                    } else {
-                                        view.setBackgroundColor(mButtonBackgroundColor);
-                                    }
+                                    restoreButtonState(view, button);
                                     showPopup(view, buttonInfo.getPopup());
                                 }
                                 if (mPopupWindow != null && event.getY() > 0) {
@@ -564,26 +581,19 @@ public final class ExtraKeysView extends GridLayout {
                                     } else {
                                         view.setBackgroundColor(mButtonActiveBackgroundColor);
                                     }
+                                    button.setTextColor(mButtonActiveTextColor);
                                     dismissPopup();
                                 }
                             }
                             return true;
 
                         case MotionEvent.ACTION_CANCEL:
-                            if (view instanceof MaterialButton) {
-                                styleExtraKeyButton((MaterialButton) view, mButtonBackgroundColor);
-                            } else {
-                                view.setBackgroundColor(mButtonBackgroundColor);
-                            }
+                            restoreButtonState(view, button);
                             stopScheduledExecutors();
                             return true;
 
                         case MotionEvent.ACTION_UP:
-                            if (view instanceof MaterialButton) {
-                                styleExtraKeyButton((MaterialButton) view, mButtonBackgroundColor);
-                            } else {
-                                view.setBackgroundColor(mButtonBackgroundColor);
-                            }
+                            restoreButtonState(view, button);
                             stopScheduledExecutors();
                             // If ACTION_UP up was not from a repetitive key or was with a key with a popup button
                             if (mLongPressCount == 0 || mPopupWindow != null) {

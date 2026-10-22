@@ -2144,7 +2144,14 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
             if (mExtraKeysView != null) {
                 mExtraKeysView.setBackgroundColor(Color.TRANSPARENT);
                 // Fully transparent key backgrounds: only the glyphs float on the wallpaper.
-                mExtraKeysView.setButtonColors(Color.WHITE, Color.WHITE, 0x00FFFFFF, 0x33FFFFFF);
+                int pressedTextColor = 0xFF89B4FA;
+                String customPressed = getPreferences().getExtraKeysPressedTextColor();
+                if (!TextUtils.isEmpty(customPressed)) {
+                    try {
+                        pressedTextColor = Color.parseColor(customPressed);
+                    } catch (Exception ignored) {}
+                }
+                mExtraKeysView.setButtonColors(Color.WHITE, pressedTextColor, 0x00FFFFFF, 0x33FFFFFF);
                 // setButtonColors only stores values; repaint every existing button now
                 // so no stale rectangular backgrounds linger until a key is pressed.
                 mExtraKeysView.restyleButtons();
@@ -2195,10 +2202,18 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
                 btnBg = theme.barBackgroundColor;
             }
 
+            int activeTextColor = theme.buttonActiveTextColor;
+            String customPressed = getPreferences().getExtraKeysPressedTextColor();
+            if (!TextUtils.isEmpty(customPressed)) {
+                try {
+                    activeTextColor = Color.parseColor(customPressed);
+                } catch (Exception ignored) {}
+            }
+
             // Apply theme colors
             mExtraKeysView.setButtonColors(
                 theme.buttonTextColor,
-                theme.buttonActiveTextColor,
+                activeTextColor,
                 btnBg,
                 theme.buttonActiveBackgroundColor
             );

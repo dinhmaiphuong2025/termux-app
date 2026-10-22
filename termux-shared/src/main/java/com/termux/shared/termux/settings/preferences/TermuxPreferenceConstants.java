@@ -213,6 +213,9 @@ public final class TermuxPreferenceConstants {
         public static final String KEY_TAB_ACTIVE_TITLE_LENGTH = "tab_active_title_length";
         public static final int DEFAULT_VALUE_TAB_ACTIVE_TITLE_LENGTH = 12;
 
+        public static final String KEY_TAB_BAR_GLASS_ENABLED = "tab_bar_glass_enabled";
+        public static final boolean DEFAULT_VALUE_TAB_BAR_GLASS_ENABLED = true;
+
         public static final String KEY_TAB_ANIMATION_ENABLED = "tab_animation_enabled";
         public static final boolean DEFAULT_VALUE_TAB_ANIMATION_ENABLED = true;
 
@@ -347,6 +350,9 @@ public final class TermuxPreferenceConstants {
 
         public static final String KEY_EXTRA_KEYS_FLAT_KEYS = "extra_keys_flat_keys";
         public static final boolean DEFAULT_VALUE_EXTRA_KEYS_FLAT_KEYS = true;
+
+        public static final String KEY_EXTRA_KEYS_PRESSED_TEXT_COLOR = "extra_keys_pressed_text_color";
+        public static final String DEFAULT_VALUE_EXTRA_KEYS_PRESSED_TEXT_COLOR = "";
 
         public static final String KEY_EXTRA_KEYS_MARGIN = "extra_keys_margin";
         public static final int DEFAULT_VALUE_EXTRA_KEYS_MARGIN = 2;

@@ -147,7 +147,9 @@ public class TermuxTabBarController {
         gd.setShape(GradientDrawable.RECTANGLE);
         gd.setCornerRadius(cornerRadius);
 
-        boolean glassEnabled = mActivity.getPreferences() != null && mActivity.getPreferences().isGlassEffectEnabled();
+        boolean glassEnabled = mActivity.getPreferences() != null
+            && mActivity.getPreferences().isGlassEffectEnabled()
+            && mActivity.getPreferences().isTabBarGlassEnabled();
         float density = mActivity.getResources().getDisplayMetrics().density;
         int effectiveStrokeWidth = strokeWidth > 0 ? strokeWidth : (glassEnabled ? Math.max(1, Math.round(1f * density)) : 0);
 

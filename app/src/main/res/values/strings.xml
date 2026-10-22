@@ -237,6 +237,8 @@
     <string name="termux_tab_bar_header">Material 3 Tab Bar</string>
     <string name="termux_tab_bar_title">Enable Pill Tab Bar</string>
     <string name="termux_tab_bar_summary">Show pill-shaped session tabs at top of terminal screen</string>
+    <string name="termux_tab_bar_glass_enabled_title">Tab Bar Liquid Glass</string>
+    <string name="termux_tab_bar_glass_enabled_summary">Apply Liquid Glass translucent droplet styling and specular rim to tab buttons</string>
     <string name="termux_tab_bar_corner_radius_title">Tab Corner Radius (dp)</string>
     <string name="termux_tab_bar_border_width_title">Tab Border Stroke (dp)</string>
     <string name="termux_tab_bar_border_color_title">Tab Border Color</string>
@@ -344,6 +346,8 @@
     <string name="termux_extra_keys_styling_header">Extra Keys Shape &amp; Styling</string>
     <string name="termux_extra_keys_color_theme_title">Bar Color Theme</string>
     <string name="termux_extra_keys_color_theme_summary">Choose color palette (Catppuccin, Dracula, System Material You...)</string>
+    <string name="termux_extra_keys_pressed_text_color_title">Pressed Key Text Color</string>
+    <string name="termux_extra_keys_pressed_text_color_summary">Highlight color of key text when pressed on extra keys bar (empty = theme accent)</string>
     <string name="termux_border_corner_enabled_title">Rounded Corners</string>
     <string name="termux_border_corner_enabled_summary">Round the border corners; when off the corners stay sharp (radius is ignored)</string>
     <string name="termux_extra_keys_flat_keys_title">Flat Keys (Sync with Bar Color)</string>
