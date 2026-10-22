@@ -567,7 +567,7 @@ public class TermuxAppSharedPreferences extends AppSharedPreferences {
     }
 
     public void setGlassTintOpacity(int value) {
-        SharedPreferenceUtils.setInt(mSharedPreferences, TERMUX_APP.KEY_GLASS_TINT_OPACITY, value, false);
+        SharedPreferenceUtils.setInt(mSharedPreferences, TERMUX_APP.KEY_GLASS_TINT_OPACITY, value, true);
     }
 
     public boolean isBackgroundBlurEnabled() {

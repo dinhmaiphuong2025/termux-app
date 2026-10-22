@@ -84,6 +84,8 @@ import android.graphics.Outline;
 import android.graphics.RenderEffect;
 import android.graphics.RuntimeShader;
 import android.graphics.Shader;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.view.ViewOutlineProvider;
 import android.widget.ImageView;
@@ -1832,7 +1834,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
      */
     private float adaptiveTintAlpha(float luminance) {
         float t = Math.max(0f, Math.min(1f, luminance / 255f));
-        return 0.15f + t * 0.45f;
+        return 0.40f + t * 0.45f;
     }
 
     /**

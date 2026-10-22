@@ -300,15 +300,9 @@ public class CustomUIPreferencesFragment extends PreferenceFragmentCompat {
             "extra_keys_bar_border_corner_radius",
             "extra_keys_bar_border_gaps"
         };
-        for (String prefKey : reloadStyleKeys) {
-            Preference pref = findPreference(prefKey);
-            if (pref != null) {
-                pref.setOnPreferenceChangeListener((preference, newValue) -> {
-                    TermuxActivity.updateTermuxActivityStyling(context, false);
-                    return true;
-                });
-            }
-        }
+        // Style reloads are dispatched post-save in CustomUIPreferencesDataStore
+        // (putInt, putBoolean, putString) so the new values are always committed
+        // to preferences before TermuxActivity receives the reload broadcast.
     }
 
 }
@@ -394,6 +388,7 @@ class CustomUIPreferencesDataStore extends PreferenceDataStore {
             default:
                 break;
         }
+        TermuxActivity.updateTermuxActivityStyling(mContext, false);
     }
 
     @Override
@@ -522,6 +517,7 @@ class CustomUIPreferencesDataStore extends PreferenceDataStore {
             default:
                 break;
         }
+        TermuxActivity.updateTermuxActivityStyling(mContext, false);
     }
 
     @Override
@@ -638,6 +634,7 @@ class CustomUIPreferencesDataStore extends PreferenceDataStore {
             default:
                 break;
         }
+        TermuxActivity.updateTermuxActivityStyling(mContext, false);
     }
 
     @Nullable
