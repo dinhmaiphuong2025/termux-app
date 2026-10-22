@@ -1762,6 +1762,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         float dx = (sceneW - bw * scale) / 2f;
         float dy = (sceneH - bh * scale) / 2f;
 
+        float density = getResources().getDisplayMetrics().density;
         boolean borderEnabled = getPreferences() != null && getPreferences().isTerminalBorderEnabled();
         boolean keepLayout = getPreferences() != null && getPreferences().isKeepBorderLayoutEnabled();
         int gaps = (borderEnabled || keepLayout) && getPreferences() != null

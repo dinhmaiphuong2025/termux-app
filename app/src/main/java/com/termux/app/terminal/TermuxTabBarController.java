@@ -236,9 +236,9 @@ public class TermuxTabBarController {
             }
 
             // Compact text-only mode: shrink height to 20dp
-            boolean borderEnabled = mActivity.getPreferences() == null || mActivity.getPreferences().isTerminalBorderEnabled();
-            boolean keepLayout = mActivity.getPreferences() != null && mActivity.getPreferences().isKeepBorderLayoutEnabled();
-            int gaps = (borderEnabled || keepLayout) && mActivity.getPreferences() != null
+            boolean isTerminalBorderOn = mActivity.getPreferences() == null || mActivity.getPreferences().isTerminalBorderEnabled();
+            boolean isKeepLayoutOn = mActivity.getPreferences() != null && mActivity.getPreferences().isKeepBorderLayoutEnabled();
+            int gaps = (isTerminalBorderOn || isKeepLayoutOn) && mActivity.getPreferences() != null
                 ? (int) (mActivity.getPreferences().getTerminalBorderGaps() * density) : 0;
 
             ViewGroup.LayoutParams rootLp = mRootView.getLayoutParams();
@@ -303,9 +303,9 @@ public class TermuxTabBarController {
         }
 
         // Full Tab Bar Mode: reset height to 36dp and standard padding
-        boolean borderEnabled = mActivity.getPreferences() == null || mActivity.getPreferences().isTerminalBorderEnabled();
-        boolean keepLayout = mActivity.getPreferences() != null && mActivity.getPreferences().isKeepBorderLayoutEnabled();
-        int gaps = (borderEnabled || keepLayout) && mActivity.getPreferences() != null
+        boolean isTerminalBorderOn = mActivity.getPreferences() == null || mActivity.getPreferences().isTerminalBorderEnabled();
+        boolean isKeepLayoutOn = mActivity.getPreferences() != null && mActivity.getPreferences().isKeepBorderLayoutEnabled();
+        int gaps = (isTerminalBorderOn || isKeepLayoutOn) && mActivity.getPreferences() != null
             ? (int) (mActivity.getPreferences().getTerminalBorderGaps() * density) : 0;
         int verticalPad = (int) (4 * density);
 
