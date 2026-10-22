@@ -153,9 +153,12 @@ public class TermuxTabBarController {
 
         if (isActive) {
             if (glassEnabled) {
+                float tintFactor = mActivity.getPreferences() != null
+                    ? Math.max(0f, Math.min(1f, mActivity.getPreferences().getGlassTintOpacity() / 100f)) : 1f;
+                int alpha = Math.round(0x4A * tintFactor);
                 int activeTint = strokeWidth > 0
-                    ? Color.argb(0x55, Color.red(strokeColor), Color.green(strokeColor), Color.blue(strokeColor))
-                    : 0x4A0A0F19;
+                    ? Color.argb(Math.round(0x55 * tintFactor), Color.red(strokeColor), Color.green(strokeColor), Color.blue(strokeColor))
+                    : Color.argb(alpha, 0x0A, 0x0F, 0x19);
                 gd.setColor(activeTint);
                 gd.setStroke(effectiveStrokeWidth, strokeWidth > 0 ? strokeColor : 0x80FFFFFF);
             } else {
@@ -167,7 +170,10 @@ public class TermuxTabBarController {
             }
         } else {
             if (glassEnabled) {
-                gd.setColor(0x220A0F19);
+                float tintFactor = mActivity.getPreferences() != null
+                    ? Math.max(0f, Math.min(1f, mActivity.getPreferences().getGlassTintOpacity() / 100f)) : 1f;
+                int alpha = Math.round(0x22 * tintFactor);
+                gd.setColor(Color.argb(alpha, 0x0A, 0x0F, 0x19));
                 gd.setStroke(effectiveStrokeWidth, strokeWidth > 0
                     ? Color.argb(0x44, Color.red(strokeColor), Color.green(strokeColor), Color.blue(strokeColor))
                     : 0x2AFFFFFF);

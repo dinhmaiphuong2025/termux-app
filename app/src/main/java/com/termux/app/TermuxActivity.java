@@ -1612,7 +1612,9 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         float barSrcW = barW / scale;
         float barSrcH = barH / scale;
         float barLuminance = computeRegionLuminance(bitmap, barSrcX, barSrcY, barSrcW, barSrcH);
-        float barVeilAlpha = adaptiveTintAlpha(barLuminance);
+        float tintFactor = getPreferences() != null
+            ? Math.max(0f, Math.min(1f, getPreferences().getGlassTintOpacity() / 100f)) : 1f;
+        float barVeilAlpha = adaptiveTintAlpha(barLuminance) * tintFactor;
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && glassEnabled) {
@@ -1624,17 +1626,20 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
                     lensShader.setFloatUniform("uRadius", (float) barRadius);
                     lensShader.setFloatUniform("uRim", Math.min(16f * density, barH * 0.45f));
                     lensShader.setFloatUniform("uVeilAlpha", barVeilAlpha);
-                    float effectiveBlur = Math.max(1f, barBlurPx);
-                    RenderEffect blurEffect = RenderEffect.createBlurEffect(
-                        effectiveBlur, effectiveBlur, Shader.TileMode.CLAMP);
                     RenderEffect lensEffect = RenderEffect.createRuntimeShaderEffect(lensShader, "content");
-                    mTerminalToolbarBackgroundImage.setRenderEffect(
-                        RenderEffect.createChainEffect(lensEffect, blurEffect));
+                    if (barBlurPx > 0.5f) {
+                        RenderEffect blurEffect = RenderEffect.createBlurEffect(
+                            barBlurPx, barBlurPx, Shader.TileMode.CLAMP);
+                        mTerminalToolbarBackgroundImage.setRenderEffect(
+                            RenderEffect.createChainEffect(lensEffect, blurEffect));
+                    } else {
+                        mTerminalToolbarBackgroundImage.setRenderEffect(lensEffect);
+                    }
                 } catch (Throwable t) {
-                    mTerminalToolbarBackgroundImage.setRenderEffect(barBlurPx > 0
+                    mTerminalToolbarBackgroundImage.setRenderEffect(barBlurPx > 0.5f
                         ? RenderEffect.createBlurEffect(barBlurPx, barBlurPx, Shader.TileMode.CLAMP) : null);
                 }
-            } else if (barBlurPx > 0) {
+            } else if (barBlurPx > 0.5f) {
                 mTerminalToolbarBackgroundImage.setRenderEffect(
                     RenderEffect.createBlurEffect(barBlurPx, barBlurPx, Shader.TileMode.CLAMP));
             } else {
@@ -1685,13 +1690,14 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
 
     /**
      * AGSL lens shader for Apple Liquid Glass optics (API 33+):
-     * Computes the signed distance field (SDF) of the rounded window rectangle.
-     * At the rim band [0..uRim] (16dp):
-     * - Inward optical refraction (refractionOutward = false, matching iOS).
-     * - Smooth chromatic dispersion (R/B split at the edge).
-     * - Fresnel specular glint curving precisely around the SDF rounded corners.
-     * - Smooth dark glass veil mixed directly in the shader so no separate
-     *   tint/shape layer is needed.
+     * Inspired by iOS 26 Liquid Glass physical optics:
+     * - Flat interior is crystal clear unblurred (displacement = 0).
+     * - Squircle curved bezel [0..uRim] produces natural droplet surface curvature:
+     *   h(t) = pow(1 - (1-t)^4, 0.25).
+     * - Refraction displacement peaks on the bezel slope and smoothly returns to 0 at
+     *   both boundaries (zero hard seams).
+     * - Directional specular glint (lightDir) + Fresnel rim + inner rim highlight.
+     * - Smooth dark glass veil scaled by the user's Glass Tint Strength preference.
      * Evaluates content with full opacity (half4(outColor, 1.0)) across all coordinates,
      * allowing the MaterialCardView hardware outline to cleanly clip corners without
      * any 1-frame black dropouts during tiling translations.
@@ -1714,45 +1720,53 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         "    float d = sdRoundRect(p, halfSize, uRadius);\n" +
         "    float dist = -d;\n" +
         "    half4 col;\n" +
-        "    float fresnel = 0.0;\n" +
-        "    float light = 0.0;\n" +
+        "    float specular = 0.0;\n" +
         "    if (dist > 0.0 && dist < uRim) {\n" +
-        "        float t = 1.0 - (dist / uRim);\n" +
-        "        float strength = t * t;\n" +
+        "        float s = clamp(dist / uRim, 0.0, 1.0);\n" +
+        "        float edgeDist = 1.0 - s;\n" +
+        "        float h = pow(max(0.0, 1.0 - edgeDist * edgeDist * edgeDist * edgeDist), 0.25);\n" +
+        "        float dispProfile = h * edgeDist;\n" +
         "        vec2 e = vec2(1.0, 0.0);\n" +
         "        vec2 grad = vec2(\n" +
         "            sdRoundRect(p + e, halfSize, uRadius) - sdRoundRect(p - e, halfSize, uRadius),\n" +
         "            sdRoundRect(p + e.yx, halfSize, uRadius) - sdRoundRect(p - e.yx, halfSize, uRadius));\n" +
         "        float gradLen = length(grad);\n" +
         "        grad = gradLen > 0.0001 ? grad / gradLen : vec2(0.0);\n" +
-        "        float lens = strength * uRim * 0.35;\n" +
-        "        float ca = strength * 1.5;\n" +
+        "        float lens = dispProfile * uRim * 0.45;\n" +
+        "        float ca = dispProfile * 2.0;\n" +
         "        vec2 dir = -grad;\n" +
         "        half4 cR = content.eval(fragCoord + dir * (lens + ca));\n" +
         "        half4 cG = content.eval(fragCoord + dir * lens);\n" +
         "        half4 cB = content.eval(fragCoord + dir * (lens - ca));\n" +
         "        col = half4(cR.r, cG.g, cB.b, 1.0);\n" +
-        "        fresnel = pow(t, 5.0);\n" +
-        "        light = max(0.0, -grad.y * 0.65 - grad.x * 0.35 + 0.15);\n" +
+        "        float fresnel = pow(edgeDist, 4.0);\n" +
+        "        float light = max(0.0, -grad.y * 0.65 - grad.x * 0.35 + 0.15);\n" +
+        "        vec2 lightDir = normalize(vec2(0.5, -0.7));\n" +
+        "        float rimDot = abs(dot(grad, lightDir));\n" +
+        "        float rimFalloff = 1.0 - smoothstep(0.0, uRim * 0.4, dist);\n" +
+        "        float specHighlight = pow(rimDot * rimFalloff, 1.5);\n" +
+        "        float innerRim = smoothstep(0.0, 2.0, dist) * (1.0 - smoothstep(2.0, 5.0, dist));\n" +
+        "        specular = fresnel * 0.30 * light + specHighlight * 0.30 + innerRim * 0.15;\n" +
         "    } else {\n" +
         "        col = content.eval(fragCoord);\n" +
         "    }\n" +
         "    half3 veil = half3(0.04, 0.06, 0.10);\n" +
         "    half3 outColor = mix(col.rgb, veil, uVeilAlpha);\n" +
-        "    outColor += half3(1.0) * (fresnel * 0.35 * light);\n" +
+        "    outColor += half3(1.0) * specular;\n" +
         "    return half4(outColor, 1.0);\n" +
         "}\n";
 
     /**
-     * Light backdrop blur for the glass, density-scaled (~4dp, e.g. ~14px on 1440p).
-     * Diffuses fine background lines so text is easy to read, while keeping the
-     * wallpaper subject clearly recognizable.
+     * Backdrop blur for the glass, density-scaled.
+     * Liquid Glass defaults to crystal clear unblurred (0px) so the interior stays
+     * sharp like optical glass. When Background Blur is explicitly enabled in
+     * Settings, applies the user-configured blur radius.
      */
     private float getGlassBlurPx(float density) {
         if (getPreferences() != null && getPreferences().isBackgroundBlurEnabled()) {
-            return Math.max(2f, getPreferences().getBackgroundBlurRadius() * density);
+            return Math.max(1f, getPreferences().getBackgroundBlurRadius() * density);
         }
-        return Math.max(6f, 4f * density);
+        return 0f;
     }
 
     /**
@@ -1785,8 +1799,8 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
     /**
      * REGULAR-material adaptive veil: brighter backdrop -> stronger dark tint
      * (15-60%), darker backdrop -> nearly clear. Keeps white terminal text
-     * readable without smothering dark wallpaper regions. Independent of the
-     * tint preference so readability never collapses.
+     * readable without smothering dark wallpaper regions. Scaled by the user's
+     * glass tint opacity setting so 0% gives crystal clear glass.
      */
     private float adaptiveTintAlpha(float luminance) {
         float t = Math.max(0f, Math.min(1f, luminance / 255f));
@@ -1795,15 +1809,12 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
 
     /**
      * Apply Apple Liquid Glass to the terminal window, the tab bar buttons and the
-     * extra keys bar: a blurred wallpaper backdrop with an AGSL edge-refraction lens
-     * on API 33+ (SDF round-rect distortion + chromatic aberration inside the
-     * 0-18dp rim, light 8-12dp blur so the center stays clear), a very light dark
-     * tint that keeps white text readable, a two-layer specular rim, and a subtle
-     * drop shadow behind the terminal text. No saturation, no white overlay.
+     * extra keys bar: optical edge refraction over a crystal clear backdrop (or
+     * blurred when Background Blur is enabled), dark readability tint scaled by
+     * the glass tint opacity slider, specular rim, and subtle text drop shadow.
      */
     private void applyGlassAndBlurEffects(float density) {
         boolean glassEnabled = getPreferences().isGlassEffectEnabled();
-        float tintAlpha = Math.max(0f, Math.min(1f, getPreferences().getGlassTintOpacity() / 100f));
 
         // In Liquid Glass mode, the AGSL shader renders the adaptive veil and optical
         // Fresnel glint directly in GPU memory, perfectly clipped to the SDF roundRect.
@@ -1966,9 +1977,11 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
             }
         }
 
-        // REGULAR-material adaptive tint: compute dark veil alpha from backdrop luminance
+        // REGULAR-material adaptive tint scaled by the glass tint opacity preference:
         float luminance = computeRegionLuminance(bitmap, srcX, srcY, srcW, srcH);
-        float veilAlpha = adaptiveTintAlpha(luminance);
+        float tintFactor = getPreferences() != null
+            ? Math.max(0f, Math.min(1f, getPreferences().getGlassTintOpacity() / 100f)) : 1f;
+        float veilAlpha = adaptiveTintAlpha(luminance) * tintFactor;
         mLastVeilAlpha = veilAlpha;
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -1976,7 +1989,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
             mTerminalGlassBackdrop.setScaleType(ImageView.ScaleType.MATRIX);
             mTerminalGlassBackdrop.setImageMatrix(matrix);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                // Liquid glass optics: light blur + AGSL edge refraction + Fresnel rim + veil in GPU.
+                // Liquid glass optics: AGSL squircle edge refraction + Fresnel rim + veil in GPU.
                 try {
                     float density = getResources().getDisplayMetrics().density;
                     float cornerPx = getPreferences() != null && getPreferences().isTerminalBorderCornerEnabled()
@@ -1986,28 +1999,31 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
                     lensShader.setFloatUniform("uRadius", cornerPx);
                     lensShader.setFloatUniform("uRim", 16f * density);
                     lensShader.setFloatUniform("uVeilAlpha", veilAlpha);
-                    float effectiveBlur = Math.max(1f, blurPx);
-                    RenderEffect blurEffect = RenderEffect.createBlurEffect(
-                        effectiveBlur, effectiveBlur, Shader.TileMode.CLAMP);
                     RenderEffect lensEffect = RenderEffect.createRuntimeShaderEffect(lensShader, "content");
-                    mTerminalGlassBackdrop.setRenderEffect(
-                        RenderEffect.createChainEffect(lensEffect, blurEffect));
+                    if (blurPx > 0.5f) {
+                        RenderEffect blurEffect = RenderEffect.createBlurEffect(
+                            blurPx, blurPx, Shader.TileMode.CLAMP);
+                        mTerminalGlassBackdrop.setRenderEffect(
+                            RenderEffect.createChainEffect(lensEffect, blurEffect));
+                    } else {
+                        mTerminalGlassBackdrop.setRenderEffect(lensEffect);
+                    }
                     if (mTerminalGlassTint != null) mTerminalGlassTint.setVisibility(View.GONE);
                 } catch (Throwable t) {
                     // Fall back to a light blur + shape layer if the lens shader cannot run.
-                    mTerminalGlassBackdrop.setRenderEffect(blurPx > 0
+                    mTerminalGlassBackdrop.setRenderEffect(blurPx > 0.5f
                         ? RenderEffect.createBlurEffect(blurPx, blurPx, Shader.TileMode.CLAMP) : null);
                     if (mTerminalGlassTint != null) {
                         mTerminalGlassTint.setAlpha(veilAlpha);
-                        mTerminalGlassTint.setVisibility(View.VISIBLE);
+                        mTerminalGlassTint.setVisibility(veilAlpha > 0.001f ? View.VISIBLE : View.GONE);
                     }
                 }
             } else {
-                mTerminalGlassBackdrop.setRenderEffect(blurPx > 0
+                mTerminalGlassBackdrop.setRenderEffect(blurPx > 0.5f
                     ? RenderEffect.createBlurEffect(blurPx, blurPx, Shader.TileMode.CLAMP) : null);
                 if (mTerminalGlassTint != null) {
                     mTerminalGlassTint.setAlpha(veilAlpha);
-                    mTerminalGlassTint.setVisibility(View.VISIBLE);
+                    mTerminalGlassTint.setVisibility(veilAlpha > 0.001f ? View.VISIBLE : View.GONE);
                 }
             }
         } else {
@@ -2016,7 +2032,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
             int iw = Math.min(bw - ix, Math.max(1, (int) srcW));
             int ih = Math.min(bh - iy, Math.max(1, (int) srcH));
             Bitmap crop = Bitmap.createBitmap(bitmap, ix, iy, iw, ih);
-            if (blurPx > 0) {
+            if (blurPx > 0.5f) {
                 crop = blurBitmapRenderScript(crop, (int) blurPx);
             }
             mTerminalGlassBackdrop.setImageBitmap(crop);
@@ -2024,7 +2040,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
             mTerminalGlassBackdrop.setImageMatrix(null);
             if (mTerminalGlassTint != null) {
                 mTerminalGlassTint.setAlpha(veilAlpha);
-                mTerminalGlassTint.setVisibility(View.VISIBLE);
+                mTerminalGlassTint.setVisibility(veilAlpha > 0.001f ? View.VISIBLE : View.GONE);
             }
         }
         mTerminalGlassBackdrop.setVisibility(View.VISIBLE);
