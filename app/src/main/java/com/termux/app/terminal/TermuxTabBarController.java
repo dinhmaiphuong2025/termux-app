@@ -236,24 +236,18 @@ public class TermuxTabBarController {
             }
 
             // Compact text-only mode: shrink height to 20dp
-            boolean glassEnabled = mActivity.getPreferences() != null
-                && mActivity.getPreferences().isGlassEffectEnabled()
-                && mActivity.getPreferences().isTabBarGlassEnabled();
+            boolean borderEnabled = mActivity.getPreferences() == null || mActivity.getPreferences().isTerminalBorderEnabled();
+            boolean keepLayout = mActivity.getPreferences() != null && mActivity.getPreferences().isKeepBorderLayoutEnabled();
+            int gaps = (borderEnabled || keepLayout) && mActivity.getPreferences() != null
+                ? (int) (mActivity.getPreferences().getTerminalBorderGaps() * density) : 0;
 
             ViewGroup.LayoutParams rootLp = mRootView.getLayoutParams();
             if (rootLp != null) {
                 rootLp.height = (int) (20 * density);
                 mRootView.setLayoutParams(rootLp);
-                if (glassEnabled) {
-                    mRootView.setPadding(0, 0, 0, 0);
-                    if (mSessionTitleContainer != null) {
-                        mSessionTitleContainer.setPadding((int) (6 * density), (int) (1 * density), (int) (6 * density), (int) (1 * density));
-                    }
-                } else {
-                    mRootView.setPadding((int) (6 * density), (int) (1 * density), (int) (6 * density), (int) (1 * density));
-                    if (mSessionTitleContainer != null) {
-                        mSessionTitleContainer.setPadding(0, 0, 0, 0);
-                    }
+                mRootView.setPadding(0, 0, 0, 0);
+                if (mSessionTitleContainer != null) {
+                    mSessionTitleContainer.setPadding(gaps + (int) (6 * density), (int) (1 * density), gaps + (int) (6 * density), (int) (1 * density));
                 }
             }
 
@@ -309,25 +303,19 @@ public class TermuxTabBarController {
         }
 
         // Full Tab Bar Mode: reset height to 36dp and standard padding
-        boolean glassEnabled = mActivity.getPreferences() != null
-            && mActivity.getPreferences().isGlassEffectEnabled()
-            && mActivity.getPreferences().isTabBarGlassEnabled();
+        boolean borderEnabled = mActivity.getPreferences() == null || mActivity.getPreferences().isTerminalBorderEnabled();
+        boolean keepLayout = mActivity.getPreferences() != null && mActivity.getPreferences().isKeepBorderLayoutEnabled();
+        int gaps = (borderEnabled || keepLayout) && mActivity.getPreferences() != null
+            ? (int) (mActivity.getPreferences().getTerminalBorderGaps() * density) : 0;
+        int verticalPad = (int) (4 * density);
 
         ViewGroup.LayoutParams rootLp = mRootView.getLayoutParams();
         if (rootLp != null) {
             rootLp.height = (int) (36 * density);
             mRootView.setLayoutParams(rootLp);
-            int pad = (int) (4 * density);
-            if (glassEnabled) {
-                mRootView.setPadding(0, 0, 0, 0);
-                if (mFullTabBarContainer != null) {
-                    mFullTabBarContainer.setPadding(pad, pad, pad, pad);
-                }
-            } else {
-                mRootView.setPadding(pad, pad, pad, pad);
-                if (mFullTabBarContainer != null) {
-                    mFullTabBarContainer.setPadding(0, 0, 0, 0);
-                }
+            mRootView.setPadding(0, 0, 0, 0);
+            if (mFullTabBarContainer != null) {
+                mFullTabBarContainer.setPadding(gaps, verticalPad, gaps, verticalPad);
             }
         }
 

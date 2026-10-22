@@ -1173,14 +1173,9 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
 
         // 3. Tab Bar
         if (mTerminalTabBarLayout != null) {
-            boolean glassEnabled = getPreferences().isGlassEffectEnabled() && getPreferences().isTabBarGlassEnabled();
-            boolean keepLayout = getPreferences().isKeepBorderLayoutEnabled();
-            boolean borderEnabled = getPreferences().isTerminalBorderEnabled();
-            int gaps = (glassEnabled && (borderEnabled || keepLayout))
-                ? (int) (getPreferences().getTerminalBorderGaps() * density) : 0;
             ViewGroup.MarginLayoutParams tabLp = (ViewGroup.MarginLayoutParams) mTerminalTabBarLayout.getLayoutParams();
             if (tabLp != null) {
-                tabLp.setMargins(gaps, gaps, gaps, 0);
+                tabLp.setMargins(0, 0, 0, 0);
                 mTerminalTabBarLayout.setLayoutParams(tabLp);
             }
         }
@@ -1767,9 +1762,22 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         float dx = (sceneW - bw * scale) / 2f;
         float dy = (sceneH - bh * scale) / 2f;
 
+        boolean borderEnabled = getPreferences() != null && getPreferences().isTerminalBorderEnabled();
+        boolean keepLayout = getPreferences() != null && getPreferences().isKeepBorderLayoutEnabled();
+        int gaps = (borderEnabled || keepLayout) && getPreferences() != null
+            ? (int) (getPreferences().getTerminalBorderGaps() * density) : 0;
+
+        ViewGroup.MarginLayoutParams imgLp = (ViewGroup.MarginLayoutParams) mTerminalTabBarBackgroundImage.getLayoutParams();
+        if (imgLp != null && (imgLp.leftMargin != gaps || imgLp.rightMargin != gaps)) {
+            imgLp.setMargins(gaps, 0, gaps, 0);
+            mTerminalTabBarBackgroundImage.setLayoutParams(imgLp);
+        }
+
+        int effectiveW = Math.max(1, tabW - 2 * gaps);
+
         Matrix tabMatrix = new Matrix();
         tabMatrix.setScale(scale, scale);
-        tabMatrix.postTranslate(dx - tabLoc[0], dy - tabLoc[1]);
+        tabMatrix.postTranslate(dx - tabLoc[0] - gaps, dy - tabLoc[1]);
         mTerminalTabBarBackgroundImage.setScaleType(ImageView.ScaleType.MATRIX);
         mTerminalTabBarBackgroundImage.setImageMatrix(tabMatrix);
         mTerminalTabBarBackgroundImage.setImageBitmap(bitmap);
@@ -1782,12 +1790,11 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         mTerminalTabBarBackgroundImage.setColorFilter(null);
 
         boolean glassEnabled = getPreferences() != null && getPreferences().isGlassEffectEnabled();
-        float density = getResources().getDisplayMetrics().density;
         float tabBlurPx = glassEnabled ? getGlassBlurPx(density) : blurPx;
 
-        float tabSrcX = (tabLoc[0] - dx) / scale;
+        float tabSrcX = (tabLoc[0] + gaps - dx) / scale;
         float tabSrcY = (tabLoc[1] - dy) / scale;
-        float tabSrcW = tabW / scale;
+        float tabSrcW = effectiveW / scale;
         float tabSrcH = tabH / scale;
         float tabLuminance = computeRegionLuminance(bitmap, tabSrcX, tabSrcY, tabSrcW, tabSrcH);
         float tintFactor = getPreferences() != null
@@ -1798,13 +1805,14 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
             ? (int) (getPreferences().getTabCornerRadius() * density) : 0;
         final int finalRadius = Math.min(cornerRadius, tabH / 2);
 
-        mTerminalTabBarLayout.setOutlineProvider(new ViewOutlineProvider() {
+        mTerminalTabBarBackgroundImage.setOutlineProvider(new ViewOutlineProvider() {
             @Override
             public void getOutline(View view, Outline outline) {
                 outline.setRoundRect(0, 0, view.getWidth(), view.getHeight(), finalRadius);
             }
         });
-        mTerminalTabBarLayout.setClipToOutline(finalRadius > 0);
+        mTerminalTabBarBackgroundImage.setClipToOutline(finalRadius > 0);
+        mTerminalTabBarLayout.setClipToOutline(false);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && glassEnabled) {
@@ -1812,7 +1820,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
                     float tabRim = Math.min(18f * density, tabH * 0.42f);
                     float tabThick = tabRim * 0.65f;
                     RuntimeShader lensShader = new RuntimeShader(GLASS_LENS_SHADER);
-                    lensShader.setFloatUniform("uSize", (float) tabW, (float) tabH);
+                    lensShader.setFloatUniform("uSize", (float) effectiveW, (float) tabH);
                     lensShader.setFloatUniform("uRadius", (float) finalRadius);
                     lensShader.setFloatUniform("uRim", tabRim);
                     lensShader.setFloatUniform("uThickness", tabThick);
