@@ -1751,13 +1751,20 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         "        float t = clamp(dist / uRim, 0.0, 1.0);\n" +
         "        float meniscus = t * pow(1.0 - t, 1.25) * 3.5;\n" +
         "        float displacement = meniscus * uThickness;\n" +
-        "        vec2 e = vec2(1.0, 0.0);\n" +
-        "        vec2 grad = vec2(\n" +
-        "            sdRoundRect(p + e, halfSize, uRadius) - sdRoundRect(p - e, halfSize, uRadius),\n" +
-        "            sdRoundRect(p + e.yx, halfSize, uRadius) - sdRoundRect(p - e.yx, halfSize, uRadius));\n" +
-        "        float gradLen = length(grad);\n" +
-        "        grad = gradLen > 0.0001 ? grad / gradLen : vec2(0.0);\n" +
-        "        vec2 dir = -grad;\n" +
+        "\n" +
+        "        // Smooth continuous outward normal (eliminates the sharp 45-degree corner crease):\n" +
+        "        vec2 edgeDist = halfSize - abs(p);\n" +
+        "        float rBevel = max(uRadius, uRim * 0.85);\n" +
+        "        vec2 c = max(vec2(0.0), vec2(rBevel) - edgeDist);\n" +
+        "        float cLen = length(c);\n" +
+        "        vec2 normal;\n" +
+        "        if (cLen > 0.0001) {\n" +
+        "            normal = sign(p) * (c / cLen);\n" +
+        "        } else {\n" +
+        "            normal = edgeDist.x < edgeDist.y ? vec2(sign(p.x), 0.0) : vec2(0.0, sign(p.y));\n" +
+        "        }\n" +
+        "\n" +
+        "        vec2 dir = -normal;\n" +
         "        float ca = displacement * 0.03;\n" +
         "        half4 cR = content.eval(fragCoord + dir * (displacement - ca));\n" +
         "        half4 cG = content.eval(fragCoord + dir * displacement);\n" +
@@ -1765,23 +1772,24 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         "        col = half4(cR.r, cG.g, cB.b, 1.0);\n" +
         "\n" +
         "        vec2 toLight = vec2(-0.35, -0.93);\n" +
-        "        float dotLight = dot(grad, toLight);\n" +
+        "        float dotLight = dot(normal, toLight);\n" +
         "        float light = max(0.0, dotLight);\n" +
         "        float shadowSide = max(0.0, -dotLight);\n" +
         "\n" +
+        "        // Subtle ambient occlusion on bottom/right edges away from light:\n" +
         "        float edgeBevel = 1.0 - smoothstep(0.0, uRim * 0.65, dist);\n" +
-        "        float darkShadow = (0.12 + 0.35 * shadowSide) * edgeBevel;\n" +
-        "        col.rgb *= (1.0 - darkShadow * 0.35);\n" +
+        "        float darkShadow = (0.08 + 0.25 * shadowSide) * edgeBevel;\n" +
+        "        col.rgb *= (1.0 - darkShadow * 0.30);\n" +
         "\n" +
-        "        float rimGlint = pow(light, 2.0) * (1.0 - t) * 0.45;\n" +
-        "        float innerRim = smoothstep(0.0, 1.2, dist) * (1.0 - smoothstep(1.2, 3.0, dist)) * (0.25 + 0.75 * light);\n" +
-        "        specular = rimGlint + innerRim * 0.35;\n" +
+        "        // Crisp hairline highlight strictly at the top/left border boundary:\n" +
+        "        // Drops to 0 within 4-5px so it never glares into the terminal text area:\n" +
+        "        float rimHairline = exp(-dist * dist / 14.0);\n" +
+        "        specular = rimHairline * pow(light, 2.0) * 0.22;\n" +
         "    } else {\n" +
         "        col = content.eval(fragCoord);\n" +
         "    }\n" +
         "    half3 veil = half3(0.04, 0.06, 0.10);\n" +
-        "    half3 glassLift = half3(0.025) * (1.0 - uVeilAlpha * 0.5);\n" +
-        "    half3 outColor = mix(col.rgb, veil, uVeilAlpha) + glassLift;\n" +
+        "    half3 outColor = mix(col.rgb, veil, uVeilAlpha);\n" +
         "    outColor += half3(1.0) * specular;\n" +
         "    return half4(outColor, 1.0);\n" +
         "}\n";
