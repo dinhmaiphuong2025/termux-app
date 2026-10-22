@@ -162,44 +162,47 @@ public class TermuxTabBarController {
             ? (strokeWidth > 0 ? strokeWidth : (glassEnabled ? Math.max(1, Math.round(1f * density)) : 0))
             : 0;
 
-        int targetStrokeColor = isActive ? activeAccentColor : strokeColor;
-
-        if (isActive) {
-            if (glassEnabled) {
-                float tintFactor = mActivity.getPreferences() != null
-                    ? Math.max(0f, Math.min(1f, mActivity.getPreferences().getGlassTintOpacity() / 100f)) : 1f;
-                int alpha = Math.round(0x55 * tintFactor);
-                int activeTint = strokeWidth > 0
-                    ? Color.argb(Math.round(0x60 * tintFactor), Color.red(activeAccentColor), Color.green(activeAccentColor), Color.blue(activeAccentColor))
-                    : Color.argb(alpha, Color.red(activeAccentColor), Color.green(activeAccentColor), Color.blue(activeAccentColor));
-                gd.setColor(activeTint);
-                if (effectiveStrokeWidth > 0) {
-                    gd.setStroke(effectiveStrokeWidth, (!borderEnabled && keepLayout) ? Color.TRANSPARENT : activeAccentColor);
-                }
-            } else {
-                int bgTint = Color.argb(0x3D, Color.red(activeAccentColor), Color.green(activeAccentColor), Color.blue(activeAccentColor));
+        if (!glassEnabled) {
+            // Original classic Pill Tab Bar styling
+            int stroke = effectiveStrokeWidth > 0 ? effectiveStrokeWidth : (borderEnabled ? (int) (1 * density) : 0);
+            if (isActive) {
+                int bgTint = Color.argb(0x33, Color.red(strokeColor), Color.green(strokeColor), Color.blue(strokeColor));
                 gd.setColor(bgTint);
-                if (effectiveStrokeWidth > 0) {
-                    gd.setStroke(effectiveStrokeWidth, (!borderEnabled && keepLayout) ? Color.TRANSPARENT : activeAccentColor);
-                }
-            }
-        } else {
-            if (glassEnabled) {
-                float tintFactor = mActivity.getPreferences() != null
-                    ? Math.max(0f, Math.min(1f, mActivity.getPreferences().getGlassTintOpacity() / 100f)) : 1f;
-                int alpha = Math.round(0x22 * tintFactor);
-                gd.setColor(Color.argb(alpha, 0x0A, 0x0F, 0x19));
-                if (effectiveStrokeWidth > 0) {
-                    int baseBorder = strokeWidth > 0
-                        ? Color.argb(0x44, Color.red(strokeColor), Color.green(strokeColor), Color.blue(strokeColor))
-                        : 0x2AFFFFFF;
-                    gd.setStroke(effectiveStrokeWidth, (!borderEnabled && keepLayout) ? Color.TRANSPARENT : baseBorder);
+                if (stroke > 0) {
+                    gd.setStroke(stroke, (!borderEnabled && keepLayout) ? Color.TRANSPARENT : strokeColor);
                 }
             } else {
                 gd.setColor(0x22FFFFFF);
-                if (effectiveStrokeWidth > 0) {
-                    gd.setStroke(effectiveStrokeWidth, (!borderEnabled && keepLayout) ? Color.TRANSPARENT : 0x33FFFFFF);
+                if (stroke > 0) {
+                    gd.setStroke(stroke, (!borderEnabled && keepLayout) ? Color.TRANSPARENT : 0x33FFFFFF);
                 }
+            }
+            return gd;
+        }
+
+        int targetStrokeColor = isActive ? activeAccentColor : strokeColor;
+
+        if (isActive) {
+            float tintFactor = mActivity.getPreferences() != null
+                ? Math.max(0f, Math.min(1f, mActivity.getPreferences().getGlassTintOpacity() / 100f)) : 1f;
+            int alpha = Math.round(0x55 * tintFactor);
+            int activeTint = strokeWidth > 0
+                ? Color.argb(Math.round(0x60 * tintFactor), Color.red(activeAccentColor), Color.green(activeAccentColor), Color.blue(activeAccentColor))
+                : Color.argb(alpha, Color.red(activeAccentColor), Color.green(activeAccentColor), Color.blue(activeAccentColor));
+            gd.setColor(activeTint);
+            if (effectiveStrokeWidth > 0) {
+                gd.setStroke(effectiveStrokeWidth, (!borderEnabled && keepLayout) ? Color.TRANSPARENT : activeAccentColor);
+            }
+        } else {
+            float tintFactor = mActivity.getPreferences() != null
+                ? Math.max(0f, Math.min(1f, mActivity.getPreferences().getGlassTintOpacity() / 100f)) : 1f;
+            int alpha = Math.round(0x22 * tintFactor);
+            gd.setColor(Color.argb(alpha, 0x0A, 0x0F, 0x19));
+            if (effectiveStrokeWidth > 0) {
+                int baseBorder = strokeWidth > 0
+                    ? Color.argb(0x44, Color.red(strokeColor), Color.green(strokeColor), Color.blue(strokeColor))
+                    : 0x2AFFFFFF;
+                gd.setStroke(effectiveStrokeWidth, (!borderEnabled && keepLayout) ? Color.TRANSPARENT : baseBorder);
             }
         }
         return gd;
@@ -233,14 +236,25 @@ public class TermuxTabBarController {
             }
 
             // Compact text-only mode: shrink height to 20dp
+            boolean glassEnabled = mActivity.getPreferences() != null
+                && mActivity.getPreferences().isGlassEffectEnabled()
+                && mActivity.getPreferences().isTabBarGlassEnabled();
+
             ViewGroup.LayoutParams rootLp = mRootView.getLayoutParams();
             if (rootLp != null) {
                 rootLp.height = (int) (20 * density);
                 mRootView.setLayoutParams(rootLp);
-                mRootView.setPadding(0, 0, 0, 0);
-            }
-            if (mSessionTitleContainer != null) {
-                mSessionTitleContainer.setPadding((int) (6 * density), (int) (1 * density), (int) (6 * density), (int) (1 * density));
+                if (glassEnabled) {
+                    mRootView.setPadding(0, 0, 0, 0);
+                    if (mSessionTitleContainer != null) {
+                        mSessionTitleContainer.setPadding((int) (6 * density), (int) (1 * density), (int) (6 * density), (int) (1 * density));
+                    }
+                } else {
+                    mRootView.setPadding((int) (6 * density), (int) (1 * density), (int) (6 * density), (int) (1 * density));
+                    if (mSessionTitleContainer != null) {
+                        mSessionTitleContainer.setPadding(0, 0, 0, 0);
+                    }
+                }
             }
 
             setVisibility(View.VISIBLE);
@@ -295,15 +309,26 @@ public class TermuxTabBarController {
         }
 
         // Full Tab Bar Mode: reset height to 36dp and standard padding
+        boolean glassEnabled = mActivity.getPreferences() != null
+            && mActivity.getPreferences().isGlassEffectEnabled()
+            && mActivity.getPreferences().isTabBarGlassEnabled();
+
         ViewGroup.LayoutParams rootLp = mRootView.getLayoutParams();
         if (rootLp != null) {
             rootLp.height = (int) (36 * density);
             mRootView.setLayoutParams(rootLp);
-            mRootView.setPadding(0, 0, 0, 0);
-        }
-        int pad = (int) (4 * density);
-        if (mFullTabBarContainer != null) {
-            mFullTabBarContainer.setPadding(pad, pad, pad, pad);
+            int pad = (int) (4 * density);
+            if (glassEnabled) {
+                mRootView.setPadding(0, 0, 0, 0);
+                if (mFullTabBarContainer != null) {
+                    mFullTabBarContainer.setPadding(pad, pad, pad, pad);
+                }
+            } else {
+                mRootView.setPadding(pad, pad, pad, pad);
+                if (mFullTabBarContainer != null) {
+                    mFullTabBarContainer.setPadding(0, 0, 0, 0);
+                }
+            }
         }
 
         setVisibility(View.VISIBLE);
