@@ -361,6 +361,12 @@ class CustomUIPreferencesDataStore extends PreferenceDataStore {
             case "tab_border_sync":
                 mPreferences.setTabBorderSync(value);
                 break;
+            case "tab_border_enabled":
+                mPreferences.setTabBorderEnabled(value);
+                break;
+            case "tab_corner_enabled":
+                mPreferences.setTabCornerEnabled(value);
+                break;
             case "tab_bar_glass_enabled":
                 mPreferences.setTabBarGlassEnabled(value);
                 break;
@@ -426,6 +432,10 @@ class CustomUIPreferencesDataStore extends PreferenceDataStore {
                 return mPreferences.isTerminalBorderEnabled();
             case "tab_border_sync":
                 return mPreferences.isTabBorderSync();
+            case "tab_border_enabled":
+                return mPreferences.isTabBorderEnabled();
+            case "tab_corner_enabled":
+                return mPreferences.isTabCornerEnabled();
             case "tab_bar_glass_enabled":
                 return mPreferences.isTabBarGlassEnabled();
             case "terminal_cell_background_transparency":

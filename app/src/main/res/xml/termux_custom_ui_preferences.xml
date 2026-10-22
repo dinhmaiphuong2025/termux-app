@@ -279,13 +279,11 @@
                 app:summary="@string/termux_tab_bar_glass_enabled_summary"
                 app:defaultValue="true" />
 
-            <SeekBarPreference
-                app:key="tab_corner_radius"
-                app:title="@string/termux_tab_bar_corner_radius_title"
-                app:min="0"
-                android:max="24"
-                app:showSeekBarValue="true"
-                app:defaultValue="1" />
+            <SwitchPreferenceCompat
+                app:key="tab_border_enabled"
+                app:title="@string/termux_tab_bar_border_enabled_title"
+                app:summary="@string/termux_tab_bar_border_enabled_summary"
+                app:defaultValue="true" />
 
             <SeekBarPreference
                 app:key="tab_border_width"
@@ -293,12 +291,29 @@
                 app:min="0"
                 android:max="4"
                 app:showSeekBarValue="true"
+                app:dependency="tab_border_enabled"
                 app:defaultValue="1" />
 
             <Preference
                 app:key="tab_border_color"
                 app:title="@string/termux_tab_bar_border_color_title"
-                app:summary="@string/termux_tab_bar_border_color_summary" />
+                app:summary="@string/termux_tab_bar_border_color_summary"
+                app:dependency="tab_border_enabled" />
+
+            <SwitchPreferenceCompat
+                app:key="tab_corner_enabled"
+                app:title="@string/termux_tab_bar_corner_enabled_title"
+                app:summary="@string/termux_tab_bar_corner_enabled_summary"
+                app:defaultValue="true" />
+
+            <SeekBarPreference
+                app:key="tab_corner_radius"
+                app:title="@string/termux_tab_bar_corner_radius_title"
+                app:min="0"
+                android:max="24"
+                app:showSeekBarValue="true"
+                app:dependency="tab_corner_enabled"
+                app:defaultValue="1" />
 
             <SeekBarPreference
                 app:key="tab_button_width"

@@ -282,6 +282,22 @@ public class TermuxAppSharedPreferences extends AppSharedPreferences {
         SharedPreferenceUtils.setInt(mSharedPreferences, TERMUX_APP.KEY_TAB_BORDER_WIDTH, value, false);
     }
 
+    public boolean isTabBorderEnabled() {
+        return SharedPreferenceUtils.getBoolean(mSharedPreferences, TERMUX_APP.KEY_TAB_BORDER_ENABLED, TERMUX_APP.DEFAULT_VALUE_TAB_BORDER_ENABLED);
+    }
+
+    public void setTabBorderEnabled(boolean value) {
+        SharedPreferenceUtils.setBoolean(mSharedPreferences, TERMUX_APP.KEY_TAB_BORDER_ENABLED, value, false);
+    }
+
+    public boolean isTabCornerEnabled() {
+        return SharedPreferenceUtils.getBoolean(mSharedPreferences, TERMUX_APP.KEY_TAB_CORNER_ENABLED, TERMUX_APP.DEFAULT_VALUE_TAB_CORNER_ENABLED);
+    }
+
+    public void setTabCornerEnabled(boolean value) {
+        SharedPreferenceUtils.setBoolean(mSharedPreferences, TERMUX_APP.KEY_TAB_CORNER_ENABLED, value, false);
+    }
+
     public boolean isTabBorderSync() {
         return SharedPreferenceUtils.getBoolean(mSharedPreferences, TERMUX_APP.KEY_TAB_BORDER_SYNC, TERMUX_APP.DEFAULT_VALUE_TAB_BORDER_SYNC);
     }

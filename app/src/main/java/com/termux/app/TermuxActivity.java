@@ -183,6 +183,8 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
     View mTerminalToolbarGlassTint;
     ImageView mActivityBackgroundImage;
     View mActivityBackgroundOverlay;
+    FrameLayout mTerminalTabBarLayout;
+    ImageView mTerminalTabBarBackgroundImage;
 
     /** Last decoded background bitmap and blur radius, kept for re-applying layout matrices. */
     Bitmap mLastBackgroundBitmap;
@@ -203,8 +205,13 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
             float density = getResources().getDisplayMetrics().density;
             if (mTerminalCardContainer != null) mTerminalCardContainer.invalidateOutline();
             if (mTerminalToolbarCard != null) mTerminalToolbarCard.invalidateOutline();
+            if (mTerminalTabBarLayout != null) mTerminalTabBarLayout.invalidateOutline();
             if (isBarBackgroundEnabled()) {
                 applyToolbarBackgroundSlice(mLastBackgroundBitmap, mLastBackgroundBlurRadius,
+                    mLastBackgroundBlurRadius * density);
+            }
+            if (isTabBarBackgroundEnabled()) {
+                applyTabBarBackgroundSlice(mLastBackgroundBitmap, mLastBackgroundBlurRadius,
                     mLastBackgroundBlurRadius * density);
             }
             if (getPreferences().isGlassEffectEnabled()) {
@@ -641,6 +648,8 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
 
         View tabBarLayout = findViewById(R.id.terminal_tab_bar_layout);
         if (tabBarLayout != null) {
+            mTerminalTabBarLayout = (FrameLayout) tabBarLayout;
+            mTerminalTabBarBackgroundImage = findViewById(R.id.terminal_tab_bar_background_image);
             mTermuxTabBarController = new TermuxTabBarController(this, tabBarLayout);
         }
 
@@ -1285,6 +1294,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
                             mTerminalBackgroundImage.setVisibility(View.GONE);
                             mTerminalBackgroundOverlay.setVisibility(View.GONE);
                             hideToolbarBackground();
+                            hideTabBarBackground();
                             showToast("Could not load background image", false);
                         }
                     }
@@ -1314,6 +1324,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
             mTerminalBackgroundOverlay.setVisibility(View.GONE);
             mLastBackgroundBitmap = null;
             hideToolbarBackground();
+            hideTabBarBackground();
             hideActivityBackground();
         }
     }
@@ -1496,6 +1507,13 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
                 || "sync_wallpaper".equals(getPreferences().getExtraKeysColorTheme()));
     }
 
+    private boolean isTabBarBackgroundEnabled() {
+        return getPreferences() != null
+            && getPreferences().isTabBarEnabled()
+            && getPreferences().isTabBarGlassEnabled()
+            && getPreferences().isGlassEffectEnabled();
+    }
+
     /**
      * Push a decoded (and possibly pre-blurred) wallpaper bitmap into the terminal
      * background view, applying blur, saturation and the glass union-crop layout.
@@ -1547,6 +1565,12 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
                 mTerminalBackgroundImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
                 mTerminalBackgroundImage.setImageMatrix(null);
             }
+        }
+
+        if (isTabBarBackgroundEnabled()) {
+            applyTabBarBackgroundSlice(bitmap, blurRadius, blurPx);
+        } else {
+            hideTabBarBackground();
         }
     }
 
@@ -1709,6 +1733,124 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         }
         if (mTerminalToolbarBackgroundOverlay != null) {
             mTerminalToolbarBackgroundOverlay.setVisibility(View.GONE);
+        }
+    }
+
+    @SuppressLint("NewApi")
+    private void applyTabBarBackgroundSlice(Bitmap bitmap, int blurRadius, float blurPx) {
+        if (mTerminalTabBarBackgroundImage == null || mTerminalTabBarLayout == null || mTerminalCardContainer == null) return;
+
+        int[] tabLoc = new int[2];
+        mTerminalTabBarLayout.getLocationOnScreen(tabLoc);
+
+        int tabW = mTerminalTabBarLayout.getWidth();
+        int tabH = mTerminalTabBarLayout.getHeight();
+
+        if (tabW <= 0 || tabH <= 0) {
+            mTerminalTabBarLayout.post(() -> {
+                if (!isFinishing() && mLastBackgroundBitmap == bitmap
+                    && mTerminalTabBarLayout.getVisibility() == View.VISIBLE
+                    && mTerminalTabBarLayout.getHeight() > 0) {
+                    applyTabBarBackgroundSlice(bitmap, blurRadius, blurPx);
+                }
+            });
+            return;
+        }
+
+        int[] screen = getRealScreenSize();
+        float sceneW = screen[0];
+        float sceneH = screen[1];
+        int bw = bitmap.getWidth();
+        int bh = bitmap.getHeight();
+        float scale = Math.max(sceneW / bw, sceneH / bh);
+        float dx = (sceneW - bw * scale) / 2f;
+        float dy = (sceneH - bh * scale) / 2f;
+
+        Matrix tabMatrix = new Matrix();
+        tabMatrix.setScale(scale, scale);
+        tabMatrix.postTranslate(dx - tabLoc[0], dy - tabLoc[1]);
+        mTerminalTabBarBackgroundImage.setScaleType(ImageView.ScaleType.MATRIX);
+        mTerminalTabBarBackgroundImage.setImageMatrix(tabMatrix);
+        mTerminalTabBarBackgroundImage.setImageBitmap(bitmap);
+        Drawable tabD = mTerminalTabBarBackgroundImage.getDrawable();
+        if (tabD instanceof BitmapDrawable) {
+            ((BitmapDrawable) tabD).setAntiAlias(true);
+            ((BitmapDrawable) tabD).setFilterBitmap(true);
+            ((BitmapDrawable) tabD).setDither(true);
+        }
+        mTerminalTabBarBackgroundImage.setColorFilter(null);
+
+        boolean glassEnabled = getPreferences() != null && getPreferences().isGlassEffectEnabled();
+        float density = getResources().getDisplayMetrics().density;
+        float tabBlurPx = glassEnabled ? getGlassBlurPx(density) : blurPx;
+
+        float tabSrcX = (tabLoc[0] - dx) / scale;
+        float tabSrcY = (tabLoc[1] - dy) / scale;
+        float tabSrcW = tabW / scale;
+        float tabSrcH = tabH / scale;
+        float tabLuminance = computeRegionLuminance(bitmap, tabSrcX, tabSrcY, tabSrcW, tabSrcH);
+        float tintFactor = getPreferences() != null
+            ? Math.max(0f, Math.min(1f, getPreferences().getGlassTintOpacity() / 100f)) : 1f;
+        float tabVeilAlpha = adaptiveTintAlpha(tabLuminance) * tintFactor;
+
+        int cornerRadius = getPreferences() != null && getPreferences().isTabCornerEnabled()
+            ? (int) (getPreferences().getTabCornerRadius() * density) : 0;
+        final int finalRadius = Math.min(cornerRadius, tabH / 2);
+
+        mTerminalTabBarLayout.setOutlineProvider(new ViewOutlineProvider() {
+            @Override
+            public void getOutline(View view, Outline outline) {
+                outline.setRoundRect(0, 0, view.getWidth(), view.getHeight(), finalRadius);
+            }
+        });
+        mTerminalTabBarLayout.setClipToOutline(finalRadius > 0);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && glassEnabled) {
+                try {
+                    float tabRim = Math.min(18f * density, tabH * 0.42f);
+                    float tabThick = tabRim * 0.65f;
+                    RuntimeShader lensShader = new RuntimeShader(GLASS_LENS_SHADER);
+                    lensShader.setFloatUniform("uSize", (float) tabW, (float) tabH);
+                    lensShader.setFloatUniform("uRadius", (float) finalRadius);
+                    lensShader.setFloatUniform("uRim", tabRim);
+                    lensShader.setFloatUniform("uThickness", tabThick);
+                    lensShader.setFloatUniform("uIOR", 2.6f);
+                    lensShader.setFloatUniform("uVeilAlpha", tabVeilAlpha);
+                    RenderEffect lensEffect = RenderEffect.createRuntimeShaderEffect(lensShader, "content");
+                    if (tabBlurPx > 0.5f) {
+                        RenderEffect blurEffect = RenderEffect.createBlurEffect(
+                            tabBlurPx, tabBlurPx, Shader.TileMode.CLAMP);
+                        mTerminalTabBarBackgroundImage.setRenderEffect(
+                            RenderEffect.createChainEffect(lensEffect, blurEffect));
+                    } else {
+                        mTerminalTabBarBackgroundImage.setRenderEffect(lensEffect);
+                    }
+                } catch (Throwable t) {
+                    mTerminalTabBarBackgroundImage.setRenderEffect(tabBlurPx > 0.5f
+                        ? RenderEffect.createBlurEffect(tabBlurPx, tabBlurPx, Shader.TileMode.CLAMP) : null);
+                }
+            } else if (tabBlurPx > 0.5f) {
+                mTerminalTabBarBackgroundImage.setRenderEffect(
+                    RenderEffect.createBlurEffect(tabBlurPx, tabBlurPx, Shader.TileMode.CLAMP));
+            } else {
+                mTerminalTabBarBackgroundImage.setRenderEffect(null);
+            }
+        }
+        mTerminalTabBarBackgroundImage.setVisibility(View.VISIBLE);
+    }
+
+    private void hideTabBarBackground() {
+        if (mTerminalTabBarBackgroundImage != null) {
+            mTerminalTabBarBackgroundImage.setVisibility(View.GONE);
+            mTerminalTabBarBackgroundImage.setImageDrawable(null);
+            mTerminalTabBarBackgroundImage.setColorFilter(null);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                mTerminalTabBarBackgroundImage.setRenderEffect(null);
+            }
+        }
+        if (mTerminalTabBarLayout != null) {
+            mTerminalTabBarLayout.setClipToOutline(false);
         }
     }
 
@@ -1944,6 +2086,12 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
                     mLastBackgroundBlurRadius * density);
             } else {
                 hideToolbarBackground();
+            }
+            if (isTabBarBackgroundEnabled()) {
+                applyTabBarBackgroundSlice(mLastBackgroundBitmap, mLastBackgroundBlurRadius,
+                    mLastBackgroundBlurRadius * density);
+            } else {
+                hideTabBarBackground();
             }
         }
     }

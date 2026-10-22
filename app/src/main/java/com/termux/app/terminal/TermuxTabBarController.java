@@ -145,13 +145,18 @@ public class TermuxTabBarController {
     private Drawable createTabDrawable(boolean isActive, int cornerRadius, int strokeWidth, int strokeColor) {
         GradientDrawable gd = new GradientDrawable();
         gd.setShape(GradientDrawable.RECTANGLE);
-        gd.setCornerRadius(cornerRadius);
+
+        boolean cornerEnabled = mActivity.getPreferences() == null || mActivity.getPreferences().isTabCornerEnabled();
+        int effectiveCornerRadius = cornerEnabled ? cornerRadius : 0;
+        gd.setCornerRadius(effectiveCornerRadius);
 
         boolean glassEnabled = mActivity.getPreferences() != null
             && mActivity.getPreferences().isGlassEffectEnabled()
             && mActivity.getPreferences().isTabBarGlassEnabled();
         float density = mActivity.getResources().getDisplayMetrics().density;
-        int effectiveStrokeWidth = strokeWidth > 0 ? strokeWidth : (glassEnabled ? Math.max(1, Math.round(1f * density)) : 0);
+
+        boolean borderEnabled = mActivity.getPreferences() == null || mActivity.getPreferences().isTabBorderEnabled();
+        int effectiveStrokeWidth = borderEnabled ? (strokeWidth > 0 ? strokeWidth : (glassEnabled ? Math.max(1, Math.round(1f * density)) : 0)) : 0;
 
         if (isActive) {
             if (glassEnabled) {
@@ -162,12 +167,14 @@ public class TermuxTabBarController {
                     ? Color.argb(Math.round(0x55 * tintFactor), Color.red(strokeColor), Color.green(strokeColor), Color.blue(strokeColor))
                     : Color.argb(alpha, 0x0A, 0x0F, 0x19);
                 gd.setColor(activeTint);
-                gd.setStroke(effectiveStrokeWidth, strokeWidth > 0 ? strokeColor : 0x80FFFFFF);
+                if (effectiveStrokeWidth > 0) {
+                    gd.setStroke(effectiveStrokeWidth, strokeWidth > 0 ? strokeColor : 0x80FFFFFF);
+                }
             } else {
                 int bgTint = Color.argb(0x33, Color.red(strokeColor), Color.green(strokeColor), Color.blue(strokeColor));
                 gd.setColor(bgTint);
-                if (strokeWidth > 0) {
-                    gd.setStroke(strokeWidth, strokeColor);
+                if (effectiveStrokeWidth > 0) {
+                    gd.setStroke(effectiveStrokeWidth, strokeColor);
                 }
             }
         } else {
@@ -176,13 +183,15 @@ public class TermuxTabBarController {
                     ? Math.max(0f, Math.min(1f, mActivity.getPreferences().getGlassTintOpacity() / 100f)) : 1f;
                 int alpha = Math.round(0x22 * tintFactor);
                 gd.setColor(Color.argb(alpha, 0x0A, 0x0F, 0x19));
-                gd.setStroke(effectiveStrokeWidth, strokeWidth > 0
-                    ? Color.argb(0x44, Color.red(strokeColor), Color.green(strokeColor), Color.blue(strokeColor))
-                    : 0x2AFFFFFF);
+                if (effectiveStrokeWidth > 0) {
+                    gd.setStroke(effectiveStrokeWidth, strokeWidth > 0
+                        ? Color.argb(0x44, Color.red(strokeColor), Color.green(strokeColor), Color.blue(strokeColor))
+                        : 0x2AFFFFFF);
+                }
             } else {
                 gd.setColor(0x22FFFFFF);
-                if (strokeWidth > 0) {
-                    gd.setStroke(strokeWidth, 0x33FFFFFF);
+                if (effectiveStrokeWidth > 0) {
+                    gd.setStroke(effectiveStrokeWidth, 0x33FFFFFF);
                 }
             }
         }
@@ -221,7 +230,10 @@ public class TermuxTabBarController {
             if (rootLp != null) {
                 rootLp.height = (int) (20 * density);
                 mRootView.setLayoutParams(rootLp);
-                mRootView.setPadding((int) (6 * density), (int) (1 * density), (int) (6 * density), (int) (1 * density));
+                mRootView.setPadding(0, 0, 0, 0);
+            }
+            if (mSessionTitleContainer != null) {
+                mSessionTitleContainer.setPadding((int) (6 * density), (int) (1 * density), (int) (6 * density), (int) (1 * density));
             }
 
             setVisibility(View.VISIBLE);
@@ -280,8 +292,11 @@ public class TermuxTabBarController {
         if (rootLp != null) {
             rootLp.height = (int) (36 * density);
             mRootView.setLayoutParams(rootLp);
-            int pad = (int) (4 * density);
-            mRootView.setPadding(pad, pad, pad, pad);
+            mRootView.setPadding(0, 0, 0, 0);
+        }
+        int pad = (int) (4 * density);
+        if (mFullTabBarContainer != null) {
+            mFullTabBarContainer.setPadding(pad, pad, pad, pad);
         }
 
         setVisibility(View.VISIBLE);
@@ -299,8 +314,10 @@ public class TermuxTabBarController {
         TerminalSession currentSession = mActivity.getCurrentSession();
         LayoutInflater inflater = LayoutInflater.from(mActivity);
 
-        int cornerRadius = (int) (1 * density);
-        int borderWidth = (int) (1 * density);
+        boolean cornerEnabled = mActivity.getPreferences() == null || mActivity.getPreferences().isTabCornerEnabled();
+        int cornerRadius = cornerEnabled ? (int) (1 * density) : 0;
+        boolean borderEnabled = mActivity.getPreferences() == null || mActivity.getPreferences().isTabBorderEnabled();
+        int borderWidth = borderEnabled ? (int) (1 * density) : 0;
         int borderColor = Color.parseColor("#FFFFFF");
         int buttonWidth = (int) (28 * density);
         int newBtnWidth = (int) (28 * density);
@@ -309,8 +326,10 @@ public class TermuxTabBarController {
         int activeTitleLength = 12;
 
         if (mActivity.getPreferences() != null) {
-            cornerRadius = (int) (mActivity.getPreferences().getTabCornerRadius() * density);
-            borderWidth = (int) (mActivity.getPreferences().getTabBorderWidth() * density);
+            cornerEnabled = mActivity.getPreferences().isTabCornerEnabled();
+            cornerRadius = cornerEnabled ? (int) (mActivity.getPreferences().getTabCornerRadius() * density) : 0;
+            borderEnabled = mActivity.getPreferences().isTabBorderEnabled();
+            borderWidth = borderEnabled ? (int) (mActivity.getPreferences().getTabBorderWidth() * density) : 0;
             buttonWidth = (int) (mActivity.getPreferences().getTabButtonWidth() * density);
             newBtnWidth = (int) (mActivity.getPreferences().getTabNewButtonWidth() * density);
             closeBtnWidth = (int) (mActivity.getPreferences().getTabCloseButtonWidth() * density);

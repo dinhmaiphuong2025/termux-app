@@ -239,6 +239,10 @@
     <string name="termux_tab_bar_summary">Show pill-shaped session tabs at top of terminal screen</string>
     <string name="termux_tab_bar_glass_enabled_title">Tab Bar Liquid Glass</string>
     <string name="termux_tab_bar_glass_enabled_summary">Apply Liquid Glass translucent droplet styling and specular rim to tab buttons</string>
+    <string name="termux_tab_bar_border_enabled_title">Enable Tab Border</string>
+    <string name="termux_tab_bar_border_enabled_summary">Draw a border stroke around each tab and button</string>
+    <string name="termux_tab_bar_corner_enabled_title">Rounded Tab Corners</string>
+    <string name="termux_tab_bar_corner_enabled_summary">Round tab corners; when off corners stay sharp (radius is ignored)</string>
     <string name="termux_tab_bar_corner_radius_title">Tab Corner Radius (dp)</string>
     <string name="termux_tab_bar_border_width_title">Tab Border Stroke (dp)</string>
     <string name="termux_tab_bar_border_color_title">Tab Border Color</string>

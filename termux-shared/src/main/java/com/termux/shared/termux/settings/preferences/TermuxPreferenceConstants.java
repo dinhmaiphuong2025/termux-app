@@ -192,6 +192,12 @@ public final class TermuxPreferenceConstants {
         public static final String KEY_TAB_BORDER_WIDTH = "tab_border_width";
         public static final int DEFAULT_VALUE_TAB_BORDER_WIDTH = 1;
 
+        public static final String KEY_TAB_BORDER_ENABLED = "tab_border_enabled";
+        public static final boolean DEFAULT_VALUE_TAB_BORDER_ENABLED = true;
+
+        public static final String KEY_TAB_CORNER_ENABLED = "tab_corner_enabled";
+        public static final boolean DEFAULT_VALUE_TAB_CORNER_ENABLED = true;
+
         public static final String KEY_TAB_BORDER_SYNC = "tab_border_sync";
         public static final boolean DEFAULT_VALUE_TAB_BORDER_SYNC = true;
 

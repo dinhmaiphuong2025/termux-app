@@ -68,6 +68,10 @@
     <string name="termux_outer_background_style_summary">Mở rộng hình nền ra vùng xung quanh cửa sổ terminal (lề, khe giữa tab bar và thanh phím phụ): màu đặc, mờ hoặc ảnh gốc</string>
     <string name="termux_tab_bar_glass_enabled_title">Liquid Glass cho Tab Bar</string>
     <string name="termux_tab_bar_glass_enabled_summary">Áp dụng hiệu ứng kính lỏng và viền phản quang cho các nút trên thanh tab</string>
+    <string name="termux_tab_bar_border_enabled_title">Bật viền nút tab</string>
+    <string name="termux_tab_bar_border_enabled_summary">Vẽ đường viền bao quanh mỗi nút tab và các nút chức năng</string>
+    <string name="termux_tab_bar_corner_enabled_title">Bo góc nút tab</string>
+    <string name="termux_tab_bar_corner_enabled_summary">Bo tròn các góc nút tab; khi tắt góc sẽ vuông vức (bỏ qua bán kính bo)</string>
     <string name="termux_extra_keys_pressed_text_color_title">Màu chữ khi nhấn phím</string>
     <string name="termux_extra_keys_pressed_text_color_summary">Màu sắc của chữ khi bấm/giữ phím trên thanh phím phụ (để trống = theo theme)</string>
 </resources>
