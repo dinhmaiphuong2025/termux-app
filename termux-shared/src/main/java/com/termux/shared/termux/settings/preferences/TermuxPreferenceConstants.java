@@ -205,7 +205,7 @@ public final class TermuxPreferenceConstants {
         public static final String DEFAULT_VALUE_TAB_BORDER_COLOR = "#FFFFFF";
 
         public static final String KEY_TAB_ACTIVE_COLOR = "tab_active_color";
-        public static final String DEFAULT_VALUE_TAB_ACTIVE_COLOR = "#89B4FA";
+        public static final String DEFAULT_VALUE_TAB_ACTIVE_COLOR = "#FFFFFF";
 
         public static final String KEY_TAB_BUTTON_WIDTH = "tab_button_width";
         public static final int DEFAULT_VALUE_TAB_BUTTON_WIDTH = 28;

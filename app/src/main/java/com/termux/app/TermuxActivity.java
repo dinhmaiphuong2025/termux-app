@@ -1172,6 +1172,17 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         }
 
         // 3. Tab Bar
+        if (mTerminalTabBarLayout != null) {
+            boolean keepLayout = getPreferences().isKeepBorderLayoutEnabled();
+            boolean borderEnabled = getPreferences().isTerminalBorderEnabled();
+            int gaps = (borderEnabled || keepLayout)
+                ? (int) (getPreferences().getTerminalBorderGaps() * density) : 0;
+            ViewGroup.MarginLayoutParams tabLp = (ViewGroup.MarginLayoutParams) mTerminalTabBarLayout.getLayoutParams();
+            if (tabLp != null) {
+                tabLp.setMargins(gaps, gaps, gaps, 0);
+                mTerminalTabBarLayout.setLayoutParams(tabLp);
+            }
+        }
         if (mTermuxTabBarController != null) {
             mTermuxTabBarController.updateTabs();
         }

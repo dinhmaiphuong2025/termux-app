@@ -155,7 +155,7 @@ public class CustomUIPreferencesFragment extends PreferenceFragmentCompat {
                     tabActiveColorPref.setSummary(prefs.getTabActiveColor());
                     }
                     tabActiveColorPref.setOnPreferenceClickListener(preference -> {
-                    String current = prefs != null ? prefs.getTabActiveColor() : "#89B4FA";
+                    String current = prefs != null ? prefs.getTabActiveColor() : "#FFFFFF";
                     ColorPickerDialogUtils.showColorPickerDialog(context, "Active Tab Accent Color", current, hexColor -> {
                     if (prefs != null) {
                         prefs.setTabActiveColor(hexColor);
@@ -645,7 +645,7 @@ class CustomUIPreferencesDataStore extends PreferenceDataStore {
                 mPreferences.setTabBorderColor(value != null ? value : "#FFFFFF");
                 break;
             case "tab_active_color":
-                mPreferences.setTabActiveColor(value != null ? value : "#89B4FA");
+                mPreferences.setTabActiveColor(value != null ? value : "#FFFFFF");
                 break;
             case "terminal_background_image_path":
                 mPreferences.setTerminalBackgroundImagePath(value != null ? value : "");

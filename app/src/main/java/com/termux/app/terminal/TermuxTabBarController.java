@@ -324,9 +324,10 @@ public class TermuxTabBarController {
         boolean cornerEnabled = mActivity.getPreferences() == null || mActivity.getPreferences().isTabCornerEnabled();
         int cornerRadius = cornerEnabled ? (int) (1 * density) : 0;
         boolean borderEnabled = mActivity.getPreferences() == null || mActivity.getPreferences().isTabBorderEnabled();
-        int borderWidth = borderEnabled ? (int) (1 * density) : 0;
+        boolean keepLayout = mActivity.getPreferences() != null && mActivity.getPreferences().isKeepBorderLayoutEnabled();
+        int configuredBorderWidth = (int) (1 * density);
         int borderColor = Color.parseColor("#FFFFFF");
-        int activeAccentColor = Color.parseColor("#89B4FA");
+        int activeAccentColor = Color.parseColor("#FFFFFF");
         int buttonWidth = (int) (28 * density);
         int newBtnWidth = (int) (28 * density);
         int closeBtnWidth = (int) (28 * density);
@@ -337,7 +338,8 @@ public class TermuxTabBarController {
             cornerEnabled = mActivity.getPreferences().isTabCornerEnabled();
             cornerRadius = cornerEnabled ? (int) (mActivity.getPreferences().getTabCornerRadius() * density) : 0;
             borderEnabled = mActivity.getPreferences().isTabBorderEnabled();
-            borderWidth = borderEnabled ? (int) (mActivity.getPreferences().getTabBorderWidth() * density) : 0;
+            keepLayout = mActivity.getPreferences().isKeepBorderLayoutEnabled();
+            configuredBorderWidth = (int) (mActivity.getPreferences().getTabBorderWidth() * density);
             buttonWidth = (int) (mActivity.getPreferences().getTabButtonWidth() * density);
             newBtnWidth = (int) (mActivity.getPreferences().getTabNewButtonWidth() * density);
             closeBtnWidth = (int) (mActivity.getPreferences().getTabCloseButtonWidth() * density);
@@ -352,6 +354,7 @@ public class TermuxTabBarController {
                 activeAccentColor = Color.parseColor(customActiveColor);
             } catch (Exception ignored) {}
         }
+        int borderWidth = (borderEnabled || keepLayout) ? configuredBorderWidth : 0;
 
         // Style the new-session, close-session and settings buttons
         if (mNewSessionBtn != null) {
