@@ -1621,10 +1621,14 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
                 try {
                     int barRadius = getPreferences().isExtraKeysBarCornerEnabled()
                         ? (int) (getPreferences().getExtraKeysBarBorderCornerRadius() * density) : 0;
+                    float barRim = Math.min(18f * density, barH * 0.42f);
+                    float barThick = barRim * 0.65f;
                     RuntimeShader lensShader = new RuntimeShader(GLASS_LENS_SHADER);
                     lensShader.setFloatUniform("uSize", (float) barW, (float) barH);
                     lensShader.setFloatUniform("uRadius", (float) barRadius);
-                    lensShader.setFloatUniform("uRim", Math.min(16f * density, barH * 0.45f));
+                    lensShader.setFloatUniform("uRim", barRim);
+                    lensShader.setFloatUniform("uThickness", barThick);
+                    lensShader.setFloatUniform("uIOR", 2.6f);
                     lensShader.setFloatUniform("uVeilAlpha", barVeilAlpha);
                     RenderEffect lensEffect = RenderEffect.createRuntimeShaderEffect(lensShader, "content");
                     if (barBlurPx > 0.5f) {
@@ -1707,6 +1711,8 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         "uniform vec2 uSize;\n" +
         "uniform float uRadius;\n" +
         "uniform float uRim;\n" +
+        "uniform float uThickness;\n" +
+        "uniform float uIOR;\n" +
         "uniform float uVeilAlpha;\n" +
         "\n" +
         "float sdRoundRect(vec2 p, vec2 halfSize, float r) {\n" +
@@ -1722,31 +1728,36 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         "    half4 col;\n" +
         "    float specular = 0.0;\n" +
         "    if (dist > 0.0 && dist < uRim) {\n" +
-        "        float s = clamp(dist / uRim, 0.0, 1.0);\n" +
-        "        float edgeDist = 1.0 - s;\n" +
-        "        float h = pow(max(0.0, 1.0 - edgeDist * edgeDist * edgeDist * edgeDist), 0.25);\n" +
-        "        float dispProfile = h * edgeDist;\n" +
+        "        float t = clamp(dist / uRim, 0.0, 1.0);\n" +
+        "        float s = 1.0 - t;\n" +
+        "        float h = pow(max(0.0, 1.0 - s * s * s * s), 0.25);\n" +
+        "        float s2 = 1.0 - min(t + 0.002, 1.0);\n" +
+        "        float h2 = pow(max(0.0, 1.0 - s2 * s2 * s2 * s2), 0.25);\n" +
+        "        float dh = (h2 - h) * 500.0;\n" +
+        "        float slopeAngle = atan(dh * (uThickness / uRim));\n" +
+        "        float sinR = clamp(sin(slopeAngle) / uIOR, -1.0, 1.0);\n" +
+        "        float thetaR = asin(sinR);\n" +
+        "        float displacement = h * uThickness * (tan(slopeAngle) - tan(thetaR));\n" +
         "        vec2 e = vec2(1.0, 0.0);\n" +
         "        vec2 grad = vec2(\n" +
         "            sdRoundRect(p + e, halfSize, uRadius) - sdRoundRect(p - e, halfSize, uRadius),\n" +
         "            sdRoundRect(p + e.yx, halfSize, uRadius) - sdRoundRect(p - e.yx, halfSize, uRadius));\n" +
         "        float gradLen = length(grad);\n" +
         "        grad = gradLen > 0.0001 ? grad / gradLen : vec2(0.0);\n" +
-        "        float lens = dispProfile * uRim * 0.45;\n" +
-        "        float ca = dispProfile * 2.0;\n" +
         "        vec2 dir = -grad;\n" +
-        "        half4 cR = content.eval(fragCoord + dir * (lens + ca));\n" +
-        "        half4 cG = content.eval(fragCoord + dir * lens);\n" +
-        "        half4 cB = content.eval(fragCoord + dir * (lens - ca));\n" +
+        "        float ca = displacement * 0.025;\n" +
+        "        half4 cR = content.eval(fragCoord + dir * (displacement - ca));\n" +
+        "        half4 cG = content.eval(fragCoord + dir * displacement);\n" +
+        "        half4 cB = content.eval(fragCoord + dir * (displacement + ca));\n" +
         "        col = half4(cR.r, cG.g, cB.b, 1.0);\n" +
-        "        float fresnel = pow(edgeDist, 4.0);\n" +
-        "        float light = max(0.0, -grad.y * 0.65 - grad.x * 0.35 + 0.15);\n" +
+        "        float innerShadow = 1.0 - smoothstep(0.0, uRim * 0.55, dist);\n" +
+        "        col.rgb *= mix(1.0, 0.76, innerShadow * 0.35);\n" +
         "        vec2 lightDir = normalize(vec2(0.5, -0.7));\n" +
         "        float rimDot = abs(dot(grad, lightDir));\n" +
-        "        float rimFalloff = 1.0 - smoothstep(0.0, uRim * 0.4, dist);\n" +
-        "        float specHighlight = pow(rimDot * rimFalloff, 1.5);\n" +
-        "        float innerRim = smoothstep(0.0, 2.0, dist) * (1.0 - smoothstep(2.0, 5.0, dist));\n" +
-        "        specular = fresnel * 0.30 * light + specHighlight * 0.30 + innerRim * 0.15;\n" +
+        "        float rimFalloff = 1.0 - smoothstep(0.0, uRim * 0.35, dist);\n" +
+        "        float specHighlight = pow(rimDot * rimFalloff, 2.0);\n" +
+        "        float innerRim = smoothstep(0.0, 1.5, dist) * (1.0 - smoothstep(1.5, 3.5, dist));\n" +
+        "        specular = specHighlight * 0.45 + innerRim * 0.25;\n" +
         "    } else {\n" +
         "        col = content.eval(fragCoord);\n" +
         "    }\n" +
@@ -1994,10 +2005,14 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
                     float density = getResources().getDisplayMetrics().density;
                     float cornerPx = getPreferences() != null && getPreferences().isTerminalBorderCornerEnabled()
                         ? getPreferences().getTerminalBorderCornerRadius() * density : 0f;
+                    float rimPx = Math.min(22f * density, Math.min(cardW, cardH) * 0.25f);
+                    float thickPx = rimPx * 0.65f;
                     RuntimeShader lensShader = new RuntimeShader(GLASS_LENS_SHADER);
                     lensShader.setFloatUniform("uSize", (float) cardW, (float) cardH);
                     lensShader.setFloatUniform("uRadius", cornerPx);
-                    lensShader.setFloatUniform("uRim", 16f * density);
+                    lensShader.setFloatUniform("uRim", rimPx);
+                    lensShader.setFloatUniform("uThickness", thickPx);
+                    lensShader.setFloatUniform("uIOR", 2.6f);
                     lensShader.setFloatUniform("uVeilAlpha", veilAlpha);
                     RenderEffect lensEffect = RenderEffect.createRuntimeShaderEffect(lensShader, "content");
                     if (blurPx > 0.5f) {
