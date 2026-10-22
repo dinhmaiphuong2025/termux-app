@@ -1372,10 +1372,10 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
             BitmapFactory.decodeFile(targetPath, opts);
         }
 
-        // Downsample if image is excessively large (larger than 2048 in either dimension)
+        // Downsample if image is excessively large (larger than 4096 in either dimension)
         int sampleSize = 1;
         int maxDim = Math.max(opts.outWidth, opts.outHeight);
-        while (maxDim / sampleSize > 2048) {
+        while (maxDim / sampleSize > 4096) {
             sampleSize *= 2;
         }
 
@@ -1401,6 +1401,12 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
     private void applyActivityBackground(Bitmap bitmap, boolean blurred) {
         if (mActivityBackgroundImage == null) return;
         mActivityBackgroundImage.setImageBitmap(bitmap);
+        Drawable actD = mActivityBackgroundImage.getDrawable();
+        if (actD instanceof BitmapDrawable) {
+            ((BitmapDrawable) actD).setAntiAlias(true);
+            ((BitmapDrawable) actD).setFilterBitmap(true);
+            ((BitmapDrawable) actD).setDither(true);
+        }
         applyFixedSceneMatrix(mActivityBackgroundImage, bitmap);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             if (blurred) {
@@ -1502,6 +1508,12 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
 
         if (mTerminalBackgroundImage != null) {
             mTerminalBackgroundImage.setImageBitmap(bitmap);
+            Drawable bgD = mTerminalBackgroundImage.getDrawable();
+            if (bgD instanceof BitmapDrawable) {
+                ((BitmapDrawable) bgD).setAntiAlias(true);
+                ((BitmapDrawable) bgD).setFilterBitmap(true);
+                ((BitmapDrawable) bgD).setDither(true);
+            }
             // No saturation boost: Liquid Glass keeps the wallpaper colors natural.
             mTerminalBackgroundImage.setColorFilter(null);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -1601,6 +1613,12 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         mTerminalToolbarBackgroundImage.setScaleType(ImageView.ScaleType.MATRIX);
         mTerminalToolbarBackgroundImage.setImageMatrix(barMatrix);
         mTerminalToolbarBackgroundImage.setImageBitmap(bitmap);
+        Drawable barD = mTerminalToolbarBackgroundImage.getDrawable();
+        if (barD instanceof BitmapDrawable) {
+            ((BitmapDrawable) barD).setAntiAlias(true);
+            ((BitmapDrawable) barD).setFilterBitmap(true);
+            ((BitmapDrawable) barD).setDither(true);
+        }
         mTerminalToolbarBackgroundImage.setColorFilter(null);
 
         boolean glassEnabled = getPreferences() != null && getPreferences().isGlassEffectEnabled();
@@ -1729,15 +1747,8 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         "    float specular = 0.0;\n" +
         "    if (dist > 0.0 && dist < uRim) {\n" +
         "        float t = clamp(dist / uRim, 0.0, 1.0);\n" +
-        "        float s = 1.0 - t;\n" +
-        "        float h = pow(max(0.0, 1.0 - s * s * s * s), 0.25);\n" +
-        "        float s2 = 1.0 - min(t + 0.002, 1.0);\n" +
-        "        float h2 = pow(max(0.0, 1.0 - s2 * s2 * s2 * s2), 0.25);\n" +
-        "        float dh = (h2 - h) * 500.0;\n" +
-        "        float slopeAngle = atan(dh * (uThickness / uRim));\n" +
-        "        float sinR = clamp(sin(slopeAngle) / uIOR, -1.0, 1.0);\n" +
-        "        float thetaR = asin(sinR);\n" +
-        "        float displacement = h * uThickness * (tan(slopeAngle) - tan(thetaR));\n" +
+        "        float meniscus = t * pow(1.0 - t, 1.25) * 3.5;\n" +
+        "        float displacement = meniscus * uThickness;\n" +
         "        vec2 e = vec2(1.0, 0.0);\n" +
         "        vec2 grad = vec2(\n" +
         "            sdRoundRect(p + e, halfSize, uRadius) - sdRoundRect(p - e, halfSize, uRadius),\n" +
@@ -1745,24 +1756,30 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         "        float gradLen = length(grad);\n" +
         "        grad = gradLen > 0.0001 ? grad / gradLen : vec2(0.0);\n" +
         "        vec2 dir = -grad;\n" +
-        "        float ca = displacement * 0.025;\n" +
+        "        float ca = displacement * 0.03;\n" +
         "        half4 cR = content.eval(fragCoord + dir * (displacement - ca));\n" +
         "        half4 cG = content.eval(fragCoord + dir * displacement);\n" +
         "        half4 cB = content.eval(fragCoord + dir * (displacement + ca));\n" +
         "        col = half4(cR.r, cG.g, cB.b, 1.0);\n" +
-        "        float innerShadow = 1.0 - smoothstep(0.0, uRim * 0.55, dist);\n" +
-        "        col.rgb *= mix(1.0, 0.76, innerShadow * 0.35);\n" +
-        "        vec2 lightDir = normalize(vec2(0.5, -0.7));\n" +
-        "        float rimDot = abs(dot(grad, lightDir));\n" +
-        "        float rimFalloff = 1.0 - smoothstep(0.0, uRim * 0.35, dist);\n" +
-        "        float specHighlight = pow(rimDot * rimFalloff, 2.0);\n" +
-        "        float innerRim = smoothstep(0.0, 1.5, dist) * (1.0 - smoothstep(1.5, 3.5, dist));\n" +
-        "        specular = specHighlight * 0.45 + innerRim * 0.25;\n" +
+        "\n" +
+        "        vec2 toLight = vec2(-0.35, -0.93);\n" +
+        "        float dotLight = dot(grad, toLight);\n" +
+        "        float light = max(0.0, dotLight);\n" +
+        "        float shadowSide = max(0.0, -dotLight);\n" +
+        "\n" +
+        "        float edgeBevel = 1.0 - smoothstep(0.0, uRim * 0.65, dist);\n" +
+        "        float darkShadow = (0.12 + 0.35 * shadowSide) * edgeBevel;\n" +
+        "        col.rgb *= (1.0 - darkShadow * 0.35);\n" +
+        "\n" +
+        "        float rimGlint = pow(light, 2.0) * (1.0 - t) * 0.45;\n" +
+        "        float innerRim = smoothstep(0.0, 1.2, dist) * (1.0 - smoothstep(1.2, 3.0, dist)) * (0.25 + 0.75 * light);\n" +
+        "        specular = rimGlint + innerRim * 0.35;\n" +
         "    } else {\n" +
         "        col = content.eval(fragCoord);\n" +
         "    }\n" +
         "    half3 veil = half3(0.04, 0.06, 0.10);\n" +
-        "    half3 outColor = mix(col.rgb, veil, uVeilAlpha);\n" +
+        "    half3 glassLift = half3(0.025) * (1.0 - uVeilAlpha * 0.5);\n" +
+        "    half3 outColor = mix(col.rgb, veil, uVeilAlpha) + glassLift;\n" +
         "    outColor += half3(1.0) * specular;\n" +
         "    return half4(outColor, 1.0);\n" +
         "}\n";
@@ -1997,6 +2014,12 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             mTerminalGlassBackdrop.setImageBitmap(bitmap);
+            Drawable d = mTerminalGlassBackdrop.getDrawable();
+            if (d instanceof BitmapDrawable) {
+                ((BitmapDrawable) d).setAntiAlias(true);
+                ((BitmapDrawable) d).setFilterBitmap(true);
+                ((BitmapDrawable) d).setDither(true);
+            }
             mTerminalGlassBackdrop.setScaleType(ImageView.ScaleType.MATRIX);
             mTerminalGlassBackdrop.setImageMatrix(matrix);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
