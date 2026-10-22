@@ -143,10 +143,29 @@ public class CustomUIPreferencesFragment extends PreferenceFragmentCompat {
                     }
                     tabColorPref.setSummary(hexColor);
                     TermuxActivity.updateTermuxActivityStyling(context, false);
-                });
-                return true;
-            });
-        }
+                    });
+                    return true;
+                    });
+                    }
+
+                    Preference tabActiveColorPref = findPreference("tab_active_color");
+                    if (tabActiveColorPref != null) {
+                    TermuxAppSharedPreferences prefs = TermuxAppSharedPreferences.build(context, true);
+                    if (prefs != null) {
+                    tabActiveColorPref.setSummary(prefs.getTabActiveColor());
+                    }
+                    tabActiveColorPref.setOnPreferenceClickListener(preference -> {
+                    String current = prefs != null ? prefs.getTabActiveColor() : "#89B4FA";
+                    ColorPickerDialogUtils.showColorPickerDialog(context, "Active Tab Accent Color", current, hexColor -> {
+                    if (prefs != null) {
+                        prefs.setTabActiveColor(hexColor);
+                    }
+                    tabActiveColorPref.setSummary(hexColor);
+                    TermuxActivity.updateTermuxActivityStyling(context, false);
+                    });
+                    return true;
+                    });
+                    }
 
         Preference barBorderColorPref = findPreference("extra_keys_bar_border_color");
         if (barBorderColorPref != null) {
@@ -625,6 +644,9 @@ class CustomUIPreferencesDataStore extends PreferenceDataStore {
             case "tab_border_color":
                 mPreferences.setTabBorderColor(value != null ? value : "#FFFFFF");
                 break;
+            case "tab_active_color":
+                mPreferences.setTabActiveColor(value != null ? value : "#89B4FA");
+                break;
             case "terminal_background_image_path":
                 mPreferences.setTerminalBackgroundImagePath(value != null ? value : "");
                 break;
@@ -686,6 +708,8 @@ class CustomUIPreferencesDataStore extends PreferenceDataStore {
                 return mPreferences.getTerminalBorderColor();
             case "tab_border_color":
                 return mPreferences.getTabBorderColor();
+            case "tab_active_color":
+                return mPreferences.getTabActiveColor();
             case "terminal_background_image_path":
                 return mPreferences.getTerminalBackgroundImagePath();
             case "terminal_border_style":

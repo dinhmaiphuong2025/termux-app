@@ -72,6 +72,8 @@
     <string name="termux_tab_bar_border_enabled_summary">Vẽ đường viền bao quanh mỗi nút tab và các nút chức năng</string>
     <string name="termux_tab_bar_corner_enabled_title">Bo góc nút tab</string>
     <string name="termux_tab_bar_corner_enabled_summary">Bo tròn các góc nút tab; khi tắt góc sẽ vuông vức (bỏ qua bán kính bo)</string>
+    <string name="termux_tab_bar_active_color_title">Màu nhấn tab đang chọn</string>
+    <string name="termux_tab_bar_active_color_summary">Màu sắc nổi bật của tab session đang hoạt động</string>
     <string name="termux_extra_keys_pressed_text_color_title">Màu chữ khi nhấn phím</string>
     <string name="termux_extra_keys_pressed_text_color_summary">Màu sắc của chữ khi bấm/giữ phím trên thanh phím phụ (để trống = theo theme)</string>
 </resources>

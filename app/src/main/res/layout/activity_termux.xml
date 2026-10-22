@@ -107,6 +107,24 @@
                                 android:scrollbars="vertical"
                                 tools:ignore="UnusedAttribute" />
 
+                            <ImageView
+                                android:id="@+id/terminal_card_snapshot"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:scaleType="fitXY"
+                                android:clickable="false"
+                                android:focusable="false"
+                                android:visibility="invisible" />
+
+                            <ImageView
+                                android:id="@+id/terminal_card_incoming_snapshot"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:scaleType="fitXY"
+                                android:clickable="false"
+                                android:focusable="false"
+                                android:visibility="invisible" />
+
                             <View
                                 android:id="@+id/terminal_border_overlay"
                                 android:layout_width="match_parent"
@@ -116,24 +134,6 @@
                                 android:visibility="gone" />
                         </FrameLayout>
                     </com.google.android.material.card.MaterialCardView>
-
-                    <ImageView
-                        android:id="@+id/terminal_card_snapshot"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:scaleType="fitXY"
-                        android:clickable="false"
-                        android:focusable="false"
-                        android:visibility="invisible" />
-
-                    <ImageView
-                        android:id="@+id/terminal_card_incoming_snapshot"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:scaleType="fitXY"
-                        android:clickable="false"
-                        android:focusable="false"
-                        android:visibility="invisible" />
                 </FrameLayout>
             </LinearLayout>
 

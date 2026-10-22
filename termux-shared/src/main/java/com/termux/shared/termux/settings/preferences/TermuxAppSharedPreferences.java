@@ -314,6 +314,14 @@ public class TermuxAppSharedPreferences extends AppSharedPreferences {
         SharedPreferenceUtils.setString(mSharedPreferences, TERMUX_APP.KEY_TAB_BORDER_COLOR, value, false);
     }
 
+    public String getTabActiveColor() {
+        return SharedPreferenceUtils.getString(mSharedPreferences, TERMUX_APP.KEY_TAB_ACTIVE_COLOR, TERMUX_APP.DEFAULT_VALUE_TAB_ACTIVE_COLOR, false);
+    }
+
+    public void setTabActiveColor(String value) {
+        SharedPreferenceUtils.setString(mSharedPreferences, TERMUX_APP.KEY_TAB_ACTIVE_COLOR, value, true);
+    }
+
     public int getTabButtonWidth() {
         return SharedPreferenceUtils.getInt(mSharedPreferences, TERMUX_APP.KEY_TAB_BUTTON_WIDTH, TERMUX_APP.DEFAULT_VALUE_TAB_BUTTON_WIDTH);
     }

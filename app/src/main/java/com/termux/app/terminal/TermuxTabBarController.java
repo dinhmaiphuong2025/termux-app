@@ -142,7 +142,7 @@ public class TermuxTabBarController {
         }
     }
 
-    private Drawable createTabDrawable(boolean isActive, int cornerRadius, int strokeWidth, int strokeColor) {
+    private Drawable createTabDrawable(boolean isActive, int cornerRadius, int strokeWidth, int strokeColor, int activeAccentColor) {
         GradientDrawable gd = new GradientDrawable();
         gd.setShape(GradientDrawable.RECTANGLE);
 
@@ -156,25 +156,31 @@ public class TermuxTabBarController {
         float density = mActivity.getResources().getDisplayMetrics().density;
 
         boolean borderEnabled = mActivity.getPreferences() == null || mActivity.getPreferences().isTabBorderEnabled();
-        int effectiveStrokeWidth = borderEnabled ? (strokeWidth > 0 ? strokeWidth : (glassEnabled ? Math.max(1, Math.round(1f * density)) : 0)) : 0;
+        boolean keepLayout = mActivity.getPreferences() != null && mActivity.getPreferences().isKeepBorderLayoutEnabled();
+
+        int effectiveStrokeWidth = (borderEnabled || keepLayout)
+            ? (strokeWidth > 0 ? strokeWidth : (glassEnabled ? Math.max(1, Math.round(1f * density)) : 0))
+            : 0;
+
+        int targetStrokeColor = isActive ? activeAccentColor : strokeColor;
 
         if (isActive) {
             if (glassEnabled) {
                 float tintFactor = mActivity.getPreferences() != null
                     ? Math.max(0f, Math.min(1f, mActivity.getPreferences().getGlassTintOpacity() / 100f)) : 1f;
-                int alpha = Math.round(0x4A * tintFactor);
+                int alpha = Math.round(0x55 * tintFactor);
                 int activeTint = strokeWidth > 0
-                    ? Color.argb(Math.round(0x55 * tintFactor), Color.red(strokeColor), Color.green(strokeColor), Color.blue(strokeColor))
-                    : Color.argb(alpha, 0x0A, 0x0F, 0x19);
+                    ? Color.argb(Math.round(0x60 * tintFactor), Color.red(activeAccentColor), Color.green(activeAccentColor), Color.blue(activeAccentColor))
+                    : Color.argb(alpha, Color.red(activeAccentColor), Color.green(activeAccentColor), Color.blue(activeAccentColor));
                 gd.setColor(activeTint);
                 if (effectiveStrokeWidth > 0) {
-                    gd.setStroke(effectiveStrokeWidth, strokeWidth > 0 ? strokeColor : 0x80FFFFFF);
+                    gd.setStroke(effectiveStrokeWidth, (!borderEnabled && keepLayout) ? Color.TRANSPARENT : activeAccentColor);
                 }
             } else {
-                int bgTint = Color.argb(0x33, Color.red(strokeColor), Color.green(strokeColor), Color.blue(strokeColor));
+                int bgTint = Color.argb(0x3D, Color.red(activeAccentColor), Color.green(activeAccentColor), Color.blue(activeAccentColor));
                 gd.setColor(bgTint);
                 if (effectiveStrokeWidth > 0) {
-                    gd.setStroke(effectiveStrokeWidth, strokeColor);
+                    gd.setStroke(effectiveStrokeWidth, (!borderEnabled && keepLayout) ? Color.TRANSPARENT : activeAccentColor);
                 }
             }
         } else {
@@ -184,14 +190,15 @@ public class TermuxTabBarController {
                 int alpha = Math.round(0x22 * tintFactor);
                 gd.setColor(Color.argb(alpha, 0x0A, 0x0F, 0x19));
                 if (effectiveStrokeWidth > 0) {
-                    gd.setStroke(effectiveStrokeWidth, strokeWidth > 0
+                    int baseBorder = strokeWidth > 0
                         ? Color.argb(0x44, Color.red(strokeColor), Color.green(strokeColor), Color.blue(strokeColor))
-                        : 0x2AFFFFFF);
+                        : 0x2AFFFFFF;
+                    gd.setStroke(effectiveStrokeWidth, (!borderEnabled && keepLayout) ? Color.TRANSPARENT : baseBorder);
                 }
             } else {
                 gd.setColor(0x22FFFFFF);
                 if (effectiveStrokeWidth > 0) {
-                    gd.setStroke(effectiveStrokeWidth, 0x33FFFFFF);
+                    gd.setStroke(effectiveStrokeWidth, (!borderEnabled && keepLayout) ? Color.TRANSPARENT : 0x33FFFFFF);
                 }
             }
         }
@@ -319,6 +326,7 @@ public class TermuxTabBarController {
         boolean borderEnabled = mActivity.getPreferences() == null || mActivity.getPreferences().isTabBorderEnabled();
         int borderWidth = borderEnabled ? (int) (1 * density) : 0;
         int borderColor = Color.parseColor("#FFFFFF");
+        int activeAccentColor = Color.parseColor("#89B4FA");
         int buttonWidth = (int) (28 * density);
         int newBtnWidth = (int) (28 * density);
         int closeBtnWidth = (int) (28 * density);
@@ -339,6 +347,10 @@ public class TermuxTabBarController {
             try {
                 borderColor = Color.parseColor(customColor);
             } catch (Exception ignored) {}
+            String customActiveColor = mActivity.getPreferences().getTabActiveColor();
+            try {
+                activeAccentColor = Color.parseColor(customActiveColor);
+            } catch (Exception ignored) {}
         }
 
         // Style the new-session, close-session and settings buttons
@@ -348,7 +360,7 @@ public class TermuxTabBarController {
                 lp.width = newBtnWidth;
                 mNewSessionBtn.setLayoutParams(lp);
             }
-            mNewSessionBtn.setBackground(createTabDrawable(false, cornerRadius, borderWidth, borderColor));
+            mNewSessionBtn.setBackground(createTabDrawable(false, cornerRadius, borderWidth, borderColor, activeAccentColor));
         }
         if (mCloseSessionBtn != null) {
             ViewGroup.LayoutParams lp = mCloseSessionBtn.getLayoutParams();
@@ -356,7 +368,7 @@ public class TermuxTabBarController {
                 lp.width = closeBtnWidth;
                 mCloseSessionBtn.setLayoutParams(lp);
             }
-            mCloseSessionBtn.setBackground(createTabDrawable(false, cornerRadius, borderWidth, borderColor));
+            mCloseSessionBtn.setBackground(createTabDrawable(false, cornerRadius, borderWidth, borderColor, activeAccentColor));
         }
         if (mSettingsBtn != null) {
             ViewGroup.LayoutParams lp = mSettingsBtn.getLayoutParams();
@@ -364,7 +376,7 @@ public class TermuxTabBarController {
                 lp.width = settingsBtnWidth;
                 mSettingsBtn.setLayoutParams(lp);
             }
-            mSettingsBtn.setBackground(createTabDrawable(false, cornerRadius, borderWidth, borderColor));
+            mSettingsBtn.setBackground(createTabDrawable(false, cornerRadius, borderWidth, borderColor, activeAccentColor));
         }
 
         View activeTabView = null;
@@ -391,7 +403,7 @@ public class TermuxTabBarController {
 
             if (isCurrent) {
                 activeTabView = tabItem;
-                tabItem.setBackground(createTabDrawable(true, cornerRadius, borderWidth, borderColor));
+                tabItem.setBackground(createTabDrawable(true, cornerRadius, borderWidth, borderColor, activeAccentColor));
                 tabItem.setPadding((int) (8 * density), 0, (int) (8 * density), 0);
                 tabItem.setMinimumWidth(buttonWidth);
                 titleView.setTextColor(0xFFFFFFFF);
@@ -405,7 +417,7 @@ public class TermuxTabBarController {
                 }
                 titleView.setText(fullTitle);
             } else {
-                tabItem.setBackground(createTabDrawable(false, cornerRadius, borderWidth, borderColor));
+                tabItem.setBackground(createTabDrawable(false, cornerRadius, borderWidth, borderColor, activeAccentColor));
                 tabItem.setPadding((int) (8 * density), 0, (int) (8 * density), 0);
                 tabItem.setMinimumWidth(buttonWidth);
                 titleView.setTextColor(0xB3FFFFFF);

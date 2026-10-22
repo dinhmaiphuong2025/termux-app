@@ -1094,13 +1094,6 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
                     lp.setMargins(gaps, gaps, gaps, gaps);
                     mTerminalCardContainer.setLayoutParams(lp);
                 }
-                if (mTerminalCardSnapshot != null) {
-                    ViewGroup.MarginLayoutParams snapLp = (ViewGroup.MarginLayoutParams) mTerminalCardSnapshot.getLayoutParams();
-                    if (snapLp != null) {
-                        snapLp.setMargins(gaps, gaps, gaps, gaps);
-                        mTerminalCardSnapshot.setLayoutParams(snapLp);
-                    }
-                }
 
                 if (mTerminalView != null) {
                     ViewGroup.MarginLayoutParams viewLp = (ViewGroup.MarginLayoutParams) mTerminalView.getLayoutParams();
@@ -1109,6 +1102,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
                         int borderToText = outerGap + strokeWidth;
                         viewLp.setMargins(borderToText, borderToText, borderToText, borderToText);
                         mTerminalView.setLayoutParams(viewLp);
+                        syncSnapshotMargins(viewLp);
                     }
                 }
             } else {
@@ -1130,13 +1124,6 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
                     lp.setMargins(gaps, gaps, gaps, gaps);
                     mTerminalCardContainer.setLayoutParams(lp);
                 }
-                if (mTerminalCardSnapshot != null) {
-                    ViewGroup.MarginLayoutParams snapLp = (ViewGroup.MarginLayoutParams) mTerminalCardSnapshot.getLayoutParams();
-                    if (snapLp != null) {
-                        snapLp.setMargins(gaps, gaps, gaps, gaps);
-                        mTerminalCardSnapshot.setLayoutParams(snapLp);
-                    }
-                }
 
                 if (mTerminalView != null) {
                     ViewGroup.MarginLayoutParams viewLp = (ViewGroup.MarginLayoutParams) mTerminalView.getLayoutParams();
@@ -1150,6 +1137,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
                             viewLp.setMargins(0, 0, 0, 0);
                         }
                         mTerminalView.setLayoutParams(viewLp);
+                        syncSnapshotMargins(viewLp);
                     }
                 }
             }
@@ -2551,47 +2539,49 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         return mTermuxGesturePillView;
     }
 
-    private void captureSessionSnapshot(Bitmap targetBitmap, View sourceContainer) {
-        if (targetBitmap == null || sourceContainer == null) return;
+    private void syncSnapshotMargins(ViewGroup.MarginLayoutParams viewLp) {
+        if (viewLp == null) return;
+        for (ImageView snap : new ImageView[]{mTerminalCardSnapshot, mTerminalCardIncomingSnapshot}) {
+            if (snap != null) {
+                ViewGroup.MarginLayoutParams snapLp = (ViewGroup.MarginLayoutParams) snap.getLayoutParams();
+                if (snapLp != null) {
+                    snapLp.setMargins(viewLp.leftMargin, viewLp.topMargin, viewLp.rightMargin, viewLp.bottomMargin);
+                    snap.setLayoutParams(snapLp);
+                }
+            }
+        }
+    }
+
+    private void captureSessionSnapshot(Bitmap targetBitmap, View sourceView) {
+        if (targetBitmap == null || sourceView == null) return;
         try {
+            targetBitmap.eraseColor(Color.TRANSPARENT);
             android.graphics.Canvas canvas = new android.graphics.Canvas(targetBitmap);
-            if (mLastBackgroundBitmap != null && !mLastBackgroundBitmap.isRecycled()) {
-                if (mTerminalGlassBackdrop != null && mTerminalGlassBackdrop.getImageMatrix() != null) {
-                    canvas.drawBitmap(mLastBackgroundBitmap, mTerminalGlassBackdrop.getImageMatrix(), null);
-                    int alpha = Math.round(mLastVeilAlpha * 255);
-                    canvas.drawColor(Color.argb(alpha, 10, 15, 25));
-                } else {
-                    canvas.drawColor(0xFF000000);
+            if (getPreferences() == null || !getPreferences().isGlassEffectEnabled()) {
+                if (mLastBackgroundBitmap == null || mLastBackgroundBitmap.isRecycled()) {
+                    int bgColor = 0xFF000000;
+                    TerminalSession current = getCurrentSession();
+                    if (current != null && current.getEmulator() != null) {
+                        bgColor = current.getEmulator().mColors.mCurrentColors[TextStyle.COLOR_INDEX_BACKGROUND];
+                    }
+                    canvas.drawColor(bgColor);
                 }
-            } else {
-                int bgColor = 0xFF000000;
-                TerminalSession current = getCurrentSession();
-                if (current != null && current.getEmulator() != null) {
-                    bgColor = current.getEmulator().mColors.mCurrentColors[TextStyle.COLOR_INDEX_BACKGROUND];
-                }
-                canvas.drawColor(bgColor);
             }
-            if (mTerminalGlassBackdrop != null) {
-                mTerminalGlassBackdrop.setVisibility(View.INVISIBLE);
-            }
-            sourceContainer.draw(canvas);
-            if (mTerminalGlassBackdrop != null) {
-                mTerminalGlassBackdrop.setVisibility(View.VISIBLE);
-            }
+            sourceView.draw(canvas);
         } catch (Throwable t) {
             Logger.logStackTraceWithMessage(LOG_TAG, "Failed to capture transition snapshot", t);
         }
     }
 
     public void animateTabTransition(boolean forward, Runnable onAttachSession) {
-        if (!isTabAnimationEnabled() || mTerminalCardContainer == null
+        if (!isTabAnimationEnabled() || mTerminalView == null
                 || mTerminalCardSnapshot == null || mTerminalCardIncomingSnapshot == null || !mIsVisible) {
             onAttachSession.run();
             return;
         }
 
-        int width = mTerminalCardContainer.getWidth();
-        int height = mTerminalCardContainer.getHeight();
+        int width = mTerminalView.getWidth();
+        int height = mTerminalView.getHeight();
         if (width <= 0 || height <= 0) {
             onAttachSession.run();
             return;
@@ -2619,50 +2609,25 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
             }
         }
 
-        // 2. Capture Snapshot A (Old Session):
-        captureSessionSnapshot(mTransitionSnapshotBitmapA, mTerminalCardContainer);
+        // 2. Capture Snapshot A (Old Session text):
+        captureSessionSnapshot(mTransitionSnapshotBitmapA, mTerminalView);
         mTerminalCardSnapshot.setImageBitmap(mTransitionSnapshotBitmapA);
 
         // 3. Attach New Session:
         onAttachSession.run();
 
-        // 4. Capture Snapshot B (New Session):
-        captureSessionSnapshot(mTransitionSnapshotBitmapB, mTerminalCardContainer);
+        // 4. Capture Snapshot B (New Session text):
+        captureSessionSnapshot(mTransitionSnapshotBitmapB, mTerminalView);
         mTerminalCardIncomingSnapshot.setImageBitmap(mTransitionSnapshotBitmapB);
 
-        // 5. Keep live container VISIBLE (alpha = 0f) so it retains focus and IMM never closes the keyboard!
-        mTerminalCardContainer.setVisibility(View.VISIBLE);
-        mTerminalCardContainer.setTranslationX(0f);
-        mTerminalCardContainer.setAlpha(0f);
+        // 5. Keep live terminal view attached and focused, but alpha = 0f during the slide:
+        mTerminalView.setAlpha(0f);
 
-        // Configure layout params & rounded corners for both snapshots:
-        ViewGroup.MarginLayoutParams cardLp = (ViewGroup.MarginLayoutParams) mTerminalCardContainer.getLayoutParams();
-        for (ImageView snap : new ImageView[]{mTerminalCardSnapshot, mTerminalCardIncomingSnapshot}) {
-            ViewGroup.MarginLayoutParams snapLp = (ViewGroup.MarginLayoutParams) snap.getLayoutParams();
-            if (cardLp != null && snapLp != null) {
-                snapLp.setMargins(cardLp.leftMargin, cardLp.topMargin, cardLp.rightMargin, cardLp.bottomMargin);
-                snap.setLayoutParams(snapLp);
-            }
-        }
+        // Configure layout params for both snapshots matching mTerminalView:
+        ViewGroup.MarginLayoutParams viewLp = (ViewGroup.MarginLayoutParams) mTerminalView.getLayoutParams();
+        syncSnapshotMargins(viewLp);
 
-        float density = getResources().getDisplayMetrics().density;
-        float cornerPx = (getPreferences() != null && getPreferences().isTerminalBorderCornerEnabled())
-            ? getPreferences().getTerminalBorderCornerRadius() * density : 0f;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            android.view.ViewOutlineProvider outlineProvider = cornerPx > 0
-                ? new android.view.ViewOutlineProvider() {
-                    @Override
-                    public void getOutline(View view, android.graphics.Outline outline) {
-                        outline.setRoundRect(0, 0, view.getWidth(), view.getHeight(), cornerPx);
-                    }
-                } : null;
-            mTerminalCardSnapshot.setOutlineProvider(outlineProvider);
-            mTerminalCardSnapshot.setClipToOutline(cornerPx > 0);
-            mTerminalCardIncomingSnapshot.setOutlineProvider(outlineProvider);
-            mTerminalCardIncomingSnapshot.setClipToOutline(cornerPx > 0);
-        }
-
-        int marginHorizontal = cardLp != null ? (cardLp.leftMargin + cardLp.rightMargin) : 0;
+        int marginHorizontal = viewLp != null ? (viewLp.leftMargin + viewLp.rightMargin) : 0;
         final float slideDistance = width + marginHorizontal;
         final float startNewX = forward ? slideDistance : -slideDistance;
         final float endOldX = forward ? -slideDistance : slideDistance;
@@ -2717,12 +2682,8 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
             mTerminalCardIncomingSnapshot.setTranslationX(0f);
             mTerminalCardIncomingSnapshot.setAlpha(1.0f);
         }
-        if (mTerminalCardContainer != null) {
-            mTerminalCardContainer.setTranslationX(0f);
-            mTerminalCardContainer.setAlpha(1.0f);
-            mTerminalCardContainer.setVisibility(View.VISIBLE);
-        }
         if (mTerminalView != null) {
+            mTerminalView.setAlpha(1.0f);
             mTerminalView.requestFocus();
         }
         mTabTransitionAnimator = null;

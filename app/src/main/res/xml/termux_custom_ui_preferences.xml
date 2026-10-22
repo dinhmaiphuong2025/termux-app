@@ -300,6 +300,11 @@
                 app:summary="@string/termux_tab_bar_border_color_summary"
                 app:dependency="tab_border_enabled" />
 
+            <Preference
+                app:key="tab_active_color"
+                app:title="@string/termux_tab_bar_active_color_title"
+                app:summary="@string/termux_tab_bar_active_color_summary" />
+
             <SwitchPreferenceCompat
                 app:key="tab_corner_enabled"
                 app:title="@string/termux_tab_bar_corner_enabled_title"
