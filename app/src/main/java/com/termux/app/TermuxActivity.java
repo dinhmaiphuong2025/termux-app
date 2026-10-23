@@ -258,6 +258,8 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
      */
     private boolean mIsVisible;
 
+    private boolean mPendingReloadStyling = false;
+
     /**
      * If onResume() was called after onCreate().
      */
@@ -419,7 +421,12 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         if (mTermuxTerminalViewClient != null)
             mTermuxTerminalViewClient.onResume();
 
-        updateTerminalAppearance();
+        if (mPendingReloadStyling) {
+            mPendingReloadStyling = false;
+            reloadActivityStyling(false);
+        } else {
+            updateTerminalAppearance();
+        }
 
         // Check if a crash happened on last run of the app or if a plugin crashed and show a
         // notification with the crash details if it did
@@ -1319,6 +1326,9 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
             mTerminalBackgroundImage.setVisibility(View.GONE);
             mTerminalBackgroundOverlay.setVisibility(View.GONE);
             mLastBackgroundBitmap = null;
+            mLastBackgroundBlurRadius = 0;
+            mLastVeilAlpha = 0f;
+            hideGlassBackdrop();
             hideToolbarBackground();
             hideTabBarBackground();
             hideActivityBackground();
@@ -1547,10 +1557,19 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         if (glassEnabled) {
             applyGlassBackdrop(bitmap, getGlassBlurPx(getResources().getDisplayMetrics().density));
             if (mTerminalBackgroundOverlay != null) {
-                mTerminalBackgroundOverlay.setVisibility(View.GONE);
+                int opacity = getPreferences() != null ? getPreferences().getTerminalBackgroundOpacity() : 60;
+                float alpha = Math.max(0.0f, Math.min(1.0f, opacity / 100.0f));
+                mTerminalBackgroundOverlay.setAlpha(alpha);
+                mTerminalBackgroundOverlay.setVisibility(alpha > 0.001f ? View.VISIBLE : View.GONE);
             }
         } else {
             hideGlassBackdrop();
+            if (mTerminalBackgroundOverlay != null) {
+                int opacity = getPreferences() != null ? getPreferences().getTerminalBackgroundOpacity() : 60;
+                float alpha = Math.max(0.0f, Math.min(1.0f, opacity / 100.0f));
+                mTerminalBackgroundOverlay.setAlpha(alpha);
+                mTerminalBackgroundOverlay.setVisibility(View.VISIBLE);
+            }
         }
 
         if (isBarBackgroundEnabled()) {
@@ -2262,12 +2281,17 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         mTerminalGlassBackdrop.setVisibility(View.VISIBLE);
     }
 
-    /** Remove the glass backdrop (glass effect off). */
+    /** Remove the glass backdrop (glass effect off or wallpaper cleared). */
     private void hideGlassBackdrop() {
         if (mTerminalGlassBackdrop == null) return;
         mTerminalGlassBackdrop.setVisibility(View.GONE);
+        mTerminalGlassBackdrop.setImageBitmap(null);
+        mTerminalGlassBackdrop.setImageMatrix(null);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             mTerminalGlassBackdrop.setRenderEffect(null);
+        }
+        if (mTerminalGlassTint != null) {
+            mTerminalGlassTint.setVisibility(View.GONE);
         }
     }
 
@@ -2312,14 +2336,16 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
             if (mExtraKeysView != null) {
                 mExtraKeysView.setBackgroundColor(Color.TRANSPARENT);
                 // Fully transparent key backgrounds: only the glyphs float on the wallpaper.
-                int pressedTextColor = 0xFF89B4FA;
+                int pressedTextColor = 0xFFFFFFFF;
                 String customPressed = getPreferences().getExtraKeysPressedTextColor();
                 if (!TextUtils.isEmpty(customPressed)) {
                     try {
                         pressedTextColor = Color.parseColor(customPressed);
                     } catch (Exception ignored) {}
                 }
-                mExtraKeysView.setButtonColors(Color.WHITE, pressedTextColor, 0x00FFFFFF, 0x33FFFFFF);
+                int activeBg = glassEnabled ? Color.TRANSPARENT : 0x33FFFFFF;
+                mExtraKeysView.setButtonColors(Color.WHITE, pressedTextColor, Color.TRANSPARENT, activeBg);
+                mExtraKeysView.setButtonStrokeWidth(0);
                 // setButtonColors only stores values; repaint every existing button now
                 // so no stale rectangular backgrounds linger until a key is pressed.
                 mExtraKeysView.restyleButtons();
@@ -2516,6 +2542,10 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
                         requestStoragePermission(false);
                         return;
                     default:
+                }
+            } else {
+                if (intent != null && TERMUX_ACTIVITY.ACTION_RELOAD_STYLE.equals(intent.getAction())) {
+                    mPendingReloadStyling = true;
                 }
             }
         }

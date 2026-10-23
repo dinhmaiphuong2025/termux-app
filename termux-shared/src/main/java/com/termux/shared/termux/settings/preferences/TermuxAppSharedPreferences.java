@@ -833,9 +833,13 @@ public class TermuxAppSharedPreferences extends AppSharedPreferences {
      */
     public void resetAllCustomUiSettingsToDefault() {
         setTabBarEnabled(TERMUX_APP.DEFAULT_VALUE_SHOW_TAB_BAR);
+        setTabBarGlassEnabled(TERMUX_APP.DEFAULT_VALUE_TAB_BAR_GLASS_ENABLED);
+        setTabBorderEnabled(TERMUX_APP.DEFAULT_VALUE_TAB_BORDER_ENABLED);
+        setTabCornerEnabled(TERMUX_APP.DEFAULT_VALUE_TAB_CORNER_ENABLED);
         setTabCornerRadius(TERMUX_APP.DEFAULT_VALUE_TAB_CORNER_RADIUS);
         setTabBorderWidth(TERMUX_APP.DEFAULT_VALUE_TAB_BORDER_WIDTH);
         setTabBorderColor(TERMUX_APP.DEFAULT_VALUE_TAB_BORDER_COLOR);
+        setTabActiveColor(TERMUX_APP.DEFAULT_VALUE_TAB_ACTIVE_COLOR);
         setTabButtonWidth(TERMUX_APP.DEFAULT_VALUE_TAB_BUTTON_WIDTH);
         setTabNewButtonWidth(TERMUX_APP.DEFAULT_VALUE_TAB_NEW_BUTTON_WIDTH);
         setTabCloseButtonWidth(TERMUX_APP.DEFAULT_VALUE_TAB_CLOSE_BUTTON_WIDTH);
@@ -844,6 +848,7 @@ public class TermuxAppSharedPreferences extends AppSharedPreferences {
         setTabAnimationEnabled(TERMUX_APP.DEFAULT_VALUE_TAB_ANIMATION_ENABLED);
         setShowSessionNameWithoutTabBar(TERMUX_APP.DEFAULT_VALUE_SHOW_SESSION_NAME_WITHOUT_TAB_BAR);
         setSessionNameAlignment(TERMUX_APP.DEFAULT_VALUE_SESSION_NAME_ALIGNMENT);
+        setKeepBorderLayoutEnabled(TERMUX_APP.DEFAULT_VALUE_KEEP_BORDER_LAYOUT_ENABLED);
 
         setGesturePillEnabled(TERMUX_APP.DEFAULT_VALUE_GESTURE_PILL_ENABLED);
         setGesturePillWidth(TERMUX_APP.DEFAULT_VALUE_GESTURE_PILL_WIDTH);
@@ -863,6 +868,8 @@ public class TermuxAppSharedPreferences extends AppSharedPreferences {
         setTerminalBorderWidth(TERMUX_APP.DEFAULT_VALUE_TERMINAL_BORDER_WIDTH);
         setTerminalBorderColor(TERMUX_APP.DEFAULT_VALUE_TERMINAL_BORDER_COLOR);
         setTerminalBorderGaps(TERMUX_APP.DEFAULT_VALUE_TERMINAL_BORDER_GAPS);
+        setTerminalBorderStyle(TERMUX_APP.DEFAULT_VALUE_TERMINAL_BORDER_STYLE);
+        setTerminalHorizontalMargin(TERMUX_APP.DEFAULT_VALUE_TERMINAL_HORIZONTAL_MARGIN);
 
         setTerminalBackgroundImagePath(TERMUX_APP.DEFAULT_VALUE_TERMINAL_BACKGROUND_IMAGE_PATH);
         setTerminalBackgroundOpacity(TERMUX_APP.DEFAULT_VALUE_TERMINAL_BACKGROUND_OPACITY);
@@ -884,6 +891,7 @@ public class TermuxAppSharedPreferences extends AppSharedPreferences {
         setExtraKeysTextSize(TERMUX_APP.DEFAULT_VALUE_EXTRA_KEYS_TEXT_SIZE);
         setExtraKeysHeightScale(TERMUX_APP.DEFAULT_VALUE_EXTRA_KEYS_HEIGHT_SCALE);
         setExtraKeysColorTheme(TERMUX_APP.DEFAULT_VALUE_EXTRA_KEYS_COLOR_THEME);
+        setExtraKeysPressedTextColor(TERMUX_APP.DEFAULT_VALUE_EXTRA_KEYS_PRESSED_TEXT_COLOR);
         setExtraKeysFlatKeys(TERMUX_APP.DEFAULT_VALUE_EXTRA_KEYS_FLAT_KEYS);
         setExtraKeysBarBorderEnabled(TERMUX_APP.DEFAULT_VALUE_EXTRA_KEYS_BAR_BORDER_ENABLED);
         setExtraKeysBarBorderWidth(TERMUX_APP.DEFAULT_VALUE_EXTRA_KEYS_BAR_BORDER_WIDTH);
