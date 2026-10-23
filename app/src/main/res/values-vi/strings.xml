@@ -15,6 +15,14 @@
     <string name="termux_ui_preset_header">Giao diện định sẵn (Presets)</string>
     <string name="termux_ui_preset_title">Chọn Preset giao diện</string>
     <string name="termux_ui_preset_summary">Chuyển nhanh giữa các phong cách giao diện hoàn chỉnh (tự động chuyển sang Tùy chỉnh khi sửa)</string>
+    <string name="termux_backup_config_title">Sao lưu cấu hình giao diện</string>
+    <string name="termux_backup_config_summary">Xuất toàn bộ cài đặt giao diện ra tệp JSON để lưu trữ hoặc chia sẻ</string>
+    <string name="termux_restore_config_title">Khôi phục cấu hình giao diện</string>
+    <string name="termux_restore_config_summary">Nạp lại toàn bộ cài đặt từ tệp JSON đã sao lưu</string>
+    <string name="termux_backup_config_success">Đã sao lưu cấu hình giao diện thành công</string>
+    <string name="termux_backup_config_failed">Sao lưu cấu hình thất bại</string>
+    <string name="termux_restore_config_success">Đã khôi phục cấu hình giao diện thành công</string>
+    <string name="termux_restore_config_failed">Khôi phục cấu hình thất bại (tệp không hợp lệ)</string>
 
     <!-- Các màn hình con (Sub-Screens) -->
     <string name="termux_terminal_window_screen_title">Cửa sổ Terminal</string>
@@ -101,7 +109,9 @@
     <string name="termux_tab_bar_border_enabled_summary">Vẽ đường viền bao quanh mỗi nút tab và các nút chức năng (+, ×, ⚙)</string>
     <string name="termux_tab_bar_corner_enabled_title">Bo góc nút tab</string>
     <string name="termux_tab_bar_corner_enabled_summary">Bo tròn các góc nút tab; khi tắt góc sẽ vuông vức (bỏ qua bán kính bo)</string>
-    <string name="termux_tab_bar_corner_radius_title">Bán kính bo góc tab (dp)</string>
+    <string name="termux_tab_bar_corner_radius_title">Bán kính bo góc nút tab (dp)</string>
+    <string name="termux_tab_bar_outer_corner_radius_title">Bán kính bo góc khung thanh Tab Bar (dp)</string>
+    <string name="termux_tab_bar_outer_corner_radius_summary">Bo tròn các góc cho khung kính thanh Tab Bar bên ngoài</string>
     <string name="termux_tab_bar_border_width_title">Độ dày nét viền tab (dp)</string>
     <string name="termux_tab_bar_border_color_title">Màu viền tab mặc định</string>
     <string name="termux_tab_bar_border_color_summary">Màu viền của các tab không hoạt động và nút chức năng</string>
@@ -117,6 +127,8 @@
     <string name="termux_tab_bar_settings_button_width_summary">Độ rộng của nút mở cài đặt (⚙) ở góc mép phải</string>
     <string name="termux_tab_bar_active_title_length_title">Độ dài chữ tiêu đề tab đang chọn</string>
     <string name="termux_tab_bar_active_title_length_summary">Số ký tự tên hiển thị trên tab đang kích hoạt (0 = chỉ hiện số thứ tự)</string>
+    <string name="termux_tab_bar_inactive_title_length_title">Độ dài chữ tiêu đề tab không chọn</string>
+    <string name="termux_tab_bar_inactive_title_length_summary">Số ký tự tên hiển thị trên các tab không hoạt động (0 = chỉ hiện số thứ tự)</string>
 
     <!-- 4. Nút cử chỉ nổi (Gesture Pill) -->
     <string name="termux_gesture_pill_header">Nút cử chỉ nổi (Gesture Pill)</string>

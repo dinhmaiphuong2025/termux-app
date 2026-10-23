@@ -243,7 +243,9 @@
     <string name="termux_tab_bar_border_enabled_summary">Draw a border stroke around each tab and button</string>
     <string name="termux_tab_bar_corner_enabled_title">Rounded Tab Corners</string>
     <string name="termux_tab_bar_corner_enabled_summary">Round tab corners; when off corners stay sharp (radius is ignored)</string>
-    <string name="termux_tab_bar_corner_radius_title">Tab Corner Radius (dp)</string>
+    <string name="termux_tab_bar_corner_radius_title">Pill Button Corner Radius (dp)</string>
+    <string name="termux_tab_bar_outer_corner_radius_title">Outer Tab Bar Corner Radius (dp)</string>
+    <string name="termux_tab_bar_outer_corner_radius_summary">Round corners of the outer tab bar glass container</string>
     <string name="termux_tab_bar_border_width_title">Tab Border Stroke (dp)</string>
     <string name="termux_tab_bar_border_color_title">Tab Border Color</string>
     <string name="termux_tab_bar_border_color_summary">Hex color code (click to choose from palette or type hex)</string>
@@ -260,6 +262,8 @@
     <string name="action_close_session">Close Session</string>
     <string name="termux_tab_bar_active_title_length_title">Active Tab Title Length</string>
     <string name="termux_tab_bar_active_title_length_summary">Number of leading characters shown for active tab title (0 = number only)</string>
+    <string name="termux_tab_bar_inactive_title_length_title">Inactive Tab Title Length</string>
+    <string name="termux_tab_bar_inactive_title_length_summary">Number of leading characters shown for inactive tab titles (0 = number only)</string>
     <string name="termux_tab_animation_title">Niri Ribbon Tab Animation</string>
     <string name="termux_tab_animation_summary">Smooth horizontal sliding transition between tabs like Niri WM</string>
     <string name="termux_keep_border_layout_title">Keep Layout When Border Off</string>
@@ -301,6 +305,14 @@
     <string name="termux_ui_preset_header">UI Style Presets</string>
     <string name="termux_ui_preset_title">Choose Preset</string>
     <string name="termux_ui_preset_summary">Quickly switch between complete UI styles (auto-switches to Custom on edit)</string>
+    <string name="termux_backup_config_title">Backup UI Configuration</string>
+    <string name="termux_backup_config_summary">Export all custom UI settings to a JSON file</string>
+    <string name="termux_restore_config_title">Restore UI Configuration</string>
+    <string name="termux_restore_config_summary">Import settings from an exported JSON file</string>
+    <string name="termux_backup_config_success">UI configuration exported successfully</string>
+    <string name="termux_backup_config_failed">Failed to export UI configuration</string>
+    <string name="termux_restore_config_success">UI configuration restored successfully</string>
+    <string name="termux_restore_config_failed">Failed to restore UI configuration</string>
 
     <!-- Custom UI Settings Sub-Screens -->
     <string name="termux_terminal_window_screen_title">Terminal Window</string>

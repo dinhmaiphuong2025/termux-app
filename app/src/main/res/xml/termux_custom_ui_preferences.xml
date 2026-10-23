@@ -17,6 +17,21 @@
             app:useSimpleSummaryProvider="true"
             app:defaultValue="niri_default" />
 
+        <Preference
+            app:key="backup_ui_config"
+            app:title="@string/termux_backup_config_title"
+            app:summary="@string/termux_backup_config_summary" />
+
+        <Preference
+            app:key="restore_ui_config"
+            app:title="@string/termux_restore_config_title"
+            app:summary="@string/termux_restore_config_summary" />
+
+        <Preference
+            app:key="reset_ui_settings"
+            app:title="@string/termux_reset_settings_title"
+            app:summary="@string/termux_reset_settings_summary" />
+
     </PreferenceCategory>
 
     <!-- ============ 1. TERMINAL WINDOW ============ -->
@@ -344,6 +359,16 @@
                 app:defaultValue="1" />
 
             <SeekBarPreference
+                app:key="tab_bar_corner_radius"
+                app:title="@string/termux_tab_bar_outer_corner_radius_title"
+                app:summary="@string/termux_tab_bar_outer_corner_radius_summary"
+                app:min="0"
+                android:max="24"
+                app:showSeekBarValue="true"
+                app:dependency="tab_corner_enabled"
+                app:defaultValue="18" />
+
+            <SeekBarPreference
                 app:key="tab_button_width"
                 app:title="@string/termux_tab_bar_button_width_title"
                 app:summary="@string/termux_tab_bar_button_width_summary"
@@ -387,6 +412,15 @@
                 android:max="30"
                 app:showSeekBarValue="true"
                 app:defaultValue="12" />
+
+            <SeekBarPreference
+                app:key="tab_inactive_title_length"
+                app:title="@string/termux_tab_bar_inactive_title_length_title"
+                app:summary="@string/termux_tab_bar_inactive_title_length_summary"
+                app:min="0"
+                android:max="20"
+                app:showSeekBarValue="true"
+                app:defaultValue="4" />
 
             <SwitchPreferenceCompat
                 app:key="show_session_name_without_tab_bar"

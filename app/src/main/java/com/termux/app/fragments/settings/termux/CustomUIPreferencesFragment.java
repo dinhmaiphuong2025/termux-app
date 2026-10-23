@@ -33,9 +33,14 @@ import com.termux.shared.termux.settings.preferences.TermuxAppSharedPreferences;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 
 @Keep
 public class CustomUIPreferencesFragment extends PreferenceFragmentCompat {
@@ -43,6 +48,8 @@ public class CustomUIPreferencesFragment extends PreferenceFragmentCompat {
     private static final String LOG_TAG = "CustomUIPreferencesFragment";
 
     private ActivityResultLauncher<String> mPickImageLauncher;
+    private ActivityResultLauncher<String> mExportConfigLauncher;
+    private ActivityResultLauncher<String> mImportConfigLauncher;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -81,6 +88,24 @@ public class CustomUIPreferencesFragment extends PreferenceFragmentCompat {
                 }
             }
         );
+
+        mExportConfigLauncher = registerForActivityResult(
+            new ActivityResultContracts.CreateDocument("application/json"),
+            uri -> {
+                if (uri != null) {
+                    exportConfigToUri(uri);
+                }
+            }
+        );
+
+        mImportConfigLauncher = registerForActivityResult(
+            new ActivityResultContracts.GetContent(),
+            uri -> {
+                if (uri != null) {
+                    importConfigFromUri(uri);
+                }
+            }
+        );
     }
 
     @Override
@@ -92,6 +117,19 @@ public class CustomUIPreferencesFragment extends PreferenceFragmentCompat {
         preferenceManager.setPreferenceDataStore(CustomUIPreferencesDataStore.getInstance(context));
 
         setPreferencesFromResource(R.xml.termux_custom_ui_preferences, rootKey);
+        setupPreferences(context);
+    }
+
+    private void refreshPreferencesUi() {
+        Context context = getContext();
+        if (context == null || getPreferenceScreen() == null) return;
+        getPreferenceScreen().removeAll();
+        setPreferencesFromResource(R.xml.termux_custom_ui_preferences, null);
+        setupPreferences(context);
+    }
+
+    private void setupPreferences(Context context) {
+        if (context == null) return;
 
         ListPreference uiPresetPref = findPreference("ui_preset");
         if (uiPresetPref != null) {
@@ -107,6 +145,47 @@ public class CustomUIPreferencesFragment extends PreferenceFragmentCompat {
                     TermuxAppSharedPreferences p = TermuxAppSharedPreferences.build(context, true);
                     if (p != null) p.setUiPreset("custom");
                 }
+                return true;
+            });
+        }
+
+        Preference backupPref = findPreference("backup_ui_config");
+        if (backupPref != null) {
+            backupPref.setOnPreferenceClickListener(preference -> {
+                if (mExportConfigLauncher != null) {
+                    mExportConfigLauncher.launch("termux_ui_config_backup.json");
+                }
+                return true;
+            });
+        }
+
+        Preference restorePref = findPreference("restore_ui_config");
+        if (restorePref != null) {
+            restorePref.setOnPreferenceClickListener(preference -> {
+                if (mImportConfigLauncher != null) {
+                    mImportConfigLauncher.launch("*/*");
+                }
+                return true;
+            });
+        }
+
+        Preference resetPref = findPreference("reset_ui_settings");
+        if (resetPref != null) {
+            resetPref.setOnPreferenceClickListener(preference -> {
+                new AlertDialog.Builder(context)
+                    .setTitle(R.string.termux_reset_settings_title)
+                    .setMessage(R.string.termux_reset_settings_confirm_message)
+                    .setPositiveButton(R.string.termux_reset_settings_confirm_button, (dialog, which) -> {
+                        TermuxAppSharedPreferences prefs = TermuxAppSharedPreferences.build(context, true);
+                        if (prefs != null) {
+                            prefs.resetAllCustomUiSettingsToDefault();
+                            refreshPreferencesUi();
+                            TermuxActivity.updateTermuxActivityStyling(context, false);
+                            Toast.makeText(context, R.string.termux_reset_settings_success, Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .setNegativeButton(android.R.string.cancel, null)
+                    .show();
                 return true;
             });
         }
@@ -340,12 +419,14 @@ public class CustomUIPreferencesFragment extends PreferenceFragmentCompat {
         String[] reloadStyleKeys = new String[]{
             "show_tab_bar",
             "tab_corner_radius",
+            "tab_bar_corner_radius",
             "tab_border_width",
             "tab_button_width",
             "tab_new_button_width",
             "tab_close_button_width",
             "tab_settings_button_width",
             "tab_active_title_length",
+            "tab_inactive_title_length",
             "tab_animation_enabled",
             "show_session_name_without_tab_bar",
             "session_name_alignment",
@@ -515,15 +596,19 @@ public class CustomUIPreferencesFragment extends PreferenceFragmentCompat {
                 prefs.setTerminalHorizontalMargin(3);
                 prefs.setTerminalShadowEnabled(true);
                 prefs.setKeepBorderLayoutEnabled(false);
+                prefs.setTerminalBackgroundImagePath("");
+                prefs.setOuterBackgroundStyle("off");
 
                 prefs.setTabBarEnabled(true);
                 prefs.setTabBarGlassEnabled(false);
                 prefs.setTabBorderEnabled(true);
                 prefs.setTabCornerEnabled(true);
                 prefs.setTabCornerRadius(1);
+                prefs.setTabBarCornerRadius(1);
                 prefs.setTabBorderWidth(1);
                 prefs.setTabBorderColor("#FFFFFF");
                 prefs.setTabActiveColor("#FFFFFF");
+                prefs.setTabInactiveTitleLength(4);
 
                 prefs.setGlassEffectEnabled(false);
                 prefs.setBackgroundBlurEnabled(false);
@@ -555,9 +640,11 @@ public class CustomUIPreferencesFragment extends PreferenceFragmentCompat {
                 prefs.setTabBorderEnabled(false);
                 prefs.setTabCornerEnabled(true);
                 prefs.setTabCornerRadius(8);
+                prefs.setTabBarCornerRadius(18);
                 prefs.setTabBorderWidth(1);
                 prefs.setTabBorderColor("#FFFFFF");
                 prefs.setTabActiveColor("#FFFFFF");
+                prefs.setTabInactiveTitleLength(4);
 
                 prefs.setGlassEffectEnabled(true);
                 prefs.setGlassTintOpacity(100);
@@ -579,11 +666,16 @@ public class CustomUIPreferencesFragment extends PreferenceFragmentCompat {
                 prefs.setTerminalBorderEnabled(false);
                 prefs.setTerminalBorderGaps(0);
                 prefs.setTerminalBorderCornerEnabled(false);
+                prefs.setTerminalBorderCornerRadius(0);
                 prefs.setKeepBorderLayoutEnabled(false);
                 prefs.setTerminalShadowEnabled(false);
+                prefs.setTerminalBackgroundImagePath("");
+                prefs.setOuterBackgroundStyle("off");
 
                 prefs.setTabBarEnabled(false);
                 prefs.setTabBarGlassEnabled(false);
+                prefs.setTabCornerRadius(0);
+                prefs.setTabBarCornerRadius(0);
 
                 prefs.setGlassEffectEnabled(false);
                 prefs.setBackgroundBlurEnabled(false);
@@ -601,7 +693,217 @@ public class CustomUIPreferencesFragment extends PreferenceFragmentCompat {
         }
 
         prefs.setUiPreset(presetKey);
+        refreshPreferencesUi();
         TermuxActivity.updateTermuxActivityStyling(context, false);
+    }
+
+    private void exportConfigToUri(Uri uri) {
+        Context context = getContext();
+        if (context == null || uri == null) return;
+        try {
+            TermuxAppSharedPreferences prefs = TermuxAppSharedPreferences.build(context, true);
+            if (prefs == null) return;
+
+            JSONObject json = new JSONObject();
+            json.put("version", 1);
+            json.put("ui_preset", prefs.getUiPreset());
+
+            // Window & Border
+            json.put("terminal_border_enabled", prefs.isTerminalBorderEnabled());
+            json.put("terminal_border_width", prefs.getTerminalBorderWidth());
+            json.put("terminal_border_color", prefs.getTerminalBorderColor());
+            json.put("terminal_border_gaps", prefs.getTerminalBorderGaps());
+            json.put("terminal_horizontal_margin", prefs.getTerminalHorizontalMargin());
+            json.put("terminal_border_style", prefs.getTerminalBorderStyle());
+            json.put("terminal_border_corner_enabled", prefs.isTerminalBorderCornerEnabled());
+            json.put("terminal_border_corner_radius", prefs.getTerminalBorderCornerRadius());
+            json.put("terminal_shadow_enabled", prefs.isTerminalShadowEnabled());
+            json.put("keep_border_layout_enabled", prefs.isKeepBorderLayoutEnabled());
+
+            // Background & Effects
+            json.put("terminal_background_image_path", prefs.getTerminalBackgroundImagePath());
+            json.put("terminal_background_opacity", prefs.getTerminalBackgroundOpacity());
+            json.put("terminal_cell_background_transparency", prefs.isTerminalCellBackgroundTransparencyEnabled());
+            json.put("terminal_cell_background_opacity", prefs.getTerminalCellBackgroundOpacity());
+            json.put("outer_background_style", prefs.getOuterBackgroundStyle());
+            json.put("glass_effect_enabled", prefs.isGlassEffectEnabled());
+            json.put("glass_tint_opacity", prefs.getGlassTintOpacity());
+            json.put("background_blur_enabled", prefs.isBackgroundBlurEnabled());
+            json.put("background_blur_radius", prefs.getBackgroundBlurRadius());
+
+            // Tab Bar
+            json.put("show_tab_bar", prefs.isTabBarEnabled());
+            json.put("tab_bar_glass_enabled", prefs.isTabBarGlassEnabled());
+            json.put("tab_border_enabled", prefs.isTabBorderEnabled());
+            json.put("tab_border_width", prefs.getTabBorderWidth());
+            json.put("tab_border_color", prefs.getTabBorderColor());
+            json.put("tab_active_color", prefs.getTabActiveColor());
+            json.put("tab_corner_enabled", prefs.isTabCornerEnabled());
+            json.put("tab_corner_radius", prefs.getTabCornerRadius());
+            json.put("tab_bar_corner_radius", prefs.getTabBarCornerRadius());
+            json.put("tab_button_width", prefs.getTabButtonWidth());
+            json.put("tab_new_button_width", prefs.getTabNewButtonWidth());
+            json.put("tab_close_button_width", prefs.getTabCloseButtonWidth());
+            json.put("tab_settings_button_width", prefs.getTabSettingsButtonWidth());
+            json.put("tab_active_title_length", prefs.getTabActiveTitleLength());
+            json.put("tab_inactive_title_length", prefs.getTabInactiveTitleLength());
+            json.put("show_session_name_without_tab_bar", prefs.isShowSessionNameWithoutTabBar());
+            json.put("session_name_alignment", prefs.getSessionNameAlignment());
+            json.put("tab_animation_enabled", prefs.isTabAnimationEnabled());
+
+            // Extra Keys
+            json.put("extra_keys_color_theme", prefs.getExtraKeysColorTheme());
+            json.put("extra_keys_pressed_text_color", prefs.getExtraKeysPressedTextColor());
+            json.put("extra_keys_flat_keys", prefs.isExtraKeysFlatKeys());
+            json.put("extra_keys_margin", prefs.getExtraKeysMargin());
+            json.put("extra_keys_text_size", prefs.getExtraKeysTextSize());
+            json.put("extra_keys_height_scale", prefs.getExtraKeysHeightScale());
+            json.put("extra_keys_bar_border_enabled", prefs.isExtraKeysBarBorderEnabled());
+            json.put("extra_keys_bar_border_width", prefs.getExtraKeysBarBorderWidth());
+            json.put("extra_keys_bar_border_color", prefs.getExtraKeysBarBorderColor());
+            json.put("extra_keys_bar_border_corner_radius", prefs.getExtraKeysBarBorderCornerRadius());
+            json.put("extra_keys_bar_border_gaps", prefs.getExtraKeysBarBorderGaps());
+            json.put("extra_keys_bar_corner_enabled", prefs.isExtraKeysBarCornerEnabled());
+            json.put("extra_keys_bar_background_sync", prefs.isExtraKeysBarBackgroundSyncEnabled());
+            json.put("extra_keys_use_custom", prefs.isExtraKeysUseCustom());
+            json.put("extra_keys_preset", prefs.getExtraKeysPreset());
+            json.put("extra_keys_custom_json", prefs.getExtraKeysCustomJson());
+
+            // Gesture Pill & Behavior
+            json.put("gesture_pill_enabled", prefs.isGesturePillEnabled());
+            json.put("gesture_pill_width", prefs.getGesturePillWidth());
+            json.put("gesture_pill_height", prefs.getGesturePillHeight());
+            json.put("gesture_pill_corner_radius", prefs.getGesturePillCornerRadius());
+            json.put("gesture_pill_color", prefs.getGesturePillColor());
+            json.put("gesture_pill_swipe_left", prefs.getGesturePillSwipeLeft());
+            json.put("gesture_pill_swipe_right", prefs.getGesturePillSwipeRight());
+            json.put("gesture_pill_swipe_up", prefs.getGesturePillSwipeUp());
+            json.put("gesture_pill_swipe_down", prefs.getGesturePillSwipeDown());
+            json.put("gesture_pill_tap", prefs.getGesturePillTap());
+            json.put("terminal_smooth_scroll", prefs.isTerminalSmoothScrollEnabled());
+
+            byte[] bytes = json.toString(2).getBytes(StandardCharsets.UTF_8);
+            try (OutputStream os = context.getContentResolver().openOutputStream(uri)) {
+                if (os != null) {
+                    os.write(bytes);
+                    os.flush();
+                }
+            }
+
+            // Also keep a local backup file in Download folder
+            try {
+                File dlFile = new File("/storage/emulated/0/Download", "termux_custom_ui_backup.json");
+                try (FileOutputStream fos = new FileOutputStream(dlFile)) {
+                    fos.write(bytes);
+                    fos.flush();
+                }
+            } catch (Throwable ignored) {}
+
+            Toast.makeText(context, R.string.termux_backup_config_success, Toast.LENGTH_SHORT).show();
+        } catch (Throwable t) {
+            Logger.logStackTraceWithMessage(LOG_TAG, "Failed to export UI config", t);
+            Toast.makeText(context, R.string.termux_backup_config_failed, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void importConfigFromUri(Uri uri) {
+        Context context = getContext();
+        if (context == null || uri == null) return;
+        try {
+            TermuxAppSharedPreferences prefs = TermuxAppSharedPreferences.build(context, true);
+            if (prefs == null) return;
+
+            String jsonStr;
+            try (InputStream is = context.getContentResolver().openInputStream(uri);
+                 ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+                byte[] buffer = new byte[4096];
+                int read;
+                while ((read = is.read(buffer)) != -1) {
+                    baos.write(buffer, 0, read);
+                }
+                jsonStr = baos.toString("UTF-8");
+            }
+
+            JSONObject json = new JSONObject(jsonStr);
+
+            if (json.has("ui_preset")) prefs.setUiPreset(json.optString("ui_preset", "custom"));
+
+            if (json.has("terminal_border_enabled")) prefs.setTerminalBorderEnabled(json.optBoolean("terminal_border_enabled"));
+            if (json.has("terminal_border_width")) prefs.setTerminalBorderWidth(json.optInt("terminal_border_width"));
+            if (json.has("terminal_border_color")) prefs.setTerminalBorderColor(json.optString("terminal_border_color"));
+            if (json.has("terminal_border_gaps")) prefs.setTerminalBorderGaps(json.optInt("terminal_border_gaps"));
+            if (json.has("terminal_horizontal_margin")) prefs.setTerminalHorizontalMargin(json.optInt("terminal_horizontal_margin"));
+            if (json.has("terminal_border_style")) prefs.setTerminalBorderStyle(json.optString("terminal_border_style"));
+            if (json.has("terminal_border_corner_enabled")) prefs.setTerminalBorderCornerEnabled(json.optBoolean("terminal_border_corner_enabled"));
+            if (json.has("terminal_border_corner_radius")) prefs.setTerminalBorderCornerRadius(json.optInt("terminal_border_corner_radius"));
+            if (json.has("terminal_shadow_enabled")) prefs.setTerminalShadowEnabled(json.optBoolean("terminal_shadow_enabled"));
+            if (json.has("keep_border_layout_enabled")) prefs.setKeepBorderLayoutEnabled(json.optBoolean("keep_border_layout_enabled"));
+
+            if (json.has("terminal_background_image_path")) prefs.setTerminalBackgroundImagePath(json.optString("terminal_background_image_path"));
+            if (json.has("terminal_background_opacity")) prefs.setTerminalBackgroundOpacity(json.optInt("terminal_background_opacity"));
+            if (json.has("terminal_cell_background_transparency")) prefs.setTerminalCellBackgroundTransparencyEnabled(json.optBoolean("terminal_cell_background_transparency"));
+            if (json.has("terminal_cell_background_opacity")) prefs.setTerminalCellBackgroundOpacity(json.optInt("terminal_cell_background_opacity"));
+            if (json.has("outer_background_style")) prefs.setOuterBackgroundStyle(json.optString("outer_background_style"));
+            if (json.has("glass_effect_enabled")) prefs.setGlassEffectEnabled(json.optBoolean("glass_effect_enabled"));
+            if (json.has("glass_tint_opacity")) prefs.setGlassTintOpacity(json.optInt("glass_tint_opacity"));
+            if (json.has("background_blur_enabled")) prefs.setBackgroundBlurEnabled(json.optBoolean("background_blur_enabled"));
+            if (json.has("background_blur_radius")) prefs.setBackgroundBlurRadius(json.optInt("background_blur_radius"));
+
+            if (json.has("show_tab_bar")) prefs.setTabBarEnabled(json.optBoolean("show_tab_bar"));
+            if (json.has("tab_bar_glass_enabled")) prefs.setTabBarGlassEnabled(json.optBoolean("tab_bar_glass_enabled"));
+            if (json.has("tab_border_enabled")) prefs.setTabBorderEnabled(json.optBoolean("tab_border_enabled"));
+            if (json.has("tab_border_width")) prefs.setTabBorderWidth(json.optInt("tab_border_width"));
+            if (json.has("tab_border_color")) prefs.setTabBorderColor(json.optString("tab_border_color"));
+            if (json.has("tab_active_color")) prefs.setTabActiveColor(json.optString("tab_active_color"));
+            if (json.has("tab_corner_enabled")) prefs.setTabCornerEnabled(json.optBoolean("tab_corner_enabled"));
+            if (json.has("tab_corner_radius")) prefs.setTabCornerRadius(json.optInt("tab_corner_radius"));
+            if (json.has("tab_bar_corner_radius")) prefs.setTabBarCornerRadius(json.optInt("tab_bar_corner_radius"));
+            if (json.has("tab_button_width")) prefs.setTabButtonWidth(json.optInt("tab_button_width"));
+            if (json.has("tab_new_button_width")) prefs.setTabNewButtonWidth(json.optInt("tab_new_button_width"));
+            if (json.has("tab_close_button_width")) prefs.setTabCloseButtonWidth(json.optInt("tab_close_button_width"));
+            if (json.has("tab_settings_button_width")) prefs.setTabSettingsButtonWidth(json.optInt("tab_settings_button_width"));
+            if (json.has("tab_active_title_length")) prefs.setTabActiveTitleLength(json.optInt("tab_active_title_length"));
+            if (json.has("tab_inactive_title_length")) prefs.setTabInactiveTitleLength(json.optInt("tab_inactive_title_length"));
+            if (json.has("show_session_name_without_tab_bar")) prefs.setShowSessionNameWithoutTabBar(json.optBoolean("show_session_name_without_tab_bar"));
+            if (json.has("session_name_alignment")) prefs.setSessionNameAlignment(json.optString("session_name_alignment"));
+            if (json.has("tab_animation_enabled")) prefs.setTabAnimationEnabled(json.optBoolean("tab_animation_enabled"));
+
+            if (json.has("extra_keys_color_theme")) prefs.setExtraKeysColorTheme(json.optString("extra_keys_color_theme"));
+            if (json.has("extra_keys_pressed_text_color")) prefs.setExtraKeysPressedTextColor(json.optString("extra_keys_pressed_text_color"));
+            if (json.has("extra_keys_flat_keys")) prefs.setExtraKeysFlatKeys(json.optBoolean("extra_keys_flat_keys"));
+            if (json.has("extra_keys_margin")) prefs.setExtraKeysMargin(json.optInt("extra_keys_margin"));
+            if (json.has("extra_keys_text_size")) prefs.setExtraKeysTextSize(json.optInt("extra_keys_text_size"));
+            if (json.has("extra_keys_height_scale")) prefs.setExtraKeysHeightScale(json.optInt("extra_keys_height_scale"));
+            if (json.has("extra_keys_bar_border_enabled")) prefs.setExtraKeysBarBorderEnabled(json.optBoolean("extra_keys_bar_border_enabled"));
+            if (json.has("extra_keys_bar_border_width")) prefs.setExtraKeysBarBorderWidth(json.optInt("extra_keys_bar_border_width"));
+            if (json.has("extra_keys_bar_border_color")) prefs.setExtraKeysBarBorderColor(json.optString("extra_keys_bar_border_color"));
+            if (json.has("extra_keys_bar_border_corner_radius")) prefs.setExtraKeysBarBorderCornerRadius(json.optInt("extra_keys_bar_border_corner_radius"));
+            if (json.has("extra_keys_bar_border_gaps")) prefs.setExtraKeysBarBorderGaps(json.optInt("extra_keys_bar_border_gaps"));
+            if (json.has("extra_keys_bar_corner_enabled")) prefs.setExtraKeysBarCornerEnabled(json.optBoolean("extra_keys_bar_corner_enabled"));
+            if (json.has("extra_keys_bar_background_sync")) prefs.setExtraKeysBarBackgroundSyncEnabled(json.optBoolean("extra_keys_bar_background_sync"));
+            if (json.has("extra_keys_use_custom")) prefs.setExtraKeysUseCustom(json.optBoolean("extra_keys_use_custom"));
+            if (json.has("extra_keys_preset")) prefs.setExtraKeysPreset(json.optString("extra_keys_preset"));
+            if (json.has("extra_keys_custom_json")) prefs.setExtraKeysCustomJson(json.optString("extra_keys_custom_json"));
+
+            if (json.has("gesture_pill_enabled")) prefs.setGesturePillEnabled(json.optBoolean("gesture_pill_enabled"));
+            if (json.has("gesture_pill_width")) prefs.setGesturePillWidth(json.optInt("gesture_pill_width"));
+            if (json.has("gesture_pill_height")) prefs.setGesturePillHeight(json.optInt("gesture_pill_height"));
+            if (json.has("gesture_pill_corner_radius")) prefs.setGesturePillCornerRadius(json.optInt("gesture_pill_corner_radius"));
+            if (json.has("gesture_pill_color")) prefs.setGesturePillColor(json.optString("gesture_pill_color"));
+            if (json.has("gesture_pill_swipe_left")) prefs.setGesturePillSwipeLeft(json.optString("gesture_pill_swipe_left"));
+            if (json.has("gesture_pill_swipe_right")) prefs.setGesturePillSwipeRight(json.optString("gesture_pill_swipe_right"));
+            if (json.has("gesture_pill_swipe_up")) prefs.setGesturePillSwipeUp(json.optString("gesture_pill_swipe_up"));
+            if (json.has("gesture_pill_swipe_down")) prefs.setGesturePillSwipeDown(json.optString("gesture_pill_swipe_down"));
+            if (json.has("gesture_pill_tap")) prefs.setGesturePillTap(json.optString("gesture_pill_tap"));
+            if (json.has("terminal_smooth_scroll")) prefs.setTerminalSmoothScrollEnabled(json.optBoolean("terminal_smooth_scroll"));
+
+            refreshPreferencesUi();
+            TermuxActivity.updateTermuxActivityStyling(context, false);
+            Toast.makeText(context, R.string.termux_restore_config_success, Toast.LENGTH_SHORT).show();
+        } catch (Throwable t) {
+            Logger.logStackTraceWithMessage(LOG_TAG, "Failed to import UI config", t);
+            Toast.makeText(context, R.string.termux_restore_config_failed, Toast.LENGTH_SHORT).show();
+        }
     }
 
 }
@@ -767,6 +1069,9 @@ class CustomUIPreferencesDataStore extends PreferenceDataStore {
             case "tab_corner_radius":
                 mPreferences.setTabCornerRadius(value);
                 break;
+            case "tab_bar_corner_radius":
+                mPreferences.setTabBarCornerRadius(value);
+                break;
             case "tab_border_width":
                 mPreferences.setTabBorderWidth(value);
                 break;
@@ -784,6 +1089,9 @@ class CustomUIPreferencesDataStore extends PreferenceDataStore {
                 break;
             case "tab_active_title_length":
                 mPreferences.setTabActiveTitleLength(value);
+                break;
+            case "tab_inactive_title_length":
+                mPreferences.setTabInactiveTitleLength(value);
                 break;
             case "terminal_border_corner_radius":
                 mPreferences.setTerminalBorderCornerRadius(value);
@@ -849,6 +1157,8 @@ class CustomUIPreferencesDataStore extends PreferenceDataStore {
         switch (key) {
             case "tab_corner_radius":
                 return mPreferences.getTabCornerRadius();
+            case "tab_bar_corner_radius":
+                return mPreferences.getTabBarCornerRadius();
             case "tab_border_width":
                 return mPreferences.getTabBorderWidth();
             case "tab_button_width":
@@ -861,6 +1171,8 @@ class CustomUIPreferencesDataStore extends PreferenceDataStore {
                 return mPreferences.getTabSettingsButtonWidth();
             case "tab_active_title_length":
                 return mPreferences.getTabActiveTitleLength();
+            case "tab_inactive_title_length":
+                return mPreferences.getTabInactiveTitleLength();
             case "terminal_border_corner_radius":
                 return mPreferences.getTerminalBorderCornerRadius();
             case "terminal_border_width":

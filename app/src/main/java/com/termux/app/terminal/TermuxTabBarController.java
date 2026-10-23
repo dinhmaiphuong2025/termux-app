@@ -191,18 +191,34 @@ public class TermuxTabBarController {
                 : Color.argb(alpha, Color.red(activeAccentColor), Color.green(activeAccentColor), Color.blue(activeAccentColor));
             gd.setColor(activeTint);
             if (effectiveStrokeWidth > 0) {
-                gd.setStroke(effectiveStrokeWidth, (!borderEnabled && keepLayout) ? Color.TRANSPARENT : activeAccentColor);
+                if (!borderEnabled) {
+                    // Sunken active slot: illuminated well bevel
+                    int sunkenGlow = Color.argb(Math.round(0x40 * tintFactor), Color.red(activeAccentColor), Color.green(activeAccentColor), Color.blue(activeAccentColor));
+                    gd.setStroke(effectiveStrokeWidth, keepLayout ? sunkenGlow : Color.TRANSPARENT);
+                } else {
+                    gd.setStroke(effectiveStrokeWidth, activeAccentColor);
+                }
             }
         } else {
             float tintFactor = mActivity.getPreferences() != null
                 ? Math.max(0f, Math.min(1f, mActivity.getPreferences().getGlassTintOpacity() / 100f)) : 1f;
-            int alpha = Math.round(0x22 * tintFactor);
-            gd.setColor(Color.argb(alpha, 0x0A, 0x0F, 0x19));
-            if (effectiveStrokeWidth > 0) {
-                int baseBorder = strokeWidth > 0
-                    ? Color.argb(0x44, Color.red(strokeColor), Color.green(strokeColor), Color.blue(strokeColor))
-                    : 0x2AFFFFFF;
-                gd.setStroke(effectiveStrokeWidth, (!borderEnabled && keepLayout) ? Color.TRANSPARENT : baseBorder);
+            if (!borderEnabled) {
+                // Sunken inactive well: darker recessed groove in the glass plate
+                int sunkenCavity = Color.argb(Math.round(0x38 * tintFactor), 0x02, 0x04, 0x0A);
+                gd.setColor(sunkenCavity);
+                if (effectiveStrokeWidth > 0) {
+                    int sunkenBorder = Color.argb(Math.round(0x22 * tintFactor), 0x00, 0x00, 0x00);
+                    gd.setStroke(effectiveStrokeWidth, keepLayout ? sunkenBorder : Color.TRANSPARENT);
+                }
+            } else {
+                int alpha = Math.round(0x22 * tintFactor);
+                gd.setColor(Color.argb(alpha, 0x0A, 0x0F, 0x19));
+                if (effectiveStrokeWidth > 0) {
+                    int baseBorder = strokeWidth > 0
+                        ? Color.argb(0x44, Color.red(strokeColor), Color.green(strokeColor), Color.blue(strokeColor))
+                        : 0x2AFFFFFF;
+                    gd.setStroke(effectiveStrokeWidth, (!borderEnabled && keepLayout) ? Color.TRANSPARENT : baseBorder);
+                }
             }
         }
         return gd;
@@ -453,10 +469,12 @@ public class TermuxTabBarController {
                 titleView.setTextColor(0xB3FFFFFF);
                 titleView.setTextSize(11);
 
-                // Compact format for inactive tabs: number + first 4 characters of name
+                // Format for inactive tabs: number + customizable leading characters
+                int inactiveTitleLength = mActivity.getPreferences() != null
+                    ? mActivity.getPreferences().getTabInactiveTitleLength() : 4;
                 String compactTitle;
-                if (!TextUtils.isEmpty(rawName)) {
-                    compactTitle = sessionNum + ". " + truncateCodePoints(rawName, 4);
+                if (!TextUtils.isEmpty(rawName) && inactiveTitleLength > 0) {
+                    compactTitle = sessionNum + ". " + truncateCodePoints(rawName, inactiveTitleLength);
                 } else {
                     compactTitle = String.valueOf(sessionNum);
                 }

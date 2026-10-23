@@ -1821,9 +1821,9 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
             ? Math.max(0f, Math.min(1f, getPreferences().getGlassTintOpacity() / 100f)) : 1f;
         float tabVeilAlpha = adaptiveTintAlpha(tabLuminance) * tintFactor;
 
-        int cornerRadius = getPreferences() != null && getPreferences().isTabCornerEnabled()
-            ? (int) (getPreferences().getTabCornerRadius() * density) : 0;
-        final int finalRadius = Math.min(cornerRadius, tabH / 2);
+        int barCornerRadius = getPreferences() != null && getPreferences().isTabCornerEnabled()
+            ? (int) (getPreferences().getTabBarCornerRadius() * density) : 0;
+        final int finalRadius = Math.min(barCornerRadius, tabH / 2);
 
         mTerminalTabBarBackgroundImage.setOutlineProvider(new ViewOutlineProvider() {
             @Override
@@ -2335,7 +2335,6 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
 
             if (mExtraKeysView != null) {
                 mExtraKeysView.setBackgroundColor(Color.TRANSPARENT);
-                // Fully transparent key backgrounds: only the glyphs float on the wallpaper.
                 int pressedTextColor = 0xFFFFFFFF;
                 String customPressed = getPreferences().getExtraKeysPressedTextColor();
                 if (!TextUtils.isEmpty(customPressed)) {
@@ -2343,7 +2342,12 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
                         pressedTextColor = Color.parseColor(customPressed);
                     } catch (Exception ignored) {}
                 }
-                int activeBg = glassEnabled ? Color.TRANSPARENT : 0x33FFFFFF;
+                // Liquid glass pill button effect: soft translucent frosted capsule on press/toggle
+                int activeBg = glassEnabled
+                    ? Color.argb(0x40, Color.red(pressedTextColor), Color.green(pressedTextColor), Color.blue(pressedTextColor))
+                    : 0x33FFFFFF;
+                int keyCorner = (int) (6 * density);
+                mExtraKeysView.setButtonCornerRadius(keyCorner);
                 mExtraKeysView.setButtonColors(Color.WHITE, pressedTextColor, Color.TRANSPARENT, activeBg);
                 mExtraKeysView.setButtonStrokeWidth(0);
                 // setButtonColors only stores values; repaint every existing button now
@@ -2404,13 +2408,20 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
                 } catch (Exception ignored) {}
             }
 
-            // Apply theme colors: keep active background identical to normal background
-            // so touching or toggling keys highlights ONLY the text color, eliminating stuck rectangular boxes.
+            int keyCorner = (int) (2 * density);
+            int activeBg;
+            if (getPreferences().isExtraKeysFlatKeys()) {
+                // Subtle capsule highlight matching button corner radius, eliminating sharp rectangular boxes
+                activeBg = Color.argb(0x35, Color.red(activeTextColor), Color.green(activeTextColor), Color.blue(activeTextColor));
+            } else {
+                activeBg = theme.buttonActiveBackgroundColor;
+            }
+
             mExtraKeysView.setButtonColors(
                 theme.buttonTextColor,
                 activeTextColor,
                 btnBg,
-                btnBg
+                activeBg
             );
             mExtraKeysView.setBackgroundColor(theme.barBackgroundColor);
 
@@ -2423,7 +2434,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
                 mTerminalToolbarCard.setCardBackgroundColor(theme.barBackgroundColor);
             }
 
-            mExtraKeysView.setButtonCornerRadius(0);
+            mExtraKeysView.setButtonCornerRadius(keyCorner);
             mExtraKeysView.setButtonMargin((int) (getPreferences().getExtraKeysMargin() * density));
             mExtraKeysView.setButtonTextSizeSp(getPreferences().getExtraKeysTextSize());
             mExtraKeysView.setButtonStrokeWidth(0);

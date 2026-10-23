@@ -222,6 +222,12 @@ public final class TermuxPreferenceConstants {
         public static final String KEY_TAB_ACTIVE_TITLE_LENGTH = "tab_active_title_length";
         public static final int DEFAULT_VALUE_TAB_ACTIVE_TITLE_LENGTH = 12;
 
+        public static final String KEY_TAB_INACTIVE_TITLE_LENGTH = "tab_inactive_title_length";
+        public static final int DEFAULT_VALUE_TAB_INACTIVE_TITLE_LENGTH = 4;
+
+        public static final String KEY_TAB_BAR_CORNER_RADIUS = "tab_bar_corner_radius";
+        public static final int DEFAULT_VALUE_TAB_BAR_CORNER_RADIUS = 18;
+
         public static final String KEY_TAB_BAR_GLASS_ENABLED = "tab_bar_glass_enabled";
         public static final boolean DEFAULT_VALUE_TAB_BAR_GLASS_ENABLED = true;
 

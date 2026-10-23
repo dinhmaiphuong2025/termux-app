@@ -362,6 +362,22 @@ public class TermuxAppSharedPreferences extends AppSharedPreferences {
         SharedPreferenceUtils.setInt(mSharedPreferences, TERMUX_APP.KEY_TAB_ACTIVE_TITLE_LENGTH, value, false);
     }
 
+    public int getTabInactiveTitleLength() {
+        return SharedPreferenceUtils.getInt(mSharedPreferences, TERMUX_APP.KEY_TAB_INACTIVE_TITLE_LENGTH, TERMUX_APP.DEFAULT_VALUE_TAB_INACTIVE_TITLE_LENGTH);
+    }
+
+    public void setTabInactiveTitleLength(int value) {
+        SharedPreferenceUtils.setInt(mSharedPreferences, TERMUX_APP.KEY_TAB_INACTIVE_TITLE_LENGTH, value, false);
+    }
+
+    public int getTabBarCornerRadius() {
+        return SharedPreferenceUtils.getInt(mSharedPreferences, TERMUX_APP.KEY_TAB_BAR_CORNER_RADIUS, TERMUX_APP.DEFAULT_VALUE_TAB_BAR_CORNER_RADIUS);
+    }
+
+    public void setTabBarCornerRadius(int value) {
+        SharedPreferenceUtils.setInt(mSharedPreferences, TERMUX_APP.KEY_TAB_BAR_CORNER_RADIUS, value, false);
+    }
+
     public boolean isTabBarGlassEnabled() {
         return SharedPreferenceUtils.getBoolean(mSharedPreferences, TERMUX_APP.KEY_TAB_BAR_GLASS_ENABLED, TERMUX_APP.DEFAULT_VALUE_TAB_BAR_GLASS_ENABLED);
     }
@@ -853,6 +869,8 @@ public class TermuxAppSharedPreferences extends AppSharedPreferences {
         setTabCloseButtonWidth(TERMUX_APP.DEFAULT_VALUE_TAB_CLOSE_BUTTON_WIDTH);
         setTabSettingsButtonWidth(TERMUX_APP.DEFAULT_VALUE_TAB_SETTINGS_BUTTON_WIDTH);
         setTabActiveTitleLength(TERMUX_APP.DEFAULT_VALUE_TAB_ACTIVE_TITLE_LENGTH);
+        setTabInactiveTitleLength(TERMUX_APP.DEFAULT_VALUE_TAB_INACTIVE_TITLE_LENGTH);
+        setTabBarCornerRadius(TERMUX_APP.DEFAULT_VALUE_TAB_BAR_CORNER_RADIUS);
         setTabAnimationEnabled(TERMUX_APP.DEFAULT_VALUE_TAB_ANIMATION_ENABLED);
         setShowSessionNameWithoutTabBar(TERMUX_APP.DEFAULT_VALUE_SHOW_SESSION_NAME_WITHOUT_TAB_BAR);
         setSessionNameAlignment(TERMUX_APP.DEFAULT_VALUE_SESSION_NAME_ALIGNMENT);
