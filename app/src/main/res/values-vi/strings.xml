@@ -1,79 +1,161 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Màn hình chính Custom UI -->
     <string name="termux_custom_ui_preferences_title">Giao diện Custom &amp; Niri WM</string>
-    <string name="termux_custom_ui_preferences_summary">Thanh tab bar, nút cử chỉ nổi, viền Niri, theme phím phụ &amp; hình nền</string>
+    <string name="termux_custom_ui_preferences_summary">Thanh tab bar, viền cửa sổ Niri, thanh phím phụ, hiệu ứng kính lỏng &amp; hình nền</string>
     <string name="termux_tab_animation_title">Hiệu ứng chuyển tab Niri Ribbon</string>
-    <string name="termux_tab_animation_summary">Hiệu ứng cuộn ngang mượt mà giữa các tab giống Niri WM</string>
+    <string name="termux_tab_animation_summary">Hiệu ứng lướt ngang mượt mà giữa các tab giống Niri WM (giữ cố định viền kính)</string>
     <string name="termux_keep_border_layout_title">Giữ bố cục khi tắt viền</string>
-    <string name="termux_keep_border_layout_summary">Khi tắt viền của cửa sổ terminal hoặc thanh phím phụ, vẫn giữ nguyên kích thước và vị trí như lúc viền bật (chỉ đường viền biến mất)</string>
+    <string name="termux_keep_border_layout_summary">BẬT: Khi tắt viền, Tab Bar, Cửa sổ Terminal và Phím phụ vẫn gióng thẳng hàng dọc (cùng cột) và giữ nguyên khoảng cách lề. TẮT: Tự động mở rộng sát mép màn hình khi tắt viền</string>
     <string name="termux_tab_bar_show_session_name_without_tab_bar_title">Ghim tên session khi tắt tab bar</string>
-    <string name="termux_tab_bar_show_session_name_without_tab_bar_summary">Hiển thị thẻ tên phiên làm việc phía trên viền terminal khi tắt thanh tab</string>
-    <string name="termux_session_name_alignment_title">Vị trí căn chỉnh tên session</string>
+    <string name="termux_tab_bar_show_session_name_without_tab_bar_summary">Hiển thị thẻ tên phiên làm việc nhỏ gọn phía trên cửa sổ terminal khi thanh tab bị tắt</string>
+    <string name="termux_session_name_alignment_title">Vị trí căn lề tên session</string>
 
-    <!-- Custom UI Settings Sub-Screens -->
+    <!-- Các màn hình con (Sub-Screens) -->
     <string name="termux_terminal_window_screen_title">Cửa sổ Terminal</string>
-    <string name="termux_terminal_window_screen_summary">Viền, bố cục và hình nền của cửa sổ terminal</string>
-    <string name="termux_extra_keys_screen_title">Thanh phím phụ</string>
-    <string name="termux_extra_keys_screen_summary">Kiểu dáng, viền và nền của thanh phím phụ</string>
-    <string name="termux_tab_bar_screen_title">Tab Bar</string>
-    <string name="termux_tab_bar_screen_summary">Bố cục, nút và tiêu đề phiên của tab bar</string>
-    <string name="termux_gesture_pill_screen_title">Nút cử chỉ nổi</string>
-    <string name="termux_gesture_pill_screen_summary">Kích thước, màu và hành động của nút cử chỉ nổi</string>
-    <string name="termux_effects_screen_title">Hiệu ứng</string>
-    <string name="termux_effects_screen_summary">Kính lỏng, làm mờ hình nền và nền ngoài</string>
+    <string name="termux_terminal_window_screen_summary">Viền cửa sổ, bo góc, khoảng cách lề và hình nền terminal</string>
+    <string name="termux_extra_keys_screen_title">Thanh phím phụ (Extra Keys)</string>
+    <string name="termux_extra_keys_screen_summary">Kiểu dáng phím, viền thanh, màu nhấn và cấu hình phím</string>
+    <string name="termux_tab_bar_screen_title">Thanh Tab Bar</string>
+    <string name="termux_tab_bar_screen_summary">Kích thước nút tab, viền, bo góc, màu nhấn tab và tiêu đề phiên</string>
+    <string name="termux_gesture_pill_screen_title">Nút cử chỉ nổi (Gesture Pill)</string>
+    <string name="termux_gesture_pill_screen_summary">Kích thước, độ bo góc, màu sắc và gán cử chỉ vuốt/chạm</string>
+    <string name="termux_effects_screen_title">Hiệu ứng &amp; Nền ngoài</string>
+    <string name="termux_effects_screen_summary">Kính lỏng Liquid Glass, làm mờ hình nền và đổ bóng cửa sổ</string>
     <string name="termux_terminal_behavior_screen_title">Hành vi Terminal</string>
-    <string name="termux_terminal_behavior_screen_summary">Cuộn mượt nội dung terminal</string>
-    <string name="termux_extra_keys_background_header">Nền thanh phím</string>
-    <string name="termux_outer_background_header">Nền ngoài</string>
-    <string name="termux_outer_shadow_header">Đổ bóng cửa sổ</string>
-    <string name="termux_terminal_shadow_enabled_title">Đổ bóng nhẹ cho cửa sổ</string>
-    <string name="termux_terminal_shadow_enabled_summary">Bóng đổ nhẹ dưới cửa sổ terminal tạo cảm giác nổi trên nền</string>
-    <string name="termux_border_corner_enabled_title">Bo góc viền</string>
-    <string name="termux_border_corner_enabled_summary">Làm tròn góc viền; khi tắt, góc vuông sắc (bỏ qua giá trị bán kính)</string>
-    <string name="termux_extra_keys_flat_keys_title">Phím phẳng cùng màu thanh</string>
-    <string name="termux_extra_keys_flat_keys_summary">BẬT: nền mỗi phím trùng màu nền thanh, các phím liền mạch thành một khối. TẮT: nền phím dùng màu nút riêng, mỗi phím nổi lên thành một ô chữ nhật riêng biệt. Bị bỏ qua ở chế độ đồng bộ hình nền (phím trong suốt)</string>
+    <string name="termux_terminal_behavior_screen_summary">Cuộn mượt nội dung theo từng pixel</string>
 
-    <!-- Floating Gesture Pill Preferences -->
+    <!-- 1. Cửa sổ Terminal & Viền Niri -->
+    <string name="termux_niri_border_header">Viền cửa sổ phong cách Niri WM</string>
+    <string name="termux_niri_border_enable_title">Bật viền cửa sổ</string>
+    <string name="termux_niri_border_enable_summary">Bao quanh màn hình terminal bằng khung viền bo góc sắc nét</string>
+    <string name="termux_niri_border_width_title">Độ dày nét viền (dp)</string>
+    <string name="termux_niri_border_color_title">Màu sắc viền cửa sổ</string>
+    <string name="termux_niri_border_color_summary">Chọn màu từ bảng màu hoặc nhập mã màu HEX</string>
+    <string name="termux_niri_border_gaps_title">Khoảng cách lề cửa sổ (dp)</string>
+    <string name="termux_niri_border_horizontal_margin_title">Đệm lề chữ bên trong (dp)</string>
+    <string name="termux_niri_border_horizontal_margin_summary">Khoảng đệm trái và phải cho vùng văn bản terminal</string>
+    <string name="termux_niri_border_style_title">Kiểu dáng đường viền</string>
+    <string name="termux_niri_border_style_summary">Khung kín toàn bộ hoặc khung ngoặc Hermes mở hai cạnh bên</string>
+    <string name="termux_border_corner_enabled_title">Bo tròn góc viền</string>
+    <string name="termux_border_corner_enabled_summary">Làm tròn các góc; khi tắt, các góc sẽ vuông vức (bỏ qua bán kính bo)</string>
+    <string name="termux_niri_border_corner_radius_title">Bán kính bo góc viền (dp)</string>
+
+    <!-- Hình nền Terminal -->
+    <string name="termux_background_header">Hình nền Terminal</string>
+    <string name="termux_background_pick_title">Chọn ảnh nền từ máy</string>
+    <string name="termux_background_pick_summary">Chọn ảnh trực tiếp từ Thư viện hoặc Trình quản lý tệp</string>
+    <string name="termux_background_clear_title">Xóa ảnh nền</string>
+    <string name="termux_background_clear_summary">Khôi phục về nền đen thuần túy của terminal</string>
+    <string name="termux_background_image_path_title">Đường dẫn tệp ảnh thủ công</string>
+    <string name="termux_background_image_path_summary">Đường dẫn tệp tuyệt đối hoặc URI của ảnh nền</string>
+    <string name="termux_background_opacity_title">Độ tối màn che hình nền thông thường (%)</string>
+    <string name="termux_background_opacity_summary">Màn tối tăng tương phản cho hình nền thông thường. Khi bật Liquid Glass, độ tối kính được điều khiển riêng bởi [Độ tối màn kính tăng tương phản]</string>
+    <string name="termux_cell_background_transparency_title">Nền trong suốt cho trình biên tập (TUI)</string>
+    <string name="termux_cell_background_transparency_summary">Cho phép ảnh nền hiển thị xuyên qua các ứng dụng TUI như Neovim, Vim, Htop</string>
+    <string name="termux_cell_background_opacity_title">Độ đậm ô chữ trình biên tập (%)</string>
+
+    <!-- 2. Thanh phím phụ Extra Keys -->
+    <string name="termux_extra_keys_styling_header">Kiểu dáng &amp; Phím bấm</string>
+    <string name="termux_extra_keys_color_theme_title">Bảng màu phím phụ (Theme)</string>
+    <string name="termux_extra_keys_color_theme_summary">Chọn bộ màu định sẵn (Catppuccin, Dracula, Material You...)</string>
+    <string name="termux_extra_keys_pressed_text_color_title">Màu chữ khi nhấn phím</string>
+    <string name="termux_extra_keys_pressed_text_color_summary">Màu phát sáng của chữ khi chạm/nhấn giữ phím (để trống = theo màu nhấn mặc định)</string>
+    <string name="termux_extra_keys_flat_keys_title">Gộp phím phẳng cùng màu thanh</string>
+    <string name="termux_extra_keys_flat_keys_summary">BẬT: Toàn bộ thanh liền mạch thành một dải phẳng tối giản. TẮT: Từng phím hiển thị thành các ô nút nổi riêng biệt. (Tự động tắt ở chế độ kính trong suốt)</string>
+    <string name="termux_extra_keys_margin_title">Khoảng cách giữa các phím (dp)</string>
+    <string name="termux_extra_keys_text_size_title">Cỡ chữ trên phím (sp)</string>
+    <string name="termux_extra_keys_height_scale_title">Tỷ lệ chiều cao phím (%)</string>
+
+    <string name="termux_extra_keys_bar_border_header">Khung viền thanh phím phụ</string>
+    <string name="termux_extra_keys_bar_border_enable_title">Bật viền thanh phím phụ</string>
+    <string name="termux_extra_keys_bar_border_enable_summary">Bao quanh toàn bộ thanh phím phụ bằng một khung viền riêng</string>
+    <string name="termux_extra_keys_bar_border_width_title">Độ dày viền phím phụ (dp)</string>
+    <string name="termux_extra_keys_bar_border_color_title">Màu sắc viền phím phụ</string>
+    <string name="termux_extra_keys_bar_border_color_summary">Chọn màu từ bảng màu hoặc nhập mã màu HEX</string>
+    <string name="termux_extra_keys_bar_border_corner_radius_title">Bán kính bo góc viền phím phụ (dp)</string>
+    <string name="termux_extra_keys_bar_border_gaps_title">Khoảng cách lề phím phụ (dp)</string>
+
+    <string name="termux_extra_keys_customizer_header">Tùy biến phím bấm</string>
+    <string name="termux_extra_keys_use_custom_title">Sử dụng phím tùy chỉnh</string>
+    <string name="termux_extra_keys_use_custom_summary">Bật cấu hình phím qua giao diện thay cho tệp termux.properties mặc định</string>
+    <string name="termux_extra_keys_preset_title">Bộ phím định sẵn (Preset)</string>
+    <string name="termux_extra_keys_preset_summary">Chuyển nhanh giữa các cấu hình phím phổ biến</string>
+    <string name="termux_extra_keys_custom_json_title">Cấu hình phím JSON tùy biến</string>
+    <string name="termux_extra_keys_custom_json_summary">Ma trận danh sách nút phím định dạng JSON</string>
+
+    <!-- 3. Thanh Tab Bar (Pill Tab Bar) -->
+    <string name="termux_tab_bar_header">Thanh Tab Bar viên thuốc (Pill Tab Bar)</string>
+    <string name="termux_tab_bar_title">Bật thanh Pill Tab Bar</string>
+    <string name="termux_tab_bar_summary">Hiển thị các tab chuyển session dạng viên thuốc ở đầu màn hình</string>
+    <string name="termux_tab_bar_glass_enabled_title">Liquid Glass cho Tab Bar</string>
+    <string name="termux_tab_bar_glass_enabled_summary">Biến các nút tab và nút chức năng thành giọt kính lỏng có khúc xạ quang học và viền phản quang</string>
+    <string name="termux_tab_bar_border_enabled_title">Bật viền nút tab</string>
+    <string name="termux_tab_bar_border_enabled_summary">Vẽ đường viền bao quanh mỗi nút tab và các nút chức năng (+, ×, ⚙)</string>
+    <string name="termux_tab_bar_corner_enabled_title">Bo góc nút tab</string>
+    <string name="termux_tab_bar_corner_enabled_summary">Bo tròn các góc nút tab; khi tắt góc sẽ vuông vức (bỏ qua bán kính bo)</string>
+    <string name="termux_tab_bar_corner_radius_title">Bán kính bo góc tab (dp)</string>
+    <string name="termux_tab_bar_border_width_title">Độ dày nét viền tab (dp)</string>
+    <string name="termux_tab_bar_border_color_title">Màu viền tab mặc định</string>
+    <string name="termux_tab_bar_border_color_summary">Màu viền của các tab không hoạt động và nút chức năng</string>
+    <string name="termux_tab_bar_active_color_title">Màu nhấn tab đang chọn</string>
+    <string name="termux_tab_bar_active_color_summary">Màu phát sáng nổi bật của tab session đang thao tác (Mặc định: #FFFFFF)</string>
+    <string name="termux_tab_bar_button_width_title">Chiều rộng tối thiểu nút tab (dp)</string>
+    <string name="termux_tab_bar_button_width_summary">Độ rộng tối thiểu của mỗi nút tab session</string>
+    <string name="termux_tab_bar_new_button_width_title">Chiều rộng nút Thêm (+) (dp)</string>
+    <string name="termux_tab_bar_new_button_width_summary">Độ rộng của nút tạo phiên mới (+) ở góc</string>
+    <string name="termux_tab_bar_close_button_width_title">Chiều rộng nút Đóng (×) (dp)</string>
+    <string name="termux_tab_bar_close_button_width_summary">Độ rộng của nút đóng phiên (×) ở góc</string>
+    <string name="termux_tab_bar_settings_button_width_title">Chiều rộng nút Cài đặt (⚙) (dp)</string>
+    <string name="termux_tab_bar_settings_button_width_summary">Độ rộng của nút mở cài đặt (⚙) ở góc mép phải</string>
+    <string name="termux_tab_bar_active_title_length_title">Độ dài chữ tiêu đề tab đang chọn</string>
+    <string name="termux_tab_bar_active_title_length_summary">Số ký tự tên hiển thị trên tab đang kích hoạt (0 = chỉ hiện số thứ tự)</string>
+
+    <!-- 4. Nút cử chỉ nổi (Gesture Pill) -->
     <string name="termux_gesture_pill_header">Nút cử chỉ nổi (Gesture Pill)</string>
     <string name="termux_gesture_pill_enable_title">Bật nút cử chỉ nổi</string>
-    <string name="termux_gesture_pill_enable_summary">Nút cử chỉ điều khiển chuyển tab và bật/tắt bàn phím</string>
+    <string name="termux_gesture_pill_enable_summary">Nút điều khiển nổi giúp chuyển tab nhanh và bật/tắt bàn phím</string>
     <string name="termux_gesture_pill_width_title">Chiều rộng nút (dp)</string>
     <string name="termux_gesture_pill_height_title">Chiều cao / độ dày nút (dp)</string>
     <string name="termux_gesture_pill_corner_radius_title">Độ bo góc nút (dp)</string>
     <string name="termux_gesture_pill_color_title">Màu sắc nút cử chỉ</string>
-    <string name="termux_gesture_pill_color_summary">Mã màu Hex hoặc độ trong suốt</string>
+    <string name="termux_gesture_pill_color_summary">Mã màu HEX hoặc độ trong suốt của nút</string>
     <string name="termux_gesture_pill_swipe_left_title">Cử chỉ vuốt sang trái</string>
     <string name="termux_gesture_pill_swipe_right_title">Cử chỉ vuốt sang phải</string>
     <string name="termux_gesture_pill_swipe_up_title">Cử chỉ vuốt lên trên</string>
     <string name="termux_gesture_pill_swipe_down_title">Cử chỉ vuốt xuống dưới</string>
-    <string name="termux_gesture_pill_tap_title">Cử chỉ chạm (Tap)</string>
+    <string name="termux_gesture_pill_tap_title">Cử chỉ chạm một lần (Tap)</string>
 
-    <!-- Terminal Behavior Preferences -->
-    <string name="termux_terminal_behavior_header">Hành vi Terminal</string>
-    <string name="termux_smooth_scroll_title">Cuộn mượt (Smooth Scroll)</string>
-    <string name="termux_smooth_scroll_summary">Nội dung terminal lướt theo từng pixel khi vuốt, hất hoặc lăn chuột</string>
-
-    <!-- Glass & Blur Effect Preferences -->
-    <string name="termux_glass_effects_header">Hiệu ứng Liquid Glass &amp; làm mờ</string>
-    <string name="termux_glass_effect_enabled_title">Liquid Glass</string>
-    <string name="termux_glass_effect_enabled_summary">Apple Liquid Glass cho cửa sổ terminal, nút tab bar và thanh phím phụ: khúc xạ mép quang học (API 33+) trên nền kính trong suốt, màn tối tăng tương phản, viền phản quang và bóng đổ chữ</string>
-    <string name="termux_glass_tint_opacity_title">Độ đậm lớp kính (%)</string>
-    <string name="termux_glass_tint_opacity_summary">Cường độ lớp màn tối trên cửa sổ terminal, thanh phím phụ và các nút</string>
-    <string name="termux_background_blur_enabled_title">Làm mờ hình nền</string>
-    <string name="termux_background_blur_enabled_summary">Làm mờ gaussian thật cho ảnh nền (RenderScript / RenderEffect)</string>
+    <!-- 5. Hiệu ứng Kính lỏng & Nền ngoài -->
+    <string name="termux_glass_effects_header">Hiệu ứng Liquid Glass &amp; Làm mờ</string>
+    <string name="termux_glass_effect_enabled_title">Kính lỏng Liquid Glass</string>
+    <string name="termux_glass_effect_enabled_summary">BẬT: Cửa sổ terminal và các thanh công cụ biến thành khối kính lỏng quang học với mép thấu kính bẻ cong ánh sáng theo định luật Snell, viền sáng 3D và lòng kính trong suốt. TẮT: Sử dụng giao diện phẳng</string>
+    <string name="termux_glass_tint_opacity_title">Độ tối màn kính tăng tương phản (%)</string>
+    <string name="termux_glass_tint_opacity_summary">Độ sẫm màu của màn bảo vệ trên lớp kính giúp chữ terminal luôn rõ nét trên ảnh nền sáng. Kéo về 0% để kính trong suốt 100% pha lê</string>
+    <string name="termux_background_blur_enabled_title">Làm mờ nền kính (Kính nhám)</string>
+    <string name="termux_background_blur_enabled_summary">BẬT: Lòng kính mờ sương giống kính nhám (Frosted Glass). TẮT: Lòng kính trong suốt tuyệt đối như pha lê, giữ nguyên độ nét của ảnh nền</string>
     <string name="termux_background_blur_radius_title">Bán kính làm mờ (dp)</string>
     <string name="termux_extra_keys_bar_background_sync_title">Đồng bộ hình nền xuống thanh phím phụ</string>
-    <string name="termux_extra_keys_bar_background_sync_summary">Hiển thị cùng ảnh nền (có làm mờ) phía sau thanh phím phụ, liền mạch từ cửa sổ terminal xuống</string>
-    <string name="termux_outer_background_style_title">Nền ngoài cửa sổ terminal</string>
-    <string name="termux_outer_background_style_summary">Mở rộng hình nền ra vùng xung quanh cửa sổ terminal (lề, khe giữa tab bar và thanh phím phụ): màu đặc, mờ hoặc ảnh gốc</string>
-    <string name="termux_tab_bar_glass_enabled_title">Liquid Glass cho Tab Bar</string>
-    <string name="termux_tab_bar_glass_enabled_summary">Áp dụng hiệu ứng kính lỏng và viền phản quang cho các nút trên thanh tab</string>
-    <string name="termux_tab_bar_border_enabled_title">Bật viền nút tab</string>
-    <string name="termux_tab_bar_border_enabled_summary">Vẽ đường viền bao quanh mỗi nút tab và các nút chức năng</string>
-    <string name="termux_tab_bar_corner_enabled_title">Bo góc nút tab</string>
-    <string name="termux_tab_bar_corner_enabled_summary">Bo tròn các góc nút tab; khi tắt góc sẽ vuông vức (bỏ qua bán kính bo)</string>
-    <string name="termux_tab_bar_active_color_title">Màu nhấn tab đang chọn</string>
-    <string name="termux_tab_bar_active_color_summary">Màu sắc nổi bật của tab session đang hoạt động</string>
-    <string name="termux_extra_keys_pressed_text_color_title">Màu chữ khi nhấn phím</string>
-    <string name="termux_extra_keys_pressed_text_color_summary">Màu sắc của chữ khi bấm/giữ phím trên thanh phím phụ (để trống = theo theme)</string>
+    <string name="termux_extra_keys_bar_background_sync_summary">Hiển thị cùng một bức tranh nền liền mạch từ cửa sổ terminal xuống thanh phím phụ (kèm hiệu ứng kính lỏng)</string>
+    <string name="termux_outer_background_header">Vùng nền ngoài viền cửa sổ</string>
+    <string name="termux_outer_background_style_title">Kiểu hiển thị nền ngoài</string>
+    <string name="termux_outer_background_style_summary">Cách hiển thị hình nền tại các khoảng hở xung quanh cửa sổ (Màu tối / Giữ ảnh sắc nét / Làm mờ mộng ảo)</string>
+    <string name="termux_outer_shadow_header">Đổ bóng cửa sổ</string>
+    <string name="termux_terminal_shadow_enabled_title">Đổ bóng nổi cho cửa sổ</string>
+    <string name="termux_terminal_shadow_enabled_summary">Tạo bóng đổ nhẹ dưới cửa sổ terminal để cửa sổ nổi bật tách biệt khỏi nền sau</string>
+
+    <!-- 6. Hành vi Terminal -->
+    <string name="termux_terminal_behavior_header">Hành vi Terminal</string>
+    <string name="termux_smooth_scroll_title">Cuộn mượt (Smooth Scroll)</string>
+    <string name="termux_smooth_scroll_summary">Nội dung terminal lướt êm ái theo từng pixel khi vuốt chạm, hất tay hoặc lăn chuột</string>
+
+    <!-- 7. Khôi phục cài đặt gốc -->
+    <string name="termux_reset_settings_title">Khôi phục cài đặt gốc toàn bộ Custom UI</string>
+    <string name="termux_reset_settings_summary">Đặt lại toàn bộ viền, màu sắc, tab bar, phím phụ và hiệu ứng về mặc định ban đầu</string>
+    <string name="termux_reset_settings_confirm_message">Bạn có chắc chắn muốn đặt lại tất cả các tùy chọn giao diện tùy chỉnh (viền, màu sắc, tab bar, phím phụ, hình nền) về giá trị mặc định ban đầu không?</string>
+    <string name="termux_reset_settings_confirm_button">Khôi phục</string>
+    <string name="termux_reset_settings_success">Đã khôi phục toàn bộ cài đặt giao diện về mặc định</string>
+
+    <string name="about_preference_title">Thông tin ứng dụng</string>
+    <string name="donate_preference_title">Ủng hộ dự án</string>
 </resources>

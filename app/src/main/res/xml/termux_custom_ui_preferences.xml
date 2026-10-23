@@ -99,6 +99,7 @@
             <SeekBarPreference
                 app:key="terminal_background_opacity"
                 app:title="@string/termux_background_opacity_title"
+                app:summary="@string/termux_background_opacity_summary"
                 app:min="0"
                 android:max="100"
                 app:showSeekBarValue="true"

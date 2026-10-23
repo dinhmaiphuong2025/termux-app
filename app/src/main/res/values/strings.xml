@@ -263,7 +263,7 @@
     <string name="termux_tab_animation_title">Niri Ribbon Tab Animation</string>
     <string name="termux_tab_animation_summary">Smooth horizontal sliding transition between tabs like Niri WM</string>
     <string name="termux_keep_border_layout_title">Keep Layout When Border Off</string>
-    <string name="termux_keep_border_layout_summary">When the terminal window or extra keys bar border is disabled, keep the exact size and position they would have with the border drawn (only the stroke disappears)</string>
+    <string name="termux_keep_border_layout_summary">ON: keep collinear vertical column alignment and outer margins across Tab Bar, Terminal Window and Extra Keys Bar when borders are turned off. OFF: views expand edge-to-edge when borders are off</string>
     <string name="termux_tab_bar_show_session_name_without_tab_bar_title">Show Pinned Session Name</string>
     <string name="termux_tab_bar_show_session_name_without_tab_bar_summary">Pin current session title above terminal border when tab bar is disabled</string>
     <string name="termux_session_name_alignment_title">Pinned Session Name Alignment</string>
@@ -325,6 +325,7 @@
     <string name="termux_background_image_path_title">Manual Image Path / URI</string>
     <string name="termux_background_image_path_summary">File path or content URI to custom background image</string>
     <string name="termux_background_opacity_title">Background Dim Overlay Opacity (%)</string>
+    <string name="termux_background_opacity_summary">Dimming overlay for standard wallpaper mode. When Liquid Glass is ON, glass contrast is controlled independently by Glass Contrast Veil</string>
     <string name="termux_cell_background_transparency_title">Transparent Editor / App Background</string>
     <string name="termux_cell_background_transparency_summary">Allow wallpaper to show through TUI editors like Neovim, Vim, Htop</string>
     <string name="termux_cell_background_opacity_title">Editor Cell Background Opacity (%)</string>
@@ -342,10 +343,10 @@
     <string name="termux_glass_effects_header">Liquid Glass &amp; Blur Effects</string>
     <string name="termux_glass_effect_enabled_title">Liquid Glass</string>
     <string name="termux_glass_effect_enabled_summary">Apple Liquid Glass for the terminal window, tab buttons and extra keys bar: optical edge refraction (API 33+) over a crystal clear backdrop, dark readability tint, specular rim and text shadow</string>
-    <string name="termux_glass_tint_opacity_title">Glass Tint Strength (%)</string>
-    <string name="termux_glass_tint_opacity_summary">Strength of the dark glass veil on the terminal window, extra keys bar and buttons</string>
-    <string name="termux_background_blur_enabled_title">Blur Background Wallpaper</string>
-    <string name="termux_background_blur_enabled_summary">Real gaussian blur on the background image (RenderScript / RenderEffect)</string>
+    <string name="termux_glass_tint_opacity_title">Glass Contrast Veil (%)</string>
+    <string name="termux_glass_tint_opacity_summary">Strength of the dark contrast veil to keep white terminal text readable over bright wallpapers. Set to 0% for 100% crystal clear glass</string>
+    <string name="termux_background_blur_enabled_title">Frosted Glass Blur</string>
+    <string name="termux_background_blur_enabled_summary">ON: diffuse frosted glass interior. OFF: 100% crystal clear optical glass (sharp unblurred wallpaper)</string>
     <string name="termux_background_blur_radius_title">Blur Radius (dp)</string>
 
     <!-- Extra Keys Styling & Presets -->
