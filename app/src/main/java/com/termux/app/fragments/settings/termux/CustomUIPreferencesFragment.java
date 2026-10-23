@@ -1,7 +1,12 @@
 package com.termux.app.fragments.settings.termux;
 
+import android.app.WallpaperManager;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -11,6 +16,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Keep;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.preference.EditTextPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceDataStore;
@@ -26,6 +32,9 @@ import com.termux.shared.termux.settings.preferences.TermuxAppSharedPreferences;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+
+import java.io.File;
+import java.io.FileOutputStream;
 
 @Keep
 public class CustomUIPreferencesFragment extends PreferenceFragmentCompat {
@@ -89,6 +98,14 @@ public class CustomUIPreferencesFragment extends PreferenceFragmentCompat {
                 if (mPickImageLauncher != null) {
                     mPickImageLauncher.launch("image/*");
                 }
+                return true;
+            });
+        }
+
+        Preference systemWallPref = findPreference("terminal_background_system_wallpaper");
+        if (systemWallPref != null) {
+            systemWallPref.setOnPreferenceClickListener(preference -> {
+                applySystemWallpaper(context);
                 return true;
             });
         }
@@ -286,6 +303,21 @@ public class CustomUIPreferencesFragment extends PreferenceFragmentCompat {
             });
         }
 
+        SwitchPreferenceCompat glassPref = findPreference("glass_effect_enabled");
+        if (glassPref != null) {
+            glassPref.setOnPreferenceChangeListener((preference, newValue) -> {
+                boolean enabling = (Boolean) newValue;
+                if (enabling) {
+                    TermuxAppSharedPreferences prefs = TermuxAppSharedPreferences.build(context, true);
+                    String currentBg = prefs != null ? prefs.getTerminalBackgroundImagePath() : "";
+                    if (TextUtils.isEmpty(currentBg)) {
+                        showLiquidGlassOnboardingDialog(context);
+                    }
+                }
+                return true;
+            });
+        }
+
         String[] reloadStyleKeys = new String[]{
             "show_tab_bar",
             "tab_corner_radius",
@@ -343,6 +375,89 @@ public class CustomUIPreferencesFragment extends PreferenceFragmentCompat {
         // Style reloads are dispatched post-save in CustomUIPreferencesDataStore
         // (putInt, putBoolean, putString) so the new values are always committed
         // to preferences before TermuxActivity receives the reload broadcast.
+    }
+
+    private void applySystemWallpaper(Context context) {
+        if (context == null) return;
+        try {
+            WallpaperManager wm = WallpaperManager.getInstance(context);
+            Drawable drawable = wm.getDrawable();
+            if (drawable != null) {
+                Bitmap bitmap;
+                if (drawable instanceof BitmapDrawable) {
+                    bitmap = ((BitmapDrawable) drawable).getBitmap();
+                } else {
+                    int w = Math.max(1, drawable.getIntrinsicWidth());
+                    int h = Math.max(1, drawable.getIntrinsicHeight());
+                    bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+                    Canvas canvas = new Canvas(bitmap);
+                    drawable.setBounds(0, 0, w, h);
+                    drawable.draw(canvas);
+                }
+
+                if (bitmap != null) {
+                    int w = bitmap.getWidth();
+                    int h = bitmap.getHeight();
+                    int maxDim = Math.max(w, h);
+                    int screenMax = 0;
+                    if (context.getResources() != null && context.getResources().getDisplayMetrics() != null) {
+                        screenMax = Math.max(context.getResources().getDisplayMetrics().widthPixels,
+                            context.getResources().getDisplayMetrics().heightPixels);
+                    }
+                    if (screenMax <= 0) screenMax = 2560;
+
+                    if (maxDim > screenMax) {
+                        float ratio = (float) screenMax / maxDim;
+                        int targetW = Math.max(1, Math.round(w * ratio));
+                        int targetH = Math.max(1, Math.round(h * ratio));
+                        bitmap = Bitmap.createScaledBitmap(bitmap, targetW, targetH, true);
+                    }
+
+                    File wallpaperFile = new File(context.getFilesDir(), "system_wallpaper.png");
+                    try (FileOutputStream fos = new FileOutputStream(wallpaperFile)) {
+                        bitmap.compress(Bitmap.CompressFormat.PNG, 95, fos);
+                    }
+
+                    TermuxAppSharedPreferences prefs = TermuxAppSharedPreferences.build(context, true);
+                    if (prefs != null) {
+                        prefs.setTerminalBackgroundImagePath(wallpaperFile.getAbsolutePath());
+                    }
+                    EditTextPreference pathPref = findPreference("terminal_background_image_path");
+                    if (pathPref != null) {
+                        pathPref.setText(wallpaperFile.getAbsolutePath());
+                    }
+                    TermuxActivity.updateTermuxActivityStyling(context, false);
+                    Toast.makeText(context, R.string.termux_glass_onboarding_system_wallpaper_success, Toast.LENGTH_SHORT).show();
+                    return;
+                }
+            }
+        } catch (Throwable t) {
+            Logger.logStackTraceWithMessage(LOG_TAG, "Failed to extract system wallpaper", t);
+        }
+
+        Toast.makeText(context, R.string.termux_glass_onboarding_system_wallpaper_failed, Toast.LENGTH_LONG).show();
+        if (mPickImageLauncher != null) {
+            mPickImageLauncher.launch("image/*");
+        }
+    }
+
+    private void showLiquidGlassOnboardingDialog(Context context) {
+        if (context == null) return;
+        new AlertDialog.Builder(context)
+            .setTitle(R.string.termux_glass_onboarding_title)
+            .setMessage(R.string.termux_glass_onboarding_message)
+            .setPositiveButton(R.string.termux_glass_onboarding_btn_pick, (dialog, which) -> {
+                if (mPickImageLauncher != null) {
+                    mPickImageLauncher.launch("image/*");
+                }
+            })
+            .setNeutralButton(R.string.termux_glass_onboarding_btn_system, (dialog, which) -> {
+                applySystemWallpaper(context);
+            })
+            .setNegativeButton(R.string.termux_glass_onboarding_btn_later, (dialog, which) -> {
+                Toast.makeText(context, R.string.termux_glass_onboarding_later_tip, Toast.LENGTH_SHORT).show();
+            })
+            .show();
     }
 
 }

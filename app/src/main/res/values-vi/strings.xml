@@ -45,6 +45,8 @@
     <string name="termux_background_header">Hình nền Terminal</string>
     <string name="termux_background_pick_title">Chọn ảnh nền từ máy</string>
     <string name="termux_background_pick_summary">Chọn ảnh trực tiếp từ Thư viện hoặc Trình quản lý tệp</string>
+    <string name="termux_background_system_wallpaper_title">Dùng hình nền điện thoại</string>
+    <string name="termux_background_system_wallpaper_summary">Trích xuất hình nền hiện tại của máy làm nền terminal</string>
     <string name="termux_background_clear_title">Xóa ảnh nền</string>
     <string name="termux_background_clear_summary">Khôi phục về nền đen thuần túy của terminal</string>
     <string name="termux_background_image_path_title">Đường dẫn tệp ảnh thủ công</string>
@@ -130,6 +132,14 @@
     <string name="termux_glass_effects_header">Hiệu ứng Liquid Glass &amp; Làm mờ</string>
     <string name="termux_glass_effect_enabled_title">Kính lỏng Liquid Glass</string>
     <string name="termux_glass_effect_enabled_summary">BẬT: Cửa sổ terminal và các thanh công cụ biến thành khối kính lỏng quang học với mép thấu kính bẻ cong ánh sáng theo định luật Snell, viền sáng 3D và lòng kính trong suốt. TẮT: Sử dụng giao diện phẳng</string>
+    <string name="termux_glass_onboarding_title">Hiệu ứng Liquid Glass</string>
+    <string name="termux_glass_onboarding_message">Hiệu ứng kính lỏng cần một bức tranh nền để tạo độ khúc xạ quang học và độ trong suốt pha lê. Hiện tại Terminal đang dùng nền đen thuần túy.\n\nBạn muốn thiết lập hình nền ngay bây giờ không?</string>
+    <string name="termux_glass_onboarding_btn_pick">Chọn ảnh từ máy</string>
+    <string name="termux_glass_onboarding_btn_system">Hình nền máy</string>
+    <string name="termux_glass_onboarding_btn_later">Để sau</string>
+    <string name="termux_glass_onboarding_system_wallpaper_success">Đã trích xuất và áp dụng hình nền điện thoại thành công</string>
+    <string name="termux_glass_onboarding_system_wallpaper_failed">Không thể lấy hình nền máy (do quyền Android hoặc dùng hình nền động). Vui lòng chọn ảnh từ thiết bị.</string>
+    <string name="termux_glass_onboarding_later_tip">Hiệu ứng khúc xạ kính lỏng sẽ hiển thị ngay khi bạn chọn ảnh nền</string>
     <string name="termux_glass_tint_opacity_title">Độ tối màn kính tăng tương phản (%)</string>
     <string name="termux_glass_tint_opacity_summary">Độ sẫm màu của màn bảo vệ trên lớp kính giúp chữ terminal luôn rõ nét trên ảnh nền sáng. Kéo về 0% để kính trong suốt 100% pha lê</string>
     <string name="termux_background_blur_enabled_title">Làm mờ nền kính (Kính nhám)</string>
