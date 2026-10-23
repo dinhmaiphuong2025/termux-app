@@ -1271,8 +1271,12 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         if (!TextUtils.isEmpty(imagePath)) {
             final int opacity = getPreferences().getTerminalBackgroundOpacity();
             final float alpha = Math.max(0.0f, Math.min(1.0f, opacity / 100.0f));
-            mTerminalBackgroundOverlay.setAlpha(alpha);
-            mTerminalBackgroundOverlay.setVisibility(View.VISIBLE);
+            if (!getPreferences().isGlassEffectEnabled()) {
+                mTerminalBackgroundOverlay.setAlpha(alpha);
+                mTerminalBackgroundOverlay.setVisibility(View.VISIBLE);
+            } else {
+                mTerminalBackgroundOverlay.setVisibility(View.GONE);
+            }
             if (mTerminalToolbarBackgroundOverlay != null) {
                 mTerminalToolbarBackgroundOverlay.setAlpha(alpha);
             }
@@ -1557,10 +1561,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         if (glassEnabled) {
             applyGlassBackdrop(bitmap, getGlassBlurPx(getResources().getDisplayMetrics().density));
             if (mTerminalBackgroundOverlay != null) {
-                int opacity = getPreferences() != null ? getPreferences().getTerminalBackgroundOpacity() : 60;
-                float alpha = Math.max(0.0f, Math.min(1.0f, opacity / 100.0f));
-                mTerminalBackgroundOverlay.setAlpha(alpha);
-                mTerminalBackgroundOverlay.setVisibility(alpha > 0.001f ? View.VISIBLE : View.GONE);
+                mTerminalBackgroundOverlay.setVisibility(View.GONE);
             }
         } else {
             hideGlassBackdrop();

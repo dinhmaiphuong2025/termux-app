@@ -301,7 +301,9 @@
     <string name="termux_niri_border_style_title">Border Style</string>
     <string name="termux_niri_border_style_summary">Full box or Hermes brackets with cut-out sides</string>
 
-    <!-- UI Style Presets -->
+    <!-- UI Style Presets & Management -->
+    <string name="termux_ui_preset_management_title">Preset &amp; Config Management</string>
+    <string name="termux_ui_preset_management_summary">Choose style presets, backup/restore JSON, or reset to defaults</string>
     <string name="termux_ui_preset_header">UI Style Presets</string>
     <string name="termux_ui_preset_title">Choose Preset</string>
     <string name="termux_ui_preset_summary">Quickly switch between complete UI styles (auto-switches to Custom on edit)</string>

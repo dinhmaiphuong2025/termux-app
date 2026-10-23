@@ -2,37 +2,44 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <!-- ============ UI STYLE PRESETS ============ -->
+    <!-- ============ UI STYLE PRESETS & MANAGEMENT ============ -->
 
-    <PreferenceCategory
-        app:key="ui_presets_category"
-        app:title="@string/termux_ui_preset_header">
+    <PreferenceScreen
+        app:key="ui_preset_management_screen"
+        app:title="@string/termux_ui_preset_management_title"
+        app:summary="@string/termux_ui_preset_management_summary">
 
-        <ListPreference
-            app:key="ui_preset"
-            app:title="@string/termux_ui_preset_title"
-            app:summary="@string/termux_ui_preset_summary"
-            app:entries="@array/ui_preset_titles"
-            app:entryValues="@array/ui_preset_values"
-            app:useSimpleSummaryProvider="true"
-            app:defaultValue="niri_default" />
+        <PreferenceCategory
+            app:key="ui_presets_category"
+            app:title="@string/termux_ui_preset_header">
 
-        <Preference
-            app:key="backup_ui_config"
-            app:title="@string/termux_backup_config_title"
-            app:summary="@string/termux_backup_config_summary" />
+            <ListPreference
+                app:key="ui_preset"
+                app:title="@string/termux_ui_preset_title"
+                app:summary="@string/termux_ui_preset_summary"
+                app:entries="@array/ui_preset_titles"
+                app:entryValues="@array/ui_preset_values"
+                app:useSimpleSummaryProvider="true"
+                app:defaultValue="niri_default" />
 
-        <Preference
-            app:key="restore_ui_config"
-            app:title="@string/termux_restore_config_title"
-            app:summary="@string/termux_restore_config_summary" />
+            <Preference
+                app:key="backup_ui_config"
+                app:title="@string/termux_backup_config_title"
+                app:summary="@string/termux_backup_config_summary" />
 
-        <Preference
-            app:key="reset_ui_settings"
-            app:title="@string/termux_reset_settings_title"
-            app:summary="@string/termux_reset_settings_summary" />
+            <Preference
+                app:key="restore_ui_config"
+                app:title="@string/termux_restore_config_title"
+                app:summary="@string/termux_restore_config_summary" />
 
-    </PreferenceCategory>
+            <Preference
+                app:key="reset_ui_settings"
+                app:title="@string/termux_reset_settings_title"
+                app:summary="@string/termux_reset_settings_summary" />
+
+        </PreferenceCategory>
+
+    </PreferenceScreen>
 
     <!-- ============ 1. TERMINAL WINDOW ============ -->
 
