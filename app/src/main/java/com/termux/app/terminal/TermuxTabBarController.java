@@ -241,13 +241,18 @@ public class TermuxTabBarController {
             int gaps = (isTerminalBorderOn || isKeepLayoutOn) && mActivity.getPreferences() != null
                 ? (int) (mActivity.getPreferences().getTerminalBorderGaps() * density) : 0;
 
+            boolean isTabBarGlassOn = mActivity.getPreferences() != null
+                && mActivity.getPreferences().isGlassEffectEnabled()
+                && mActivity.getPreferences().isTabBarGlassEnabled();
+            int compactHorizontalPad = isTabBarGlassOn ? (gaps + (int) (6 * density)) : gaps;
+
             ViewGroup.LayoutParams rootLp = mRootView.getLayoutParams();
             if (rootLp != null) {
                 rootLp.height = (int) (20 * density);
                 mRootView.setLayoutParams(rootLp);
                 mRootView.setPadding(0, 0, 0, 0);
                 if (mSessionTitleContainer != null) {
-                    mSessionTitleContainer.setPadding(gaps + (int) (6 * density), (int) (1 * density), gaps + (int) (6 * density), (int) (1 * density));
+                    mSessionTitleContainer.setPadding(compactHorizontalPad + (int) (4 * density), (int) (1 * density), compactHorizontalPad + (int) (4 * density), (int) (1 * density));
                 }
             }
 
@@ -309,13 +314,22 @@ public class TermuxTabBarController {
             ? (int) (mActivity.getPreferences().getTerminalBorderGaps() * density) : 0;
         int verticalPad = (int) (4 * density);
 
+        boolean isTabBarGlassOn = mActivity.getPreferences() != null
+            && mActivity.getPreferences().isGlassEffectEnabled()
+            && mActivity.getPreferences().isTabBarGlassEnabled();
+
+        // When Liquid Glass is ON: the glass capsule aligns with the terminal window,
+        // and buttons inside are inset by 4dp away from the curved refraction bevel rim.
+        // When Liquid Glass is OFF: buttons align directly with the window column (padding = gaps).
+        int horizontalPad = isTabBarGlassOn ? (gaps + (int) (4 * density)) : gaps;
+
         ViewGroup.LayoutParams rootLp = mRootView.getLayoutParams();
         if (rootLp != null) {
             rootLp.height = (int) (36 * density);
             mRootView.setLayoutParams(rootLp);
             mRootView.setPadding(0, 0, 0, 0);
             if (mFullTabBarContainer != null) {
-                mFullTabBarContainer.setPadding(gaps, verticalPad, gaps, verticalPad);
+                mFullTabBarContainer.setPadding(horizontalPad, verticalPad, horizontalPad, verticalPad);
             }
         }
 
