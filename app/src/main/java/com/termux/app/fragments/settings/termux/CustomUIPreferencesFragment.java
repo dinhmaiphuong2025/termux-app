@@ -514,6 +514,7 @@ public class CustomUIPreferencesFragment extends PreferenceFragmentCompat {
                 prefs.setTerminalBorderStyle("full");
                 prefs.setTerminalHorizontalMargin(3);
                 prefs.setTerminalShadowEnabled(true);
+                prefs.setKeepBorderLayoutEnabled(false);
 
                 prefs.setTabBarEnabled(true);
                 prefs.setTabBarGlassEnabled(false);
@@ -523,18 +524,22 @@ public class CustomUIPreferencesFragment extends PreferenceFragmentCompat {
                 prefs.setTabBorderWidth(1);
                 prefs.setTabBorderColor("#FFFFFF");
                 prefs.setTabActiveColor("#FFFFFF");
-                prefs.setKeepBorderLayoutEnabled(false);
 
                 prefs.setGlassEffectEnabled(false);
                 prefs.setBackgroundBlurEnabled(false);
                 prefs.setExtraKeysBarBackgroundSyncEnabled(false);
                 prefs.setExtraKeysColorTheme("default");
-                prefs.setExtraKeysFlatKeys(false);
-                prefs.setExtraKeysBarBorderEnabled(false);
+                prefs.setExtraKeysFlatKeys(true);
+                prefs.setExtraKeysBarBorderEnabled(true);
+                prefs.setExtraKeysBarBorderWidth(1);
+                prefs.setExtraKeysBarBorderColor("#FFFFFF");
+                prefs.setExtraKeysBarBorderCornerRadius(1);
+                prefs.setExtraKeysBarCornerEnabled(true);
+                prefs.setExtraKeysPressedTextColor("#FFFFFF");
                 break;
 
             case "liquid_glass":
-                prefs.setTerminalBorderEnabled(true);
+                prefs.setTerminalBorderEnabled(false);
                 prefs.setTerminalBorderWidth(1);
                 prefs.setTerminalBorderCornerEnabled(true);
                 prefs.setTerminalBorderCornerRadius(12);
@@ -543,16 +548,16 @@ public class CustomUIPreferencesFragment extends PreferenceFragmentCompat {
                 prefs.setTerminalBorderStyle("full");
                 prefs.setTerminalHorizontalMargin(3);
                 prefs.setTerminalShadowEnabled(true);
+                prefs.setKeepBorderLayoutEnabled(true);
 
                 prefs.setTabBarEnabled(true);
                 prefs.setTabBarGlassEnabled(true);
-                prefs.setTabBorderEnabled(true);
+                prefs.setTabBorderEnabled(false);
                 prefs.setTabCornerEnabled(true);
                 prefs.setTabCornerRadius(8);
                 prefs.setTabBorderWidth(1);
                 prefs.setTabBorderColor("#FFFFFF");
                 prefs.setTabActiveColor("#FFFFFF");
-                prefs.setKeepBorderLayoutEnabled(true);
 
                 prefs.setGlassEffectEnabled(true);
                 prefs.setGlassTintOpacity(100);
@@ -561,6 +566,9 @@ public class CustomUIPreferencesFragment extends PreferenceFragmentCompat {
                 prefs.setExtraKeysBarCornerEnabled(true);
                 prefs.setExtraKeysBarBorderCornerRadius(12);
                 prefs.setExtraKeysBarBorderEnabled(false);
+                prefs.setExtraKeysFlatKeys(true);
+                prefs.setExtraKeysPressedTextColor("#FFFFFF");
+                prefs.setOuterBackgroundStyle("blur");
 
                 if (TextUtils.isEmpty(prefs.getTerminalBackgroundImagePath())) {
                     showLiquidGlassOnboardingDialog(context);
@@ -570,6 +578,7 @@ public class CustomUIPreferencesFragment extends PreferenceFragmentCompat {
             case "classic_termux":
                 prefs.setTerminalBorderEnabled(false);
                 prefs.setTerminalBorderGaps(0);
+                prefs.setTerminalBorderCornerEnabled(false);
                 prefs.setKeepBorderLayoutEnabled(false);
                 prefs.setTerminalShadowEnabled(false);
 
@@ -580,8 +589,10 @@ public class CustomUIPreferencesFragment extends PreferenceFragmentCompat {
                 prefs.setBackgroundBlurEnabled(false);
                 prefs.setExtraKeysBarBackgroundSyncEnabled(false);
                 prefs.setExtraKeysColorTheme("default");
-                prefs.setExtraKeysFlatKeys(false);
+                prefs.setExtraKeysFlatKeys(true);
                 prefs.setExtraKeysBarBorderEnabled(false);
+                prefs.setExtraKeysBarCornerEnabled(false);
+                prefs.setExtraKeysPressedTextColor("");
                 break;
 
             case "custom":

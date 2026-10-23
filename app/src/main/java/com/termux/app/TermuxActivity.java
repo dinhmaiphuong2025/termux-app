@@ -2404,12 +2404,13 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
                 } catch (Exception ignored) {}
             }
 
-            // Apply theme colors
+            // Apply theme colors: keep active background identical to normal background
+            // so touching or toggling keys highlights ONLY the text color, eliminating stuck rectangular boxes.
             mExtraKeysView.setButtonColors(
                 theme.buttonTextColor,
                 activeTextColor,
                 btnBg,
-                theme.buttonActiveBackgroundColor
+                btnBg
             );
             mExtraKeysView.setBackgroundColor(theme.barBackgroundColor);
 
