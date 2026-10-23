@@ -11,6 +11,11 @@
     <string name="termux_tab_bar_show_session_name_without_tab_bar_summary">Hiển thị thẻ tên phiên làm việc nhỏ gọn phía trên cửa sổ terminal khi thanh tab bị tắt</string>
     <string name="termux_session_name_alignment_title">Vị trí căn lề tên session</string>
 
+    <!-- Giao diện định sẵn (Presets) -->
+    <string name="termux_ui_preset_header">Giao diện định sẵn (Presets)</string>
+    <string name="termux_ui_preset_title">Chọn Preset giao diện</string>
+    <string name="termux_ui_preset_summary">Chuyển nhanh giữa các phong cách giao diện hoàn chỉnh (tự động chuyển sang Tùy chỉnh khi sửa)</string>
+
     <!-- Các màn hình con (Sub-Screens) -->
     <string name="termux_terminal_window_screen_title">Cửa sổ Terminal</string>
     <string name="termux_terminal_window_screen_summary">Viền cửa sổ, bo góc, khoảng cách lề và hình nền terminal</string>

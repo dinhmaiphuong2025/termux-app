@@ -18,6 +18,7 @@ import androidx.annotation.Keep;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.preference.EditTextPreference;
+import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceDataStore;
 import androidx.preference.PreferenceFragmentCompat;
@@ -91,6 +92,24 @@ public class CustomUIPreferencesFragment extends PreferenceFragmentCompat {
         preferenceManager.setPreferenceDataStore(CustomUIPreferencesDataStore.getInstance(context));
 
         setPreferencesFromResource(R.xml.termux_custom_ui_preferences, rootKey);
+
+        ListPreference uiPresetPref = findPreference("ui_preset");
+        if (uiPresetPref != null) {
+            TermuxAppSharedPreferences prefs = TermuxAppSharedPreferences.build(context, true);
+            if (prefs != null) {
+                uiPresetPref.setValue(prefs.getUiPreset());
+            }
+            uiPresetPref.setOnPreferenceChangeListener((preference, newValue) -> {
+                String selectedPreset = (String) newValue;
+                if (!"custom".equals(selectedPreset)) {
+                    applyUiPreset(context, selectedPreset);
+                } else {
+                    TermuxAppSharedPreferences p = TermuxAppSharedPreferences.build(context, true);
+                    if (p != null) p.setUiPreset("custom");
+                }
+                return true;
+            });
+        }
 
         Preference pickPref = findPreference("terminal_background_pick");
         if (pickPref != null) {
@@ -460,6 +479,120 @@ public class CustomUIPreferencesFragment extends PreferenceFragmentCompat {
             .show();
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        updateUiPresetPreference();
+    }
+
+    private void updateUiPresetPreference() {
+        ListPreference uiPresetPref = findPreference("ui_preset");
+        if (uiPresetPref != null) {
+            Context context = getContext();
+            if (context != null) {
+                TermuxAppSharedPreferences prefs = TermuxAppSharedPreferences.build(context, true);
+                if (prefs != null) {
+                    uiPresetPref.setValue(prefs.getUiPreset());
+                }
+            }
+        }
+    }
+
+    private void applyUiPreset(Context context, String presetKey) {
+        if (context == null) return;
+        TermuxAppSharedPreferences prefs = TermuxAppSharedPreferences.build(context, true);
+        if (prefs == null) return;
+
+        switch (presetKey) {
+            case "niri_default":
+                prefs.setTerminalBorderEnabled(true);
+                prefs.setTerminalBorderWidth(1);
+                prefs.setTerminalBorderCornerEnabled(true);
+                prefs.setTerminalBorderCornerRadius(1);
+                prefs.setTerminalBorderColor("#FFFFFF");
+                prefs.setTerminalBorderGaps(4);
+                prefs.setTerminalBorderStyle("full");
+                prefs.setTerminalHorizontalMargin(3);
+                prefs.setTerminalShadowEnabled(true);
+
+                prefs.setTabBarEnabled(true);
+                prefs.setTabBarGlassEnabled(false);
+                prefs.setTabBorderEnabled(true);
+                prefs.setTabCornerEnabled(true);
+                prefs.setTabCornerRadius(1);
+                prefs.setTabBorderWidth(1);
+                prefs.setTabBorderColor("#FFFFFF");
+                prefs.setTabActiveColor("#FFFFFF");
+                prefs.setKeepBorderLayoutEnabled(false);
+
+                prefs.setGlassEffectEnabled(false);
+                prefs.setBackgroundBlurEnabled(false);
+                prefs.setExtraKeysBarBackgroundSyncEnabled(false);
+                prefs.setExtraKeysColorTheme("default");
+                prefs.setExtraKeysFlatKeys(false);
+                prefs.setExtraKeysBarBorderEnabled(false);
+                break;
+
+            case "liquid_glass":
+                prefs.setTerminalBorderEnabled(true);
+                prefs.setTerminalBorderWidth(1);
+                prefs.setTerminalBorderCornerEnabled(true);
+                prefs.setTerminalBorderCornerRadius(12);
+                prefs.setTerminalBorderColor("#FFFFFF");
+                prefs.setTerminalBorderGaps(4);
+                prefs.setTerminalBorderStyle("full");
+                prefs.setTerminalHorizontalMargin(3);
+                prefs.setTerminalShadowEnabled(true);
+
+                prefs.setTabBarEnabled(true);
+                prefs.setTabBarGlassEnabled(true);
+                prefs.setTabBorderEnabled(true);
+                prefs.setTabCornerEnabled(true);
+                prefs.setTabCornerRadius(8);
+                prefs.setTabBorderWidth(1);
+                prefs.setTabBorderColor("#FFFFFF");
+                prefs.setTabActiveColor("#FFFFFF");
+                prefs.setKeepBorderLayoutEnabled(true);
+
+                prefs.setGlassEffectEnabled(true);
+                prefs.setGlassTintOpacity(100);
+                prefs.setBackgroundBlurEnabled(false);
+                prefs.setExtraKeysBarBackgroundSyncEnabled(true);
+                prefs.setExtraKeysBarCornerEnabled(true);
+                prefs.setExtraKeysBarBorderCornerRadius(12);
+                prefs.setExtraKeysBarBorderEnabled(false);
+
+                if (TextUtils.isEmpty(prefs.getTerminalBackgroundImagePath())) {
+                    showLiquidGlassOnboardingDialog(context);
+                }
+                break;
+
+            case "classic_termux":
+                prefs.setTerminalBorderEnabled(false);
+                prefs.setTerminalBorderGaps(0);
+                prefs.setKeepBorderLayoutEnabled(false);
+                prefs.setTerminalShadowEnabled(false);
+
+                prefs.setTabBarEnabled(false);
+                prefs.setTabBarGlassEnabled(false);
+
+                prefs.setGlassEffectEnabled(false);
+                prefs.setBackgroundBlurEnabled(false);
+                prefs.setExtraKeysBarBackgroundSyncEnabled(false);
+                prefs.setExtraKeysColorTheme("default");
+                prefs.setExtraKeysFlatKeys(false);
+                prefs.setExtraKeysBarBorderEnabled(false);
+                break;
+
+            case "custom":
+            default:
+                break;
+        }
+
+        prefs.setUiPreset(presetKey);
+        TermuxActivity.updateTermuxActivityStyling(context, false);
+    }
+
 }
 
 class CustomUIPreferencesDataStore extends PreferenceDataStore {
@@ -481,9 +614,16 @@ class CustomUIPreferencesDataStore extends PreferenceDataStore {
         return mInstance;
     }
 
+    private void markCustomPreset() {
+        if (mPreferences != null && !"custom".equals(mPreferences.getUiPreset())) {
+            mPreferences.setUiPreset("custom");
+        }
+    }
+
     @Override
     public void putBoolean(String key, boolean value) {
         if (mPreferences == null || key == null) return;
+        markCustomPreset();
 
         switch (key) {
             case "show_tab_bar":
@@ -610,6 +750,7 @@ class CustomUIPreferencesDataStore extends PreferenceDataStore {
     @Override
     public void putInt(String key, int value) {
         if (mPreferences == null || key == null) return;
+        markCustomPreset();
 
         switch (key) {
             case "tab_corner_radius":
@@ -751,8 +892,14 @@ class CustomUIPreferencesDataStore extends PreferenceDataStore {
     @Override
     public void putString(String key, @Nullable String value) {
         if (mPreferences == null || key == null) return;
+        if (!"ui_preset".equals(key)) {
+            markCustomPreset();
+        }
 
         switch (key) {
+            case "ui_preset":
+                mPreferences.setUiPreset(value != null ? value : "niri_default");
+                break;
             case "terminal_border_color":
                 mPreferences.setTerminalBorderColor(value != null ? value : "#FFFFFF");
                 break;
@@ -819,6 +966,8 @@ class CustomUIPreferencesDataStore extends PreferenceDataStore {
         if (mPreferences == null || key == null) return defValue;
 
         switch (key) {
+            case "ui_preset":
+                return mPreferences.getUiPreset();
             case "terminal_border_color":
                 return mPreferences.getTerminalBorderColor();
             case "tab_border_color":

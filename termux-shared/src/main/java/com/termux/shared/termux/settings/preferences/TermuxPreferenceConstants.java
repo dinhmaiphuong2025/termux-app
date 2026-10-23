@@ -348,6 +348,9 @@ public final class TermuxPreferenceConstants {
         public static final String KEY_KEEP_BORDER_LAYOUT_ENABLED = "keep_border_layout_enabled";
         public static final boolean DEFAULT_VALUE_KEEP_BORDER_LAYOUT_ENABLED = false;
 
+        public static final String KEY_UI_PRESET = "ui_preset";
+        public static final String DEFAULT_VALUE_UI_PRESET = "niri_default";
+
         public static final String KEY_EXTRA_KEYS_BAR_CORNER_ENABLED = "extra_keys_bar_corner_enabled";
         public static final boolean DEFAULT_VALUE_EXTRA_KEYS_BAR_CORNER_ENABLED = true;
 

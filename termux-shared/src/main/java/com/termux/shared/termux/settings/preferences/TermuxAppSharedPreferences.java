@@ -666,6 +666,14 @@ public class TermuxAppSharedPreferences extends AppSharedPreferences {
         SharedPreferenceUtils.setBoolean(mSharedPreferences, TERMUX_APP.KEY_KEEP_BORDER_LAYOUT_ENABLED, value, false);
     }
 
+    public String getUiPreset() {
+        return SharedPreferenceUtils.getString(mSharedPreferences, TERMUX_APP.KEY_UI_PRESET, TERMUX_APP.DEFAULT_VALUE_UI_PRESET, false);
+    }
+
+    public void setUiPreset(String value) {
+        SharedPreferenceUtils.setString(mSharedPreferences, TERMUX_APP.KEY_UI_PRESET, value, false);
+    }
+
     public int getExtraKeysCornerRadius() {
         return SharedPreferenceUtils.getInt(mSharedPreferences, TERMUX_APP.KEY_EXTRA_KEYS_CORNER_RADIUS, TERMUX_APP.DEFAULT_VALUE_EXTRA_KEYS_CORNER_RADIUS);
     }
@@ -849,6 +857,7 @@ public class TermuxAppSharedPreferences extends AppSharedPreferences {
         setShowSessionNameWithoutTabBar(TERMUX_APP.DEFAULT_VALUE_SHOW_SESSION_NAME_WITHOUT_TAB_BAR);
         setSessionNameAlignment(TERMUX_APP.DEFAULT_VALUE_SESSION_NAME_ALIGNMENT);
         setKeepBorderLayoutEnabled(TERMUX_APP.DEFAULT_VALUE_KEEP_BORDER_LAYOUT_ENABLED);
+        setUiPreset(TERMUX_APP.DEFAULT_VALUE_UI_PRESET);
 
         setGesturePillEnabled(TERMUX_APP.DEFAULT_VALUE_GESTURE_PILL_ENABLED);
         setGesturePillWidth(TERMUX_APP.DEFAULT_VALUE_GESTURE_PILL_WIDTH);

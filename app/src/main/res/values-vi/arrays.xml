@@ -48,4 +48,18 @@
         <item>Bật/tắt hàng phím phụ</item>
         <item>Không thao tác</item>
     </string-array>
+
+    <string-array name="ui_preset_titles">
+        <item>Niri WM (Mặc định)</item>
+        <item>Kính lỏng Liquid Glass</item>
+        <item>Termux Cổ điển</item>
+        <item>Tùy chỉnh (Custom)</item>
+    </string-array>
+
+    <string-array name="ui_preset_values">
+        <item>niri_default</item>
+        <item>liquid_glass</item>
+        <item>classic_termux</item>
+        <item>custom</item>
+    </string-array>
 </resources>

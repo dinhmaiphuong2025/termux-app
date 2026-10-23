@@ -111,4 +111,18 @@
         <item>toggle_extra_keys</item>
         <item>none</item>
     </string-array>
+
+    <string-array name="ui_preset_titles">
+        <item>Niri WM (Default)</item>
+        <item>Liquid Glass (Crystal Clear)</item>
+        <item>Classic Termux</item>
+        <item>Custom</item>
+    </string-array>
+
+    <string-array name="ui_preset_values">
+        <item>niri_default</item>
+        <item>liquid_glass</item>
+        <item>classic_termux</item>
+        <item>custom</item>
+    </string-array>
 </resources>

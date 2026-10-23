@@ -2,6 +2,23 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <!-- ============ UI STYLE PRESETS ============ -->
+
+    <PreferenceCategory
+        app:key="ui_presets_category"
+        app:title="@string/termux_ui_preset_header">
+
+        <ListPreference
+            app:key="ui_preset"
+            app:title="@string/termux_ui_preset_title"
+            app:summary="@string/termux_ui_preset_summary"
+            app:entries="@array/ui_preset_titles"
+            app:entryValues="@array/ui_preset_values"
+            app:useSimpleSummaryProvider="true"
+            app:defaultValue="niri_default" />
+
+    </PreferenceCategory>
+
     <!-- ============ 1. TERMINAL WINDOW ============ -->
 
     <PreferenceScreen
