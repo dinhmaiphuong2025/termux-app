@@ -203,14 +203,6 @@ public class CustomUIPreferencesFragment extends PreferenceFragmentCompat {
             });
         }
 
-        Preference systemWallPref = findPreference("terminal_background_system_wallpaper");
-        if (systemWallPref != null) {
-            systemWallPref.setOnPreferenceClickListener(preference -> {
-                applySystemWallpaper(context);
-                return true;
-            });
-        }
-
         Preference clearPref = findPreference("terminal_background_clear");
         if (clearPref != null) {
             clearPref.setOnPreferenceClickListener(preference -> {

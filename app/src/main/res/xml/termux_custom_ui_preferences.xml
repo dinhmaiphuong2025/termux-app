@@ -124,11 +124,6 @@
                 app:summary="@string/termux_background_pick_summary" />
 
             <Preference
-                app:key="terminal_background_system_wallpaper"
-                app:title="@string/termux_background_system_wallpaper_title"
-                app:summary="@string/termux_background_system_wallpaper_summary" />
-
-            <Preference
                 app:key="terminal_background_clear"
                 app:title="@string/termux_background_clear_title"
                 app:summary="@string/termux_background_clear_summary" />
