@@ -60,16 +60,35 @@ public class ExtraKeysHudEditor {
 
         public String getVisualLabel() {
             if (!TextUtils.isEmpty(display)) return display;
-            if (!TextUtils.isEmpty(key)) return key;
+            if (!TextUtils.isEmpty(key)) return getDefaultDisplayForKey(key);
             if (!TextUtils.isEmpty(macro)) return macro;
             return "?";
         }
 
         public String getVisualPopupLabel() {
             if (!TextUtils.isEmpty(popupDisplay)) return popupDisplay;
-            if (!TextUtils.isEmpty(popupKey)) return popupKey;
+            if (!TextUtils.isEmpty(popupKey)) return getDefaultDisplayForKey(popupKey);
             if (!TextUtils.isEmpty(popupMacro)) return popupMacro;
             return "";
+        }
+    }
+
+    public static String getDefaultDisplayForKey(String key) {
+        if (key == null) return "";
+        switch (key) {
+            case "UP": return "↑";
+            case "DOWN": return "↓";
+            case "LEFT": return "←";
+            case "RIGHT": return "→";
+            case "KEYBOARD": return "⌨";
+            case "DRAWER": return "☰";
+            case "SCROLL": return "⇳";
+            case "PASTE": return "PASTE";
+            case "ENTER": return "↲";
+            case "TAB": return "↹";
+            case "BKSP": return "⌫";
+            case "DEL": return "⌦";
+            default: return key;
         }
     }
 
@@ -162,7 +181,15 @@ public class ExtraKeysHudEditor {
                 boolean hasPopup = !TextUtils.isEmpty(item.popupKey)
                     || !TextUtils.isEmpty(item.popupDisplay)
                     || !TextUtils.isEmpty(item.popupMacro);
-                boolean hasDisplay = !TextUtils.isEmpty(item.display) && !item.display.equals(item.key);
+                boolean hasDisplay;
+                if ("PASTE".equals(item.key)) {
+                    hasDisplay = true;
+                    if (TextUtils.isEmpty(item.display)) item.display = "PASTE";
+                } else {
+                    hasDisplay = !TextUtils.isEmpty(item.display)
+                        && !item.display.equals(item.key)
+                        && !item.display.equals(getDefaultDisplayForKey(item.key));
+                }
                 boolean hasMacro = !TextUtils.isEmpty(item.macro);
 
                 if (!hasPopup && !hasDisplay && !hasMacro && !TextUtils.isEmpty(item.key)) {
@@ -774,7 +801,7 @@ public class ExtraKeysHudEditor {
             addCategoryHeader(context, content, "HÀNH ĐỘNG TERMINAL");
             addKeyButtonsRow(context, content, dialog, callback,
                 new String[]{"KEYBOARD", "DRAWER", "PASTE", "SCROLL"},
-                new String[]{"KEYBOARD", "DRAWER", "PASTE", "SCROLL"}
+                new String[]{"⌨", "☰", "PASTE", "⇳"}
             );
             addCategoryHeader(context, content, "PHÍM BỔ TRỢ (MODIFIERS)");
             addKeyButtonsRow(context, content, dialog, callback,
@@ -787,12 +814,12 @@ public class ExtraKeysHudEditor {
             content.removeAllViews();
             addCategoryHeader(context, content, "ĐIỀU HƯỚNG & SOẠN THẢO");
             addKeyButtonsRow(context, content, dialog, callback,
-                new String[]{"ESC", "TAB", "ENTER", "BKSP", "DEL"},
-                new String[]{"ESC", "TAB", "ENTER", "BKSP", "DEL"}
+                new String[]{"ESC", "TAB", "ENTER", "BKSP", "DEL", "INS", "SPACE"},
+                new String[]{"ESC", "TAB", "ENTER", "BKSP", "DEL", "INS", "SPACE"}
             );
             addKeyButtonsRow(context, content, dialog, callback,
                 new String[]{"UP", "DOWN", "LEFT", "RIGHT"},
-                new String[]{"↑ UP", "↓ DOWN", "← LEFT", "→ RIGHT"}
+                new String[]{"↑", "↓", "←", "→"}
             );
             addKeyButtonsRow(context, content, dialog, callback,
                 new String[]{"HOME", "END", "PGUP", "PGDN"},
