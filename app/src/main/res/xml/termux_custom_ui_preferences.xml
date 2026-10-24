@@ -112,6 +112,12 @@
                 app:dependency="terminal_border_corner_enabled"
                 app:defaultValue="1" />
 
+            <SwitchPreferenceCompat
+                app:key="keep_border_layout_enabled"
+                app:title="@string/termux_keep_border_layout_title"
+                app:summary="@string/termux_keep_border_layout_summary"
+                app:defaultValue="false" />
+
         </PreferenceCategory>
 
         <PreferenceCategory
@@ -156,6 +162,7 @@
                 app:min="0"
                 android:max="100"
                 app:showSeekBarValue="true"
+                app:dependency="terminal_cell_background_transparency"
                 app:defaultValue="0" />
 
         </PreferenceCategory>
@@ -215,7 +222,7 @@
                 app:min="80"
                 android:max="160"
                 app:showSeekBarValue="true"
-                app:defaultValue="115" />
+                app:defaultValue="100" />
 
         </PreferenceCategory>
 
@@ -282,6 +289,12 @@
                 app:title="@string/termux_extra_keys_hud_editor_title"
                 app:summary="@string/termux_extra_keys_hud_editor_summary" />
 
+        </PreferenceCategory>
+
+        <PreferenceCategory
+            app:key="extra_keys_advanced_json_category"
+            app:title="@string/termux_extra_keys_advanced_header">
+
             <ListPreference
                 app:key="extra_keys_preset"
                 app:title="@string/termux_extra_keys_preset_title"
@@ -316,12 +329,6 @@
                 app:key="show_tab_bar"
                 app:title="@string/termux_tab_bar_title"
                 app:summary="@string/termux_tab_bar_summary"
-                app:defaultValue="true" />
-
-            <SwitchPreferenceCompat
-                app:key="tab_bar_glass_enabled"
-                app:title="@string/termux_tab_bar_glass_enabled_title"
-                app:summary="@string/termux_tab_bar_glass_enabled_summary"
                 app:defaultValue="true" />
 
             <SwitchPreferenceCompat
@@ -373,7 +380,7 @@
                 android:max="24"
                 app:showSeekBarValue="true"
                 app:dependency="tab_corner_enabled"
-                app:defaultValue="18" />
+                app:defaultValue="1" />
 
             <SeekBarPreference
                 app:key="tab_button_width"
@@ -383,6 +390,30 @@
                 android:max="72"
                 app:showSeekBarValue="true"
                 app:defaultValue="28" />
+
+            <SeekBarPreference
+                app:key="tab_active_title_length"
+                app:title="@string/termux_tab_bar_active_title_length_title"
+                app:summary="@string/termux_tab_bar_active_title_length_summary"
+                app:min="0"
+                android:max="30"
+                app:showSeekBarValue="true"
+                app:defaultValue="8" />
+
+            <SeekBarPreference
+                app:key="tab_inactive_title_length"
+                app:title="@string/termux_tab_bar_inactive_title_length_title"
+                app:summary="@string/termux_tab_bar_inactive_title_length_summary"
+                app:min="0"
+                android:max="20"
+                app:showSeekBarValue="true"
+                app:defaultValue="4" />
+
+        </PreferenceCategory>
+
+        <PreferenceCategory
+            app:key="tab_action_buttons_category"
+            app:title="@string/termux_tab_bar_action_buttons_header">
 
             <SeekBarPreference
                 app:key="tab_new_button_width"
@@ -411,23 +442,11 @@
                 app:showSeekBarValue="true"
                 app:defaultValue="28" />
 
-            <SeekBarPreference
-                app:key="tab_active_title_length"
-                app:title="@string/termux_tab_bar_active_title_length_title"
-                app:summary="@string/termux_tab_bar_active_title_length_summary"
-                app:min="0"
-                android:max="30"
-                app:showSeekBarValue="true"
-                app:defaultValue="12" />
+        </PreferenceCategory>
 
-            <SeekBarPreference
-                app:key="tab_inactive_title_length"
-                app:title="@string/termux_tab_bar_inactive_title_length_title"
-                app:summary="@string/termux_tab_bar_inactive_title_length_summary"
-                app:min="0"
-                android:max="20"
-                app:showSeekBarValue="true"
-                app:defaultValue="4" />
+        <PreferenceCategory
+            app:key="tab_session_name_category"
+            app:title="@string/termux_tab_bar_session_name_header">
 
             <SwitchPreferenceCompat
                 app:key="show_session_name_without_tab_bar"
@@ -463,7 +482,7 @@
                 app:key="gesture_pill_enabled"
                 app:title="@string/termux_gesture_pill_enable_title"
                 app:summary="@string/termux_gesture_pill_enable_summary"
-                app:defaultValue="true" />
+                app:defaultValue="false" />
 
             <SeekBarPreference
                 app:key="gesture_pill_width"
@@ -640,12 +659,6 @@
                 app:title="@string/termux_tab_animation_title"
                 app:summary="@string/termux_tab_animation_summary"
                 app:defaultValue="true" />
-
-            <SwitchPreferenceCompat
-                app:key="keep_border_layout_enabled"
-                app:title="@string/termux_keep_border_layout_title"
-                app:summary="@string/termux_keep_border_layout_summary"
-                app:defaultValue="false" />
 
         </PreferenceCategory>
 

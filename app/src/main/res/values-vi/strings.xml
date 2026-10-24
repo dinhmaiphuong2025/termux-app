@@ -119,6 +119,9 @@
     <string name="termux_tab_bar_border_color_summary">Màu viền của các tab không hoạt động và nút chức năng</string>
     <string name="termux_tab_bar_active_color_title">Màu nhấn tab đang chọn</string>
     <string name="termux_tab_bar_active_color_summary">Màu phát sáng nổi bật của tab session đang thao tác (Mặc định: #FFFFFF)</string>
+    <string name="termux_tab_bar_action_buttons_header">Kích thước nút thao tác góc (+, ×, ⚙)</string>
+    <string name="termux_tab_bar_session_name_header">Tiêu đề khi ẩn thanh Tab</string>
+    <string name="termux_extra_keys_advanced_header">Cấu hình JSON nâng cao</string>
     <string name="termux_tab_bar_button_width_title">Chiều rộng tối thiểu nút tab (dp)</string>
     <string name="termux_tab_bar_button_width_summary">Độ rộng tối thiểu của mỗi nút tab session</string>
     <string name="termux_tab_bar_new_button_width_title">Chiều rộng nút Thêm (+) (dp)</string>

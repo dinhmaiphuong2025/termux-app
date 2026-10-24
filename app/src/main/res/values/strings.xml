@@ -251,6 +251,9 @@
     <string name="termux_tab_bar_border_color_summary">Hex color code (click to choose from palette or type hex)</string>
     <string name="termux_tab_bar_active_color_title">Active Tab Accent Color</string>
     <string name="termux_tab_bar_active_color_summary">Highlight color for the currently selected session tab</string>
+    <string name="termux_tab_bar_action_buttons_header">Corner Action Buttons (+, ×, ⚙)</string>
+    <string name="termux_tab_bar_session_name_header">Header When Tab Bar Hidden</string>
+    <string name="termux_extra_keys_advanced_header">Advanced JSON Configuration</string>
     <string name="termux_tab_bar_button_width_title">Tab Button Width (dp)</string>
     <string name="termux_tab_bar_button_width_summary">Minimum width of session tab buttons</string>
     <string name="termux_tab_bar_new_button_width_title">New Tab (+) Button Width (dp)</string>

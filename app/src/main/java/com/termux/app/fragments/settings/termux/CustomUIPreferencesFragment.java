@@ -547,13 +547,17 @@ public class CustomUIPreferencesFragment extends PreferenceFragmentCompat {
                 prefs.setTabBorderWidth(1);
                 prefs.setTabBorderColor("#FFFFFF");
                 prefs.setTabActiveColor("#FFFFFF");
+                prefs.setTabActiveTitleLength(8);
                 prefs.setTabInactiveTitleLength(4);
+
+                prefs.setGesturePillEnabled(false);
 
                 prefs.setGlassEffectEnabled(false);
                 prefs.setBackgroundBlurEnabled(false);
                 prefs.setExtraKeysBarBackgroundSyncEnabled(false);
                 prefs.setExtraKeysColorTheme("default");
                 prefs.setExtraKeysFlatKeys(true);
+                prefs.setExtraKeysHeightScale(100);
                 prefs.setExtraKeysBarBorderEnabled(true);
                 prefs.setExtraKeysBarBorderWidth(1);
                 prefs.setExtraKeysBarBorderColor("#FFFFFF");

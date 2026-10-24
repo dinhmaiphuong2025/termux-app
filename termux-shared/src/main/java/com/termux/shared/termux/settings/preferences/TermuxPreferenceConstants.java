@@ -220,13 +220,13 @@ public final class TermuxPreferenceConstants {
         public static final int DEFAULT_VALUE_TAB_SETTINGS_BUTTON_WIDTH = 28;
 
         public static final String KEY_TAB_ACTIVE_TITLE_LENGTH = "tab_active_title_length";
-        public static final int DEFAULT_VALUE_TAB_ACTIVE_TITLE_LENGTH = 12;
+        public static final int DEFAULT_VALUE_TAB_ACTIVE_TITLE_LENGTH = 8;
 
         public static final String KEY_TAB_INACTIVE_TITLE_LENGTH = "tab_inactive_title_length";
         public static final int DEFAULT_VALUE_TAB_INACTIVE_TITLE_LENGTH = 4;
 
         public static final String KEY_TAB_BAR_CORNER_RADIUS = "tab_bar_corner_radius";
-        public static final int DEFAULT_VALUE_TAB_BAR_CORNER_RADIUS = 18;
+        public static final int DEFAULT_VALUE_TAB_BAR_CORNER_RADIUS = 1;
 
         public static final String KEY_TAB_BAR_GLASS_ENABLED = "tab_bar_glass_enabled";
         public static final boolean DEFAULT_VALUE_TAB_BAR_GLASS_ENABLED = true;
@@ -244,7 +244,7 @@ public final class TermuxPreferenceConstants {
          * Floating Gesture Pill Preferences.
          */
         public static final String KEY_GESTURE_PILL_ENABLED = "gesture_pill_enabled";
-        public static final boolean DEFAULT_VALUE_GESTURE_PILL_ENABLED = true;
+        public static final boolean DEFAULT_VALUE_GESTURE_PILL_ENABLED = false;
 
         public static final String KEY_GESTURE_PILL_WIDTH = "gesture_pill_width";
         public static final int DEFAULT_VALUE_GESTURE_PILL_WIDTH = 90;
@@ -388,7 +388,7 @@ public final class TermuxPreferenceConstants {
         public static final int DEFAULT_VALUE_EXTRA_KEYS_TEXT_SIZE = 12;
 
         public static final String KEY_EXTRA_KEYS_HEIGHT_SCALE = "extra_keys_height_scale";
-        public static final int DEFAULT_VALUE_EXTRA_KEYS_HEIGHT_SCALE = 115; // 80 - 160 (%)
+        public static final int DEFAULT_VALUE_EXTRA_KEYS_HEIGHT_SCALE = 100; // 80 - 160 (%)
 
         public static final String KEY_EXTRA_KEYS_COLOR_THEME = "extra_keys_color_theme";
         public static final String DEFAULT_VALUE_EXTRA_KEYS_COLOR_THEME = "default";
