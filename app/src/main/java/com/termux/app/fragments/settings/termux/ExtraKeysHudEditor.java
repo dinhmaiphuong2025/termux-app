@@ -746,9 +746,9 @@ public class ExtraKeysHudEditor {
         if (TextUtils.isEmpty(key)) return "Không có (None)";
         switch (key) {
             case "KEYBOARD": return "Bật/tắt bàn phím ảo (KEYBOARD)";
-            case "DRAWER": return "Mở menu ngăn kéo (DRAWER)";
-            case "PASTE": return "Dán văn bản (PASTE)";
-            case "SCROLL": return "Bật/tắt cuộn trang (SCROLL)";
+            case "DRAWER": return "Mở menu ngăn kéo bên trái (DRAWER)";
+            case "PASTE": return "Dán văn bản từ clipboard (PASTE)";
+            case "SCROLL": return "Khóa/mở cuộn tự động khi có log mới (Lock / Pin Scroll)";
             default: return "Phím: " + key;
         }
     }
