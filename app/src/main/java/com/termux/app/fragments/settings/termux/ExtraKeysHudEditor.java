@@ -638,8 +638,13 @@ public class ExtraKeysHudEditor {
 
         btnPickAction.setOnClickListener(v -> {
             promptPickKey(context, (key, display) -> {
-                item.key = key;
-                item.macro = "";
+                if (key != null && key.contains(" ")) {
+                    item.macro = key;
+                    item.key = "";
+                } else {
+                    item.key = key != null ? key : "";
+                    item.macro = "";
+                }
                 item.display = display;
                 etDisplay.setText(display);
                 tvActionDesc.setText(describeAction(item.key, item.macro));
@@ -649,8 +654,13 @@ public class ExtraKeysHudEditor {
 
         btnPickPopup.setOnClickListener(v -> {
             promptPickKey(context, (key, display) -> {
-                item.popupKey = key;
-                item.popupMacro = "";
+                if (key != null && key.contains(" ")) {
+                    item.popupMacro = key;
+                    item.popupKey = "";
+                } else {
+                    item.popupKey = key != null ? key : "";
+                    item.popupMacro = "";
+                }
                 item.popupDisplay = display;
                 tvPopupDesc.setText(describeAction(item.popupKey, item.popupMacro));
                 updatePreview.run();
@@ -736,112 +746,174 @@ public class ExtraKeysHudEditor {
         title.setPadding(0, 0, 0, dp(context, 8));
         root.addView(title);
 
-        ScrollView scroll = new ScrollView(context);
+        // Tabbed Partitioning bar to avoid excessive vertical touch scrolling
+        HorizontalScrollView tabScroll = new HorizontalScrollView(context);
+        tabScroll.setHorizontalScrollBarEnabled(false);
+        tabScroll.setFillViewport(true);
+
+        LinearLayout tabLayout = new LinearLayout(context);
+        tabLayout.setOrientation(LinearLayout.HORIZONTAL);
+        tabLayout.setPadding(0, 0, 0, dp(context, 10));
+
+        final String[] tabTitles = new String[]{
+            "Hệ thống & Mod", "Điều hướng", "Ký tự & Code", "Phím F", "Tùy chỉnh"
+        };
+        final Button[] tabButtons = new Button[tabTitles.length];
+
+        ScrollView contentScroll = new ScrollView(context);
         LinearLayout content = new LinearLayout(context);
         content.setOrientation(LinearLayout.VERTICAL);
-        scroll.addView(content);
-        root.addView(scroll, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
+        contentScroll.addView(content);
 
         AlertDialog dialog = builder.setView(root).create();
 
-        // 1. Phím chức năng Terminal
-        addCategoryHeader(context, content, "HÀNH ĐỘNG TERMINAL");
-        addKeyButtonsRow(context, content, dialog, callback,
-            new String[]{"KEYBOARD", "DRAWER", "PASTE", "SCROLL"},
-            new String[]{"⌨ Phím", "≡ Drawer", "📋 Paste", "↕ Scroll"}
-        );
+        Runnable[] showTab = new Runnable[tabTitles.length];
 
-        // 2. Phím bổ trợ (Modifiers)
-        addCategoryHeader(context, content, "PHÍM BỔ TRỢ (MODIFIERS)");
-        addKeyButtonsRow(context, content, dialog, callback,
-            new String[]{"CTRL", "ALT", "SHIFT", "FN"},
-            new String[]{"CTRL", "ALT", "SHIFT", "FN"}
-        );
+        showTab[0] = () -> {
+            content.removeAllViews();
+            addCategoryHeader(context, content, "HÀNH ĐỘNG TERMINAL");
+            addKeyButtonsRow(context, content, dialog, callback,
+                new String[]{"KEYBOARD", "DRAWER", "PASTE", "SCROLL"},
+                new String[]{"KEYBOARD", "DRAWER", "PASTE", "SCROLL"}
+            );
+            addCategoryHeader(context, content, "PHÍM BỔ TRỢ (MODIFIERS)");
+            addKeyButtonsRow(context, content, dialog, callback,
+                new String[]{"CTRL", "ALT", "SHIFT", "FN"},
+                new String[]{"CTRL", "ALT", "SHIFT", "FN"}
+            );
+        };
 
-        // 3. Phím điều hướng & Soạn thảo
-        addCategoryHeader(context, content, "ĐIỀU HƯỚNG & SOẠN THẢO");
-        addKeyButtonsRow(context, content, dialog, callback,
-            new String[]{"ESC", "TAB", "ENTER", "BKSP", "DEL"},
-            new String[]{"ESC", "TAB", "ENTER", "BKSP", "DEL"}
-        );
-        addKeyButtonsRow(context, content, dialog, callback,
-            new String[]{"UP", "DOWN", "LEFT", "RIGHT"},
-            new String[]{"↑ UP", "↓ DOWN", "← LEFT", "→ RIGHT"}
-        );
-        addKeyButtonsRow(context, content, dialog, callback,
-            new String[]{"HOME", "END", "PGUP", "PGDN"},
-            new String[]{"HOME", "END", "PGUP", "PGDN"}
-        );
+        showTab[1] = () -> {
+            content.removeAllViews();
+            addCategoryHeader(context, content, "ĐIỀU HƯỚNG & SOẠN THẢO");
+            addKeyButtonsRow(context, content, dialog, callback,
+                new String[]{"ESC", "TAB", "ENTER", "BKSP", "DEL"},
+                new String[]{"ESC", "TAB", "ENTER", "BKSP", "DEL"}
+            );
+            addKeyButtonsRow(context, content, dialog, callback,
+                new String[]{"UP", "DOWN", "LEFT", "RIGHT"},
+                new String[]{"↑ UP", "↓ DOWN", "← LEFT", "→ RIGHT"}
+            );
+            addKeyButtonsRow(context, content, dialog, callback,
+                new String[]{"HOME", "END", "PGUP", "PGDN"},
+                new String[]{"HOME", "END", "PGUP", "PGDN"}
+            );
+        };
 
-        // 4. Ký tự & Biểu tượng Code
-        addCategoryHeader(context, content, "KÝ TỰ & BIỂU TƯỢNG");
-        addKeyButtonsRow(context, content, dialog, callback,
-            new String[]{"/", "-", "_", "|", "~", "\\", "$", "@"},
-            new String[]{"/", "-", "_", "|", "~", "\\", "$", "@"}
-        );
-        addKeyButtonsRow(context, content, dialog, callback,
-            new String[]{"=", "+", "*", "&", "%", "#", "!", "?"},
-            new String[]{"=", "+", "*", "&", "%", "#", "!", "?"}
-        );
-        addKeyButtonsRow(context, content, dialog, callback,
-            new String[]{":", ";", "\"", "'", "`", "^", "<", ">"},
-            new String[]{":", ";", "\"", "'", "`", "^", "<", ">"}
-        );
-        addKeyButtonsRow(context, content, dialog, callback,
-            new String[]{"{", "}", "[", "]", "(", ")", ",", "."},
-            new String[]{"{", "}", "[", "]", "(", ")", ",", "."}
-        );
+        showTab[2] = () -> {
+            content.removeAllViews();
+            addCategoryHeader(context, content, "KÝ TỰ & BIỂU TƯỢNG CODE");
+            addKeyButtonsRow(context, content, dialog, callback,
+                new String[]{"/", "-", "_", "|", "~", "\\", "$", "@"},
+                new String[]{"/", "-", "_", "|", "~", "\\", "$", "@"}
+            );
+            addKeyButtonsRow(context, content, dialog, callback,
+                new String[]{"=", "+", "*", "&", "%", "#", "!", "?"},
+                new String[]{"=", "+", "*", "&", "%", "#", "!", "?"}
+            );
+            addKeyButtonsRow(context, content, dialog, callback,
+                new String[]{":", ";", "\"", "'", "`", "^", "<", ">"},
+                new String[]{":", ";", "\"", "'", "`", "^", "<", ">"}
+            );
+            addKeyButtonsRow(context, content, dialog, callback,
+                new String[]{"{", "}", "[", "]", "(", ")", ",", "."},
+                new String[]{"{", "}", "[", "]", "(", ")", ",", "."}
+            );
+        };
 
-        // 5. Function Keys (F1 - F12)
-        addCategoryHeader(context, content, "PHÍM CHỨC NĂNG (F1 - F12)");
-        addKeyButtonsRow(context, content, dialog, callback,
-            new String[]{"F1", "F2", "F3", "F4", "F5", "F6"},
-            new String[]{"F1", "F2", "F3", "F4", "F5", "F6"}
-        );
-        addKeyButtonsRow(context, content, dialog, callback,
-            new String[]{"F7", "F8", "F9", "F10", "F11", "F12"},
-            new String[]{"F7", "F8", "F9", "F10", "F11", "F12"}
-        );
+        showTab[3] = () -> {
+            content.removeAllViews();
+            addCategoryHeader(context, content, "PHÍM CHỨC NĂNG (F1 - F12)");
+            addKeyButtonsRow(context, content, dialog, callback,
+                new String[]{"F1", "F2", "F3", "F4", "F5", "F6"},
+                new String[]{"F1", "F2", "F3", "F4", "F5", "F6"}
+            );
+            addKeyButtonsRow(context, content, dialog, callback,
+                new String[]{"F7", "F8", "F9", "F10", "F11", "F12"},
+                new String[]{"F7", "F8", "F9", "F10", "F11", "F12"}
+            );
+        };
 
-        // 6. Tùy chỉnh bất kỳ
-        addCategoryHeader(context, content, "NHẬP TÙY CHỌN / LỆNH BẤT KỲ");
-        LinearLayout customRow = new LinearLayout(context);
-        customRow.setOrientation(LinearLayout.HORIZONTAL);
-        customRow.setGravity(Gravity.CENTER_VERTICAL);
-        customRow.setPadding(0, dp(context, 4), 0, dp(context, 10));
+        showTab[4] = () -> {
+            content.removeAllViews();
+            addCategoryHeader(context, content, "NHẬP TÙY CHỌN / LỆNH BẤT KỲ");
+            LinearLayout customRow = new LinearLayout(context);
+            customRow.setOrientation(LinearLayout.HORIZONTAL);
+            customRow.setGravity(Gravity.CENTER_VERTICAL);
+            customRow.setPadding(0, dp(context, 4), 0, dp(context, 10));
 
-        final EditText etCustom = new EditText(context);
-        etCustom.setHint("VD: clear, :wq, tmux, htop");
-        etCustom.setHintTextColor(0xFF6B7280);
-        etCustom.setTextColor(Color.WHITE);
-        etCustom.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13);
-        etCustom.setBackground(makeShape(0xFF0F1218, 0x33FFFFFF, dp(context, 1), dp(context, 6)));
-        etCustom.setPadding(dp(context, 10), dp(context, 8), dp(context, 10), dp(context, 8));
-        LinearLayout.LayoutParams customLp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
-        etCustom.setLayoutParams(customLp);
-        customRow.addView(etCustom);
+            final EditText etCustom = new EditText(context);
+            etCustom.setHint("VD: clear, :wq, tmux, CTRL c");
+            etCustom.setHintTextColor(0xFF6B7280);
+            etCustom.setTextColor(Color.WHITE);
+            etCustom.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13);
+            etCustom.setBackground(makeShape(0xFF0F1218, 0x33FFFFFF, dp(context, 1), dp(context, 6)));
+            etCustom.setPadding(dp(context, 10), dp(context, 8), dp(context, 10), dp(context, 8));
+            LinearLayout.LayoutParams customLp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+            etCustom.setLayoutParams(customLp);
+            customRow.addView(etCustom);
 
-        Button btnAddCustom = new Button(context);
-        btnAddCustom.setText("DÙNG");
-        btnAddCustom.setTextColor(0xFF0D1117);
-        btnAddCustom.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
-        btnAddCustom.setTypeface(Typeface.DEFAULT_BOLD);
-        btnAddCustom.setBackground(makeRipple(0xFF4FC3F7, 0x44000000, 0xFF81D4FA, dp(context, 1), dp(context, 6)));
-        LinearLayout.LayoutParams btnCustomLp = new LinearLayout.LayoutParams(
-            ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT
-        );
-        btnCustomLp.leftMargin = dp(context, 6);
-        btnAddCustom.setLayoutParams(btnCustomLp);
-        btnAddCustom.setOnClickListener(v -> {
-            String val = etCustom.getText().toString().trim();
-            if (!val.isEmpty()) {
-                callback.onSelected(val, val);
-                dialog.dismiss();
-            }
-        });
-        customRow.addView(btnAddCustom);
-        content.addView(customRow);
+            Button btnAddCustom = new Button(context);
+            btnAddCustom.setText("DÙNG");
+            btnAddCustom.setTextColor(0xFF0D1117);
+            btnAddCustom.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
+            btnAddCustom.setTypeface(Typeface.DEFAULT_BOLD);
+            btnAddCustom.setBackground(makeRipple(0xFF4FC3F7, 0x44000000, 0xFF81D4FA, dp(context, 1), dp(context, 6)));
+            LinearLayout.LayoutParams btnCustomLp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT
+            );
+            btnCustomLp.leftMargin = dp(context, 6);
+            btnAddCustom.setLayoutParams(btnCustomLp);
+            btnAddCustom.setOnClickListener(v -> {
+                String val = etCustom.getText().toString().trim();
+                if (!val.isEmpty()) {
+                    callback.onSelected(val, val);
+                    dialog.dismiss();
+                }
+            });
+            customRow.addView(btnAddCustom);
+            content.addView(customRow);
+        };
 
+        for (int i = 0; i < tabTitles.length; i++) {
+            final int tabIdx = i;
+            Button tabBtn = new Button(context);
+            tabBtn.setText(tabTitles[i]);
+            tabBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11);
+            tabBtn.setTypeface(Typeface.DEFAULT_BOLD);
+            tabBtn.setMinHeight(dp(context, 34));
+            tabBtn.setPadding(dp(context, 10), dp(context, 4), dp(context, 10), dp(context, 4));
+            tabBtn.setAllCaps(false);
+
+            LinearLayout.LayoutParams tabLp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT
+            );
+            tabLp.setMargins(dp(context, 2), 0, dp(context, 2), 0);
+            tabBtn.setLayoutParams(tabLp);
+
+            tabBtn.setOnClickListener(v -> {
+                for (int j = 0; j < tabButtons.length; j++) {
+                    if (j == tabIdx) {
+                        tabButtons[j].setBackground(makeShape(0xFF4FC3F7, 0xFF81D4FA, dp(context, 1), dp(context, 6)));
+                        tabButtons[j].setTextColor(0xFF0D1117);
+                    } else {
+                        tabButtons[j].setBackground(makeRipple(0xFF1E2430, 0x33FFFFFF, 0x22FFFFFF, dp(context, 1), dp(context, 6)));
+                        tabButtons[j].setTextColor(0xFF9EA3AF);
+                    }
+                }
+                showTab[tabIdx].run();
+            });
+
+            tabButtons[i] = tabBtn;
+            tabLayout.addView(tabBtn);
+        }
+
+        tabScroll.addView(tabLayout);
+        root.addView(tabScroll);
+        root.addView(contentScroll, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
+
+        // Select first tab by default
+        tabButtons[0].performClick();
         dialog.show();
     }
 
