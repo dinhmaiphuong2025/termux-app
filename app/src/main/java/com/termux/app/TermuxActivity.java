@@ -210,6 +210,8 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
             if (isBarBackgroundEnabled()) {
                 applyToolbarBackgroundSlice(mLastBackgroundBitmap, mLastBackgroundBlurRadius,
                     mLastBackgroundBlurRadius * density);
+            } else if (!getPreferences().isGlassEffectEnabled()) {
+                applyFixedSceneMatrix(mTerminalBackgroundImage, mLastBackgroundBitmap);
             }
             if (isTabBarBackgroundEnabled()) {
                 applyTabBarBackgroundSlice(mLastBackgroundBitmap, mLastBackgroundBlurRadius,
@@ -217,6 +219,9 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
             }
             if (getPreferences().isGlassEffectEnabled()) {
                 applyGlassBackdrop(mLastBackgroundBitmap, getGlassBlurPx(density));
+            }
+            if (mActivityBackgroundImage != null && mActivityBackgroundImage.getVisibility() == View.VISIBLE) {
+                applyFixedSceneMatrix(mActivityBackgroundImage, mLastBackgroundBitmap);
             }
         }
     };
@@ -617,6 +622,9 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         mTerminalBackgroundOverlay = findViewById(R.id.terminal_background_overlay);
         mTerminalToolbarCard = findViewById(R.id.terminal_toolbar_card);
         mTerminalToolbarCard.addOnLayoutChangeListener(mLiveWallpaperSyncListener);
+        if (mTerminalCardContainer != null) {
+            mTerminalCardContainer.addOnLayoutChangeListener(mLiveWallpaperSyncListener);
+        }
         View activityScene = findViewById(R.id.activity_termux_root_relative_layout);
         if (activityScene != null) {
             activityScene.addOnLayoutChangeListener(mLiveWallpaperSyncListener);
@@ -1478,7 +1486,14 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
      * keeps its position and the view simply reveals whichever part it covers.
      */
     private void applyFixedSceneMatrix(ImageView view, Bitmap bitmap) {
-        if (view == null || bitmap == null || bitmap.getWidth() <= 0) return;
+        if (view == null || bitmap == null || bitmap.getWidth() <= 0 || bitmap.isRecycled()) return;
+        if (!view.isLaidOut() || view.getWidth() <= 0 || view.getHeight() <= 0) {
+            view.post(() -> {
+                if (!isFinishing() && mLastBackgroundBitmap == bitmap && view.isLaidOut()) {
+                    applyFixedSceneMatrix(view, bitmap);
+                }
+            });
+        }
         int[] screen = getRealScreenSize();
         float sceneW = screen[0];
         float sceneH = screen[1];
@@ -1578,8 +1593,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         } else {
             hideToolbarBackground();
             if (mTerminalBackgroundImage != null) {
-                mTerminalBackgroundImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                mTerminalBackgroundImage.setImageMatrix(null);
+                applyFixedSceneMatrix(mTerminalBackgroundImage, bitmap);
             }
         }
 
@@ -2110,8 +2124,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
                 hideGlassBackdrop();
                 if (mTerminalBackgroundImage != null) {
                     mTerminalBackgroundImage.setColorFilter(null);
-                    mTerminalBackgroundImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                    mTerminalBackgroundImage.setImageMatrix(null);
+                    applyFixedSceneMatrix(mTerminalBackgroundImage, mLastBackgroundBitmap);
                     if (!TextUtils.isEmpty(getPreferences().getTerminalBackgroundImagePath())) {
                         mTerminalBackgroundImage.setVisibility(View.VISIBLE);
                     }
