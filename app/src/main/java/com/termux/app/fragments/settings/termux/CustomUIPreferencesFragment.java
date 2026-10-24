@@ -1,6 +1,5 @@
 package com.termux.app.fragments.settings.termux;
 
-import android.app.WallpaperManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -326,6 +325,17 @@ public class CustomUIPreferencesFragment extends PreferenceFragmentCompat {
             });
         }
 
+        Preference hudEditorPref = findPreference("extra_keys_hud_editor");
+        if (hudEditorPref != null) {
+            hudEditorPref.setOnPreferenceClickListener(preference -> {
+                ExtraKeysHudEditor.show(context, () -> {
+                    refreshPreferencesUi();
+                    TermuxActivity.updateTermuxActivityStyling(context, false);
+                });
+                return true;
+            });
+        }
+
         Preference presetPref = findPreference("extra_keys_preset");
         if (presetPref != null) {
             presetPref.setOnPreferenceChangeListener((preference, newValue) -> {
@@ -481,70 +491,6 @@ public class CustomUIPreferencesFragment extends PreferenceFragmentCompat {
         // to preferences before TermuxActivity receives the reload broadcast.
     }
 
-    private void applySystemWallpaper(Context context) {
-        if (context == null) return;
-        try {
-            WallpaperManager wm = WallpaperManager.getInstance(context);
-            Drawable drawable = wm.getDrawable();
-            if (drawable != null) {
-                Bitmap bitmap;
-                if (drawable instanceof BitmapDrawable) {
-                    bitmap = ((BitmapDrawable) drawable).getBitmap();
-                } else {
-                    int w = Math.max(1, drawable.getIntrinsicWidth());
-                    int h = Math.max(1, drawable.getIntrinsicHeight());
-                    bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
-                    Canvas canvas = new Canvas(bitmap);
-                    drawable.setBounds(0, 0, w, h);
-                    drawable.draw(canvas);
-                }
-
-                if (bitmap != null) {
-                    int w = bitmap.getWidth();
-                    int h = bitmap.getHeight();
-                    int maxDim = Math.max(w, h);
-                    int screenMax = 0;
-                    if (context.getResources() != null && context.getResources().getDisplayMetrics() != null) {
-                        screenMax = Math.max(context.getResources().getDisplayMetrics().widthPixels,
-                            context.getResources().getDisplayMetrics().heightPixels);
-                    }
-                    if (screenMax <= 0) screenMax = 2560;
-
-                    if (maxDim > screenMax) {
-                        float ratio = (float) screenMax / maxDim;
-                        int targetW = Math.max(1, Math.round(w * ratio));
-                        int targetH = Math.max(1, Math.round(h * ratio));
-                        bitmap = Bitmap.createScaledBitmap(bitmap, targetW, targetH, true);
-                    }
-
-                    File wallpaperFile = new File(context.getFilesDir(), "system_wallpaper.png");
-                    try (FileOutputStream fos = new FileOutputStream(wallpaperFile)) {
-                        bitmap.compress(Bitmap.CompressFormat.PNG, 95, fos);
-                    }
-
-                    TermuxAppSharedPreferences prefs = TermuxAppSharedPreferences.build(context, true);
-                    if (prefs != null) {
-                        prefs.setTerminalBackgroundImagePath(wallpaperFile.getAbsolutePath());
-                    }
-                    EditTextPreference pathPref = findPreference("terminal_background_image_path");
-                    if (pathPref != null) {
-                        pathPref.setText(wallpaperFile.getAbsolutePath());
-                    }
-                    TermuxActivity.updateTermuxActivityStyling(context, false);
-                    Toast.makeText(context, R.string.termux_glass_onboarding_system_wallpaper_success, Toast.LENGTH_SHORT).show();
-                    return;
-                }
-            }
-        } catch (Throwable t) {
-            Logger.logStackTraceWithMessage(LOG_TAG, "Failed to extract system wallpaper", t);
-        }
-
-        Toast.makeText(context, R.string.termux_glass_onboarding_system_wallpaper_failed, Toast.LENGTH_LONG).show();
-        if (mPickImageLauncher != null) {
-            mPickImageLauncher.launch("image/*");
-        }
-    }
-
     private void showLiquidGlassOnboardingDialog(Context context) {
         if (context == null) return;
         new AlertDialog.Builder(context)
@@ -554,9 +500,6 @@ public class CustomUIPreferencesFragment extends PreferenceFragmentCompat {
                 if (mPickImageLauncher != null) {
                     mPickImageLauncher.launch("image/*");
                 }
-            })
-            .setNeutralButton(R.string.termux_glass_onboarding_btn_system, (dialog, which) -> {
-                applySystemWallpaper(context);
             })
             .setNegativeButton(R.string.termux_glass_onboarding_btn_later, (dialog, which) -> {
                 Toast.makeText(context, R.string.termux_glass_onboarding_later_tip, Toast.LENGTH_SHORT).show();
@@ -638,28 +581,53 @@ public class CustomUIPreferencesFragment extends PreferenceFragmentCompat {
                 prefs.setTerminalHorizontalMargin(3);
                 prefs.setTerminalShadowEnabled(true);
                 prefs.setKeepBorderLayoutEnabled(true);
+                prefs.setTerminalBackgroundOpacity(45);
+                prefs.setTerminalCellBackgroundTransparencyEnabled(false);
+                prefs.setTerminalCellBackgroundOpacity(0);
+                prefs.setOuterBackgroundStyle("blur");
 
                 prefs.setTabBarEnabled(true);
                 prefs.setTabBarGlassEnabled(true);
                 prefs.setTabBorderEnabled(false);
                 prefs.setTabCornerEnabled(true);
                 prefs.setTabCornerRadius(8);
-                prefs.setTabBarCornerRadius(18);
+                prefs.setTabBarCornerRadius(12);
                 prefs.setTabBorderWidth(1);
                 prefs.setTabBorderColor("#FFFFFF");
                 prefs.setTabActiveColor("#FFFFFF");
+                prefs.setTabButtonWidth(28);
+                prefs.setTabNewButtonWidth(28);
+                prefs.setTabCloseButtonWidth(28);
+                prefs.setTabSettingsButtonWidth(28);
+                prefs.setTabActiveTitleLength(12);
                 prefs.setTabInactiveTitleLength(4);
+                prefs.setShowSessionNameWithoutTabBar(true);
+                prefs.setSessionNameAlignment("center");
+                prefs.setTabAnimationEnabled(true);
 
                 prefs.setGlassEffectEnabled(true);
-                prefs.setGlassTintOpacity(100);
+                prefs.setGlassTintOpacity(50);
                 prefs.setBackgroundBlurEnabled(false);
+                prefs.setBackgroundBlurRadius(12);
+
                 prefs.setExtraKeysBarBackgroundSyncEnabled(true);
-                prefs.setExtraKeysBarCornerEnabled(true);
-                prefs.setExtraKeysBarBorderCornerRadius(12);
-                prefs.setExtraKeysBarBorderEnabled(false);
+                prefs.setExtraKeysColorTheme("default");
                 prefs.setExtraKeysFlatKeys(true);
+                prefs.setExtraKeysBarBorderEnabled(false);
+                prefs.setExtraKeysBarBorderWidth(1);
+                prefs.setExtraKeysBarBorderColor("#FFFFFF");
+                prefs.setExtraKeysBarBorderCornerRadius(12);
+                prefs.setExtraKeysBarBorderGaps(4);
+                prefs.setExtraKeysBarCornerEnabled(true);
                 prefs.setExtraKeysPressedTextColor("#FFFFFF");
-                prefs.setOuterBackgroundStyle("blur");
+                prefs.setExtraKeysCornerRadius(0);
+                prefs.setExtraKeysMargin(2);
+                prefs.setExtraKeysTextSize(12);
+                prefs.setExtraKeysHeightScale(115);
+                prefs.setExtraKeysUseCustom(false);
+
+                prefs.setTerminalSmoothScrollEnabled(true);
+                prefs.setGesturePillEnabled(false);
 
                 if (TextUtils.isEmpty(prefs.getTerminalBackgroundImagePath())) {
                     showLiquidGlassOnboardingDialog(context);
@@ -668,27 +636,63 @@ public class CustomUIPreferencesFragment extends PreferenceFragmentCompat {
 
             case "classic_termux":
                 prefs.setTerminalBorderEnabled(false);
-                prefs.setTerminalBorderGaps(0);
+                prefs.setTerminalBorderWidth(1);
                 prefs.setTerminalBorderCornerEnabled(false);
                 prefs.setTerminalBorderCornerRadius(0);
-                prefs.setKeepBorderLayoutEnabled(false);
+                prefs.setTerminalBorderColor("#FFFFFF");
+                prefs.setTerminalBorderGaps(0);
+                prefs.setTerminalHorizontalMargin(3);
+                prefs.setTerminalBorderStyle("full");
                 prefs.setTerminalShadowEnabled(false);
+                prefs.setKeepBorderLayoutEnabled(false);
                 prefs.setTerminalBackgroundImagePath("");
+                prefs.setTerminalBackgroundOpacity(60);
+                prefs.setTerminalCellBackgroundTransparencyEnabled(false);
+                prefs.setTerminalCellBackgroundOpacity(0);
                 prefs.setOuterBackgroundStyle("off");
 
                 prefs.setTabBarEnabled(false);
                 prefs.setTabBarGlassEnabled(false);
+                prefs.setTabBorderEnabled(true);
+                prefs.setTabCornerEnabled(true);
                 prefs.setTabCornerRadius(0);
                 prefs.setTabBarCornerRadius(0);
+                prefs.setTabBorderWidth(1);
+                prefs.setTabBorderColor("#FFFFFF");
+                prefs.setTabActiveColor("#FFFFFF");
+                prefs.setTabButtonWidth(28);
+                prefs.setTabNewButtonWidth(28);
+                prefs.setTabCloseButtonWidth(28);
+                prefs.setTabSettingsButtonWidth(28);
+                prefs.setTabActiveTitleLength(12);
+                prefs.setTabInactiveTitleLength(4);
+                prefs.setShowSessionNameWithoutTabBar(false);
+                prefs.setSessionNameAlignment("center");
+                prefs.setTabAnimationEnabled(true);
 
                 prefs.setGlassEffectEnabled(false);
+                prefs.setGlassTintOpacity(100);
                 prefs.setBackgroundBlurEnabled(false);
+                prefs.setBackgroundBlurRadius(12);
+
                 prefs.setExtraKeysBarBackgroundSyncEnabled(false);
                 prefs.setExtraKeysColorTheme("default");
                 prefs.setExtraKeysFlatKeys(true);
                 prefs.setExtraKeysBarBorderEnabled(false);
+                prefs.setExtraKeysBarBorderWidth(1);
+                prefs.setExtraKeysBarBorderColor("#FFFFFF");
+                prefs.setExtraKeysBarBorderCornerRadius(1);
+                prefs.setExtraKeysBarBorderGaps(4);
                 prefs.setExtraKeysBarCornerEnabled(false);
                 prefs.setExtraKeysPressedTextColor("");
+                prefs.setExtraKeysCornerRadius(0);
+                prefs.setExtraKeysMargin(2);
+                prefs.setExtraKeysTextSize(12);
+                prefs.setExtraKeysHeightScale(115);
+                prefs.setExtraKeysUseCustom(false);
+
+                prefs.setTerminalSmoothScrollEnabled(true);
+                prefs.setGesturePillEnabled(false);
                 break;
 
             case "custom":

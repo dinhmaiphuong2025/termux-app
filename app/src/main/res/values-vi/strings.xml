@@ -96,6 +96,8 @@
     <string name="termux_extra_keys_customizer_header">Tùy biến phím bấm</string>
     <string name="termux_extra_keys_use_custom_title">Sử dụng phím tùy chỉnh</string>
     <string name="termux_extra_keys_use_custom_summary">Bật cấu hình phím qua giao diện thay cho tệp termux.properties mặc định</string>
+    <string name="termux_extra_keys_hud_editor_title">Chỉnh sửa phím trực quan (HUD)</string>
+    <string name="termux_extra_keys_hud_editor_summary">Giao diện trực quan: chạm vào phím để sửa, gán vuốt lên (popup), thêm/xóa/đổi chỗ</string>
     <string name="termux_extra_keys_preset_title">Bộ phím định sẵn (Preset)</string>
     <string name="termux_extra_keys_preset_summary">Chuyển nhanh giữa các cấu hình phím phổ biến</string>
     <string name="termux_extra_keys_custom_json_title">Cấu hình phím JSON tùy biến</string>
@@ -154,10 +156,7 @@
     <string name="termux_glass_onboarding_title">Hiệu ứng Liquid Glass</string>
     <string name="termux_glass_onboarding_message">Hiệu ứng kính lỏng cần một bức tranh nền để tạo độ khúc xạ quang học và độ trong suốt pha lê. Hiện tại Terminal đang dùng nền đen thuần túy.\n\nBạn muốn thiết lập hình nền ngay bây giờ không?</string>
     <string name="termux_glass_onboarding_btn_pick">Chọn ảnh từ máy</string>
-    <string name="termux_glass_onboarding_btn_system">Hình nền máy</string>
     <string name="termux_glass_onboarding_btn_later">Để sau</string>
-    <string name="termux_glass_onboarding_system_wallpaper_success">Đã trích xuất và áp dụng hình nền điện thoại thành công</string>
-    <string name="termux_glass_onboarding_system_wallpaper_failed">Không thể lấy hình nền máy (do quyền Android hoặc dùng hình nền động). Vui lòng chọn ảnh từ thiết bị.</string>
     <string name="termux_glass_onboarding_later_tip">Hiệu ứng khúc xạ kính lỏng sẽ hiển thị ngay khi bạn chọn ảnh nền</string>
     <string name="termux_glass_tint_opacity_title">Độ tối màn kính tăng tương phản (%)</string>
     <string name="termux_glass_tint_opacity_summary">Độ sẫm màu của màn bảo vệ trên lớp kính giúp chữ terminal luôn rõ nét trên ảnh nền sáng. Kéo về 0% để kính trong suốt 100% pha lê</string>

@@ -282,6 +282,11 @@
                 app:summary="@string/termux_extra_keys_use_custom_summary"
                 app:defaultValue="false" />
 
+            <Preference
+                app:key="extra_keys_hud_editor"
+                app:title="@string/termux_extra_keys_hud_editor_title"
+                app:summary="@string/termux_extra_keys_hud_editor_summary" />
+
             <ListPreference
                 app:key="extra_keys_preset"
                 app:title="@string/termux_extra_keys_preset_title"

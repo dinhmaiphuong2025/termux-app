@@ -367,10 +367,7 @@
     <string name="termux_glass_onboarding_title">Liquid Glass Effect</string>
     <string name="termux_glass_onboarding_message">Liquid Glass requires a background image to refract light and produce crystal-clear optical transparency. Currently the terminal is using a solid black background.\n\nWould you like to set a background image now?</string>
     <string name="termux_glass_onboarding_btn_pick">Choose Image</string>
-    <string name="termux_glass_onboarding_btn_system">Device Wallpaper</string>
     <string name="termux_glass_onboarding_btn_later">Later</string>
-    <string name="termux_glass_onboarding_system_wallpaper_success">Device wallpaper applied successfully</string>
-    <string name="termux_glass_onboarding_system_wallpaper_failed">Could not extract device wallpaper (restricted by Android or using live wallpaper). Please choose an image from storage.</string>
     <string name="termux_glass_onboarding_later_tip">Liquid glass refraction will appear as soon as a background image is chosen</string>
     <string name="termux_glass_tint_opacity_title">Glass Contrast Veil (%)</string>
     <string name="termux_glass_tint_opacity_summary">Strength of the dark contrast veil to keep white terminal text readable over bright wallpapers. Set to 0% for 100% crystal clear glass</string>
@@ -404,6 +401,8 @@
     <string name="termux_extra_keys_customizer_header">Extra Keys Configuration</string>
     <string name="termux_extra_keys_use_custom_title">Use Custom Extra Keys</string>
     <string name="termux_extra_keys_use_custom_summary">Enable GUI-configured extra keys instead of termux.properties default</string>
+    <string name="termux_extra_keys_hud_editor_title">Visual Key Editor (HUD)</string>
+    <string name="termux_extra_keys_hud_editor_summary">Visual interactive grid: tap keys to configure, add/remove rows, and reorder</string>
     <string name="termux_extra_keys_preset_title">Choose Preset</string>
     <string name="termux_extra_keys_preset_summary">Quickly switch between popular key configurations</string>
     <string name="termux_extra_keys_custom_json_title">Custom Extra Keys JSON</string>
