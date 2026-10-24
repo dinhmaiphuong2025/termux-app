@@ -1,6 +1,5 @@
 package com.termux.app.fragments.settings.termux;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
@@ -8,7 +7,6 @@ import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.RippleDrawable;
 import android.text.Editable;
-import android.text.InputType;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.TypedValue;
@@ -22,6 +20,8 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AlertDialog;
 
 import com.termux.shared.termux.settings.preferences.TermuxAppSharedPreferences;
 import com.termux.shared.termux.settings.properties.TermuxPropertyConstants;
@@ -236,29 +236,17 @@ public class ExtraKeysHudEditor {
 
     private static void showVisualEditorDialog(Context context, TermuxAppSharedPreferences prefs,
                                               List<List<KeyItem>> rows, OnSaveListener onSaveListener) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(context, AlertDialog.THEME_DEVICE_DEFAULT_DARK);
-
         LinearLayout root = new LinearLayout(context);
         root.setOrientation(LinearLayout.VERTICAL);
-        root.setPadding(dp(context, 16), dp(context, 16), dp(context, 16), dp(context, 16));
-        root.setBackgroundColor(0xFF101319);
+        root.setPadding(dp(context, 16), dp(context, 12), dp(context, 16), dp(context, 8));
 
-        // Header Title
-        TextView tvTitle = new TextView(context);
-        tvTitle.setText("BÀN PHÍM PHỤ EXTRA KEYS (HUD EDITOR)");
-        tvTitle.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);
-        tvTitle.setTypeface(Typeface.DEFAULT_BOLD);
-        tvTitle.setTextColor(0xFFFFFFFF);
-        root.addView(tvTitle);
+        TextView tvHint = new TextView(context);
+        tvHint.setText("Chạm vào từng phím để cấu hình hoặc gán thao tác vuốt lên (popup).");
+        tvHint.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
+        tvHint.setTextColor(0xFF9E9E9E);
+        tvHint.setPadding(0, 0, 0, dp(context, 12));
+        root.addView(tvHint);
 
-        TextView tvSub = new TextView(context);
-        tvSub.setText("Chạm vào phím để sửa; bấm '+' để thêm phím/hàng mới.");
-        tvSub.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
-        tvSub.setTextColor(0xFF9EA3AF);
-        tvSub.setPadding(0, dp(context, 2), 0, dp(context, 10));
-        root.addView(tvSub);
-
-        // Scrollable Grid of Rows
         ScrollView mainScroll = new ScrollView(context);
         mainScroll.setFillViewport(true);
         LinearLayout.LayoutParams scrollLp = new LinearLayout.LayoutParams(
@@ -270,125 +258,155 @@ public class ExtraKeysHudEditor {
         gridContainer.setOrientation(LinearLayout.VERTICAL);
         mainScroll.addView(gridContainer);
 
-        AlertDialog dialog = builder.setView(root).create();
-
-        Runnable refreshGrid = new Runnable() {
-            @Override
-            public void run() {
-                gridContainer.removeAllViews();
-                for (int r = 0; r < rows.size(); r++) {
-                    final int rowIdx = r;
-                    final List<KeyItem> row = rows.get(r);
-
-                    // Row Card Container
-                    LinearLayout rowCard = new LinearLayout(context);
-                    rowCard.setOrientation(LinearLayout.VERTICAL);
-                    rowCard.setBackground(makeShape(0xFF161A22, 0x33FFFFFF, dp(context, 1), dp(context, 10)));
-                    rowCard.setPadding(dp(context, 10), dp(context, 8), dp(context, 10), dp(context, 10));
-                    LinearLayout.LayoutParams cardLp = new LinearLayout.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT
-                    );
-                    cardLp.bottomMargin = dp(context, 10);
-                    rowCard.setLayoutParams(cardLp);
-
-                    // Row Header
-                    LinearLayout headerRow = new LinearLayout(context);
-                    headerRow.setOrientation(LinearLayout.HORIZONTAL);
-                    headerRow.setGravity(Gravity.CENTER_VERTICAL);
-                    headerRow.setPadding(0, 0, 0, dp(context, 6));
-
-                    TextView tvRowName = new TextView(context);
-                    tvRowName.setText("HÀNG " + (rowIdx + 1) + "  (" + row.size() + " phím)");
-                    tvRowName.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
-                    tvRowName.setTypeface(Typeface.DEFAULT_BOLD);
-                    tvRowName.setTextColor(0xFF4FC3F7);
-                    headerRow.addView(tvRowName, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-
-                    Button btnAddKey = new Button(context);
-                    btnAddKey.setText("+ Thêm phím");
-                    btnAddKey.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11);
-                    btnAddKey.setTextColor(0xFFFFFFFF);
-                    btnAddKey.setBackground(makeRipple(0xFF263238, 0x44FFFFFF, 0x334FC3F7, dp(context, 1), dp(context, 6)));
-                    btnAddKey.setMinHeight(dp(context, 32));
-                    btnAddKey.setPadding(dp(context, 10), dp(context, 2), dp(context, 10), dp(context, 2));
-                    btnAddKey.setOnClickListener(v -> {
-                        promptPickKey(context, (key, display) -> {
-                            KeyItem newItem = new KeyItem();
-                            newItem.key = key;
-                            newItem.display = display;
-                            row.add(newItem);
-                            run();
-                        });
-                    });
-                    headerRow.addView(btnAddKey);
-
-                    rowCard.addView(headerRow);
-
-                    // Horizontal Keys Scroll
-                    HorizontalScrollView hScroll = new HorizontalScrollView(context);
-                    hScroll.setHorizontalScrollBarEnabled(false);
-                    hScroll.setFillViewport(true);
-
-                    LinearLayout keysRowLayout = new LinearLayout(context);
-                    keysRowLayout.setOrientation(LinearLayout.HORIZONTAL);
-                    keysRowLayout.setGravity(Gravity.CENTER_VERTICAL);
-
-                    for (int c = 0; c < row.size(); c++) {
-                        final int colIdx = c;
-                        final KeyItem item = row.get(c);
-
-                        Button btnKey = new Button(context);
-                        btnKey.setBackground(makeRipple(0xFF1E2430, 0x55FFFFFF, 0x33FFFFFF, dp(context, 1), dp(context, 6)));
-                        btnKey.setTextColor(Color.WHITE);
-                        btnKey.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
-                        btnKey.setTypeface(Typeface.DEFAULT_BOLD);
-                        btnKey.setMinHeight(dp(context, 44));
-                        btnKey.setMinWidth(dp(context, 44));
-                        btnKey.setPadding(dp(context, 8), dp(context, 4), dp(context, 8), dp(context, 4));
-                        btnKey.setAllCaps(false);
-
-                        String label = item.getVisualLabel();
-                        String popupLabel = item.getVisualPopupLabel();
-                        if (!TextUtils.isEmpty(popupLabel)) {
-                            btnKey.setText(label + "\n↑" + popupLabel);
-                        } else {
-                            btnKey.setText(label);
-                        }
-
-                        LinearLayout.LayoutParams btnLp = new LinearLayout.LayoutParams(
-                            ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT
-                        );
-                        btnLp.setMargins(dp(context, 3), 0, dp(context, 3), 0);
-                        btnKey.setLayoutParams(btnLp);
-
-                        btnKey.setOnClickListener(v -> {
-                            showKeyEditorDialog(context, row, colIdx, this);
-                        });
-
-                        keysRowLayout.addView(btnKey);
-                    }
-
-                    hScroll.addView(keysRowLayout);
-                    rowCard.addView(hScroll);
-                    gridContainer.addView(rowCard);
-                }
-            }
-        };
-
-        refreshGrid.run();
-
-        // Control Buttons Row 1 (Add Row, Remove Row, Reset Default)
-        LinearLayout opsRow = new LinearLayout(context);
-        opsRow.setOrientation(LinearLayout.HORIZONTAL);
-        opsRow.setPadding(0, dp(context, 8), 0, dp(context, 6));
+        // Bottom Operations Bar
+        LinearLayout opsBar = new LinearLayout(context);
+        opsBar.setOrientation(LinearLayout.HORIZONTAL);
+        opsBar.setGravity(Gravity.CENTER_VERTICAL);
+        opsBar.setPadding(0, dp(context, 10), 0, 0);
 
         Button btnAddRow = new Button(context);
         btnAddRow.setText("+ Thêm hàng");
-        btnAddRow.setTextColor(0xFFFFFFFF);
         btnAddRow.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
-        btnAddRow.setBackground(makeRipple(0xFF1A2633, 0x44FFFFFF, 0x334FC3F7, dp(context, 1), dp(context, 8)));
+        btnAddRow.setTypeface(Typeface.DEFAULT_BOLD);
+        btnAddRow.setTextColor(Color.WHITE);
+        btnAddRow.setBackground(makeRipple(0xFF262626, 0x33FFFFFF, 0x33FFFFFF, dp(context, 1), dp(context, 4)));
         LinearLayout.LayoutParams arLp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
         btnAddRow.setLayoutParams(arLp);
+        opsBar.addView(btnAddRow);
+
+        Button btnReset = new Button(context);
+        btnReset.setText("Đặt lại mặc định");
+        btnReset.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
+        btnReset.setTextColor(0xFFB0B0B0);
+        btnReset.setBackground(makeRipple(0xFF1E1E1E, 0x33FFFFFF, 0x22FFFFFF, dp(context, 1), dp(context, 4)));
+        LinearLayout.LayoutParams rstLp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        rstLp.leftMargin = dp(context, 8);
+        btnReset.setLayoutParams(rstLp);
+        opsBar.addView(btnReset);
+
+        root.addView(opsBar);
+
+        Runnable[] refreshHolder = new Runnable[1];
+
+        refreshHolder[0] = () -> {
+            gridContainer.removeAllViews();
+            for (int r = 0; r < rows.size(); r++) {
+                final int rowIdx = r;
+                final List<KeyItem> row = rows.get(r);
+
+                LinearLayout rowCard = new LinearLayout(context);
+                rowCard.setOrientation(LinearLayout.VERTICAL);
+                rowCard.setBackground(makeShape(0xFF181818, 0x22FFFFFF, dp(context, 1), dp(context, 6)));
+                rowCard.setPadding(dp(context, 10), dp(context, 8), dp(context, 10), dp(context, 10));
+                LinearLayout.LayoutParams cardLp = new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT
+                );
+                cardLp.bottomMargin = dp(context, 10);
+                rowCard.setLayoutParams(cardLp);
+
+                // Row Header
+                LinearLayout headerRow = new LinearLayout(context);
+                headerRow.setOrientation(LinearLayout.HORIZONTAL);
+                headerRow.setGravity(Gravity.CENTER_VERTICAL);
+                headerRow.setPadding(0, 0, 0, dp(context, 6));
+
+                TextView tvRowName = new TextView(context);
+                tvRowName.setText("HÀNG " + (rowIdx + 1) + " (" + row.size() + " phím)");
+                tvRowName.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11);
+                tvRowName.setTypeface(Typeface.DEFAULT_BOLD);
+                tvRowName.setTextColor(0xFFB0B0B0);
+                headerRow.addView(tvRowName, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+
+                Button btnAddKey = new Button(context);
+                btnAddKey.setText("+ Phím");
+                btnAddKey.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11);
+                btnAddKey.setTextColor(Color.WHITE);
+                btnAddKey.setBackground(makeRipple(0xFF262626, 0x33FFFFFF, 0x33FFFFFF, dp(context, 1), dp(context, 4)));
+                btnAddKey.setMinHeight(dp(context, 30));
+                btnAddKey.setPadding(dp(context, 8), dp(context, 2), dp(context, 8), dp(context, 2));
+                btnAddKey.setOnClickListener(v -> {
+                    promptPickKey(context, (key, display) -> {
+                        KeyItem newItem = new KeyItem();
+                        newItem.key = key;
+                        newItem.display = display;
+                        row.add(newItem);
+                        refreshHolder[0].run();
+                    });
+                });
+                headerRow.addView(btnAddKey);
+
+                Button btnRemRow = new Button(context);
+                btnRemRow.setText("- Hàng");
+                btnRemRow.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11);
+                btnRemRow.setTextColor(0xFFE0E0E0);
+                btnRemRow.setBackground(makeRipple(0xFF262626, 0x33FFFFFF, 0x22FFFFFF, dp(context, 1), dp(context, 4)));
+                btnRemRow.setMinHeight(dp(context, 30));
+                btnRemRow.setPadding(dp(context, 8), dp(context, 2), dp(context, 8), dp(context, 2));
+                LinearLayout.LayoutParams remLp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                remLp.leftMargin = dp(context, 6);
+                btnRemRow.setLayoutParams(remLp);
+                btnRemRow.setOnClickListener(v -> {
+                    if (rows.size() > 1) {
+                        rows.remove(rowIdx);
+                        refreshHolder[0].run();
+                    } else {
+                        Toast.makeText(context, "Cần giữ ít nhất 1 hàng phím", Toast.LENGTH_SHORT).show();
+                    }
+                });
+                headerRow.addView(btnRemRow);
+
+                rowCard.addView(headerRow);
+
+                // Horizontal Keys Scroll
+                HorizontalScrollView hScroll = new HorizontalScrollView(context);
+                hScroll.setHorizontalScrollBarEnabled(false);
+                hScroll.setFillViewport(true);
+
+                LinearLayout keysRowLayout = new LinearLayout(context);
+                keysRowLayout.setOrientation(LinearLayout.HORIZONTAL);
+                keysRowLayout.setGravity(Gravity.CENTER_VERTICAL);
+
+                for (int c = 0; c < row.size(); c++) {
+                    final int colIdx = c;
+                    final KeyItem item = row.get(c);
+
+                    Button btnKey = new Button(context);
+                    btnKey.setBackground(makeRipple(0xFF222222, 0x44FFFFFF, 0x33FFFFFF, dp(context, 1), dp(context, 4)));
+                    btnKey.setTextColor(Color.WHITE);
+                    btnKey.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
+                    btnKey.setTypeface(Typeface.MONOSPACE);
+                    btnKey.setMinHeight(dp(context, 44));
+                    btnKey.setMinWidth(dp(context, 44));
+                    btnKey.setPadding(dp(context, 8), dp(context, 4), dp(context, 8), dp(context, 4));
+                    btnKey.setAllCaps(false);
+
+                    String label = item.getVisualLabel();
+                    String popupLabel = item.getVisualPopupLabel();
+                    if (!TextUtils.isEmpty(popupLabel)) {
+                        btnKey.setText(label + "\n↑" + popupLabel);
+                    } else {
+                        btnKey.setText(label);
+                    }
+
+                    LinearLayout.LayoutParams btnLp = new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT
+                    );
+                    btnLp.setMargins(dp(context, 2), 0, dp(context, 2), 0);
+                    btnKey.setLayoutParams(btnLp);
+
+                    btnKey.setOnClickListener(v -> {
+                        showKeyEditorDialog(context, rows, rowIdx, colIdx, refreshHolder[0]);
+                    });
+
+                    keysRowLayout.addView(btnKey);
+                }
+
+                hScroll.addView(keysRowLayout);
+                rowCard.addView(hScroll);
+                gridContainer.addView(rowCard);
+            }
+        };
+
         btnAddRow.setOnClickListener(v -> {
             List<KeyItem> newRow = new ArrayList<>();
             for (String k : new String[]{"F1", "F2", "F3", "F4"}) {
@@ -398,262 +416,183 @@ public class ExtraKeysHudEditor {
                 newRow.add(it);
             }
             rows.add(newRow);
-            refreshGrid.run();
+            refreshHolder[0].run();
         });
-        opsRow.addView(btnAddRow);
 
-        Button btnRemRow = new Button(context);
-        btnRemRow.setText("- Xóa hàng");
-        btnRemRow.setTextColor(0xFFFFFFFF);
-        btnRemRow.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
-        btnRemRow.setBackground(makeRipple(0xFF261D22, 0x44FFFFFF, 0x33EF5350, dp(context, 1), dp(context, 8)));
-        LinearLayout.LayoutParams rrLp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
-        rrLp.leftMargin = dp(context, 6);
-        btnRemRow.setLayoutParams(rrLp);
-        btnRemRow.setOnClickListener(v -> {
-            if (rows.size() > 1) {
-                rows.remove(rows.size() - 1);
-                refreshGrid.run();
-            } else {
-                Toast.makeText(context, "Cần giữ ít nhất 1 hàng phím", Toast.LENGTH_SHORT).show();
-            }
-        });
-        opsRow.addView(btnRemRow);
-
-        Button btnReset = new Button(context);
-        btnReset.setText("Mặc định");
-        btnReset.setTextColor(0xFFE0E0E0);
-        btnReset.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
-        btnReset.setBackground(makeRipple(0xFF21252D, 0x44FFFFFF, 0x22FFFFFF, dp(context, 1), dp(context, 8)));
-        LinearLayout.LayoutParams rstLp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
-        rstLp.leftMargin = dp(context, 6);
-        btnReset.setLayoutParams(rstLp);
         btnReset.setOnClickListener(v -> {
-            rows.clear();
-            rows.addAll(parseJsonToRows(TermuxPropertyConstants.DEFAULT_IVALUE_EXTRA_KEYS));
-            refreshGrid.run();
-            Toast.makeText(context, "Đã hoàn về 2 hàng phím mặc định", Toast.LENGTH_SHORT).show();
+            new AlertDialog.Builder(context)
+                .setTitle("Đặt lại mặc định")
+                .setMessage("Khôi phục danh sách phím về cấu hình 2 hàng mặc định của Termux?")
+                .setPositiveButton("Đặt lại", (d, which) -> {
+                    rows.clear();
+                    rows.addAll(parseJsonToRows(TermuxPropertyConstants.DEFAULT_IVALUE_EXTRA_KEYS));
+                    refreshHolder[0].run();
+                })
+                .setNegativeButton("Hủy", null)
+                .show();
         });
-        opsRow.addView(btnReset);
 
-        root.addView(opsRow);
+        refreshHolder[0].run();
 
-        // Bottom Action (Save & Apply)
-        Button btnSave = new Button(context);
-        btnSave.setText("LƯU & ÁP DỤNG");
-        btnSave.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13);
-        btnSave.setTypeface(Typeface.DEFAULT_BOLD);
-        btnSave.setTextColor(0xFF0D1117);
-        btnSave.setBackground(makeRipple(0xFF4FC3F7, 0x44000000, 0xFF81D4FA, dp(context, 1), dp(context, 8)));
-        LinearLayout.LayoutParams saveLp = new LinearLayout.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT
-        );
-        saveLp.topMargin = dp(context, 4);
-        btnSave.setLayoutParams(saveLp);
-        btnSave.setOnClickListener(v -> {
-            String jsonOutput = serializeRowsToJson(rows);
-            prefs.setExtraKeysCustomJson(jsonOutput);
-            prefs.setExtraKeysUseCustom(true);
-            dialog.dismiss();
-            if (onSaveListener != null) {
-                onSaveListener.onSaved();
-            }
-            Toast.makeText(context, "Đã lưu cấu hình phím thành công", Toast.LENGTH_SHORT).show();
-        });
-        root.addView(btnSave);
-
-        dialog.show();
+        new AlertDialog.Builder(context)
+            .setTitle("Bàn phím phụ (Extra Keys)")
+            .setView(root)
+            .setPositiveButton("Lưu", (dialog, which) -> {
+                String jsonOutput = serializeRowsToJson(rows);
+                prefs.setExtraKeysCustomJson(jsonOutput);
+                prefs.setExtraKeysUseCustom(true);
+                if (onSaveListener != null) {
+                    onSaveListener.onSaved();
+                }
+                Toast.makeText(context, "Đã lưu cấu hình phím", Toast.LENGTH_SHORT).show();
+            })
+            .setNegativeButton("Hủy", null)
+            .show();
     }
 
-    private static void showKeyEditorDialog(Context context, List<KeyItem> row, int colIdx, Runnable onUpdated) {
-        if (colIdx < 0 || colIdx >= row.size()) return;
-        final KeyItem item = row.get(colIdx);
+    private static void showKeyEditorDialog(Context context, List<List<KeyItem>> allRows,
+                                           int rowIdx, int initialColIdx, Runnable onGlobalUpdated) {
+        final List<KeyItem> row = allRows.get(rowIdx);
+        final int[] currentPos = new int[]{initialColIdx};
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(context, AlertDialog.THEME_DEVICE_DEFAULT_DARK);
         LinearLayout root = new LinearLayout(context);
         root.setOrientation(LinearLayout.VERTICAL);
-        root.setPadding(dp(context, 16), dp(context, 16), dp(context, 16), dp(context, 16));
-        root.setBackgroundColor(0xFF141820);
+        root.setPadding(dp(context, 16), dp(context, 12), dp(context, 16), dp(context, 8));
 
-        TextView tvTitle = new TextView(context);
-        tvTitle.setText("CẤU HÌNH PHÍM");
-        tvTitle.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);
-        tvTitle.setTypeface(Typeface.DEFAULT_BOLD);
-        tvTitle.setTextColor(0xFFFFFFFF);
-        root.addView(tvTitle);
-
-        ScrollView scroll = new ScrollView(context);
-        LinearLayout form = new LinearLayout(context);
-        form.setOrientation(LinearLayout.VERTICAL);
-        scroll.addView(form);
-        root.addView(scroll, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
-
-        // Preview Button
+        // Key Preview
         final Button previewBtn = new Button(context);
-        previewBtn.setBackground(makeShape(0xFF1E2430, 0x55FFFFFF, dp(context, 1), dp(context, 8)));
+        previewBtn.setBackground(makeShape(0xFF222222, 0x44FFFFFF, dp(context, 1), dp(context, 4)));
         previewBtn.setTextColor(Color.WHITE);
         previewBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
-        previewBtn.setTypeface(Typeface.DEFAULT_BOLD);
+        previewBtn.setTypeface(Typeface.MONOSPACE);
         previewBtn.setMinHeight(dp(context, 48));
-        previewBtn.setMinWidth(dp(context, 60));
+        previewBtn.setMinWidth(dp(context, 64));
         previewBtn.setPadding(dp(context, 12), dp(context, 6), dp(context, 12), dp(context, 6));
         previewBtn.setAllCaps(false);
+        previewBtn.setClickable(false);
         LinearLayout.LayoutParams prevLp = new LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT
         );
         prevLp.gravity = Gravity.CENTER_HORIZONTAL;
-        prevLp.topMargin = dp(context, 8);
         prevLp.bottomMargin = dp(context, 12);
         previewBtn.setLayoutParams(prevLp);
-        form.addView(previewBtn);
+        root.addView(previewBtn);
 
         // Display Label Input
         TextView tvLabelHeader = new TextView(context);
-        tvLabelHeader.setText("Nhãn hiển thị trên phím");
+        tvLabelHeader.setText("Nhãn hiển thị:");
         tvLabelHeader.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
-        tvLabelHeader.setTextColor(0xFF9EA3AF);
-        form.addView(tvLabelHeader);
+        tvLabelHeader.setTextColor(0xFF9E9E9E);
+        root.addView(tvLabelHeader);
 
         final EditText etDisplay = new EditText(context);
-        etDisplay.setText(item.getVisualLabel());
+        etDisplay.setText(row.get(currentPos[0]).getVisualLabel());
         etDisplay.setTextColor(Color.WHITE);
         etDisplay.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13);
-        etDisplay.setBackground(makeShape(0xFF0F1218, 0x33FFFFFF, dp(context, 1), dp(context, 6)));
-        etDisplay.setPadding(dp(context, 12), dp(context, 10), dp(context, 12), dp(context, 10));
+        etDisplay.setTypeface(Typeface.MONOSPACE);
+        etDisplay.setBackground(makeShape(0xFF1E1E1E, 0x33FFFFFF, dp(context, 1), dp(context, 4)));
+        etDisplay.setPadding(dp(context, 10), dp(context, 8), dp(context, 10), dp(context, 8));
         LinearLayout.LayoutParams etLp = new LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT
         );
         etLp.topMargin = dp(context, 4);
-        etLp.bottomMargin = dp(context, 12);
+        etLp.bottomMargin = dp(context, 10);
         etDisplay.setLayoutParams(etLp);
-        form.addView(etDisplay);
+        root.addView(etDisplay);
 
-        // Primary Action Card
-        LinearLayout actionCard = new LinearLayout(context);
-        actionCard.setOrientation(LinearLayout.VERTICAL);
-        actionCard.setBackground(makeShape(0xFF191E27, 0x33FFFFFF, dp(context, 1), dp(context, 8)));
-        actionCard.setPadding(dp(context, 12), dp(context, 10), dp(context, 12), dp(context, 10));
-        LinearLayout.LayoutParams actCardLp = new LinearLayout.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT
-        );
-        actCardLp.bottomMargin = dp(context, 10);
-        actionCard.setLayoutParams(actCardLp);
+        // Action selection row
+        TextView tvActionHeader = new TextView(context);
+        tvActionHeader.setText("Hành động khi nhấn:");
+        tvActionHeader.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
+        tvActionHeader.setTextColor(0xFF9E9E9E);
+        root.addView(tvActionHeader);
 
-        TextView actTitle = new TextView(context);
-        actTitle.setText("HÀNH ĐỘNG CHÍNH KHI NHẤN");
-        actTitle.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11);
-        actTitle.setTypeface(Typeface.DEFAULT_BOLD);
-        actTitle.setTextColor(0xFF4FC3F7);
-        actionCard.addView(actTitle);
-
-        final TextView tvActionDesc = new TextView(context);
-        tvActionDesc.setText(describeAction(item.key, item.macro));
-        tvActionDesc.setTextColor(Color.WHITE);
-        tvActionDesc.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13);
-        tvActionDesc.setPadding(0, dp(context, 4), 0, dp(context, 8));
-        actionCard.addView(tvActionDesc);
-
-        Button btnPickAction = new Button(context);
-        btnPickAction.setText("Chọn phím / hành động");
+        final Button btnPickAction = new Button(context);
+        btnPickAction.setText(describeAction(row.get(currentPos[0]).key, row.get(currentPos[0]).macro));
         btnPickAction.setTextColor(Color.WHITE);
-        btnPickAction.setBackground(makeRipple(0xFF263238, 0x44FFFFFF, 0x334FC3F7, dp(context, 1), dp(context, 6)));
-        actionCard.addView(btnPickAction);
-        form.addView(actionCard);
+        btnPickAction.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
+        btnPickAction.setBackground(makeRipple(0xFF262626, 0x33FFFFFF, 0x33FFFFFF, dp(context, 1), dp(context, 4)));
+        LinearLayout.LayoutParams actLp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        actLp.topMargin = dp(context, 4);
+        actLp.bottomMargin = dp(context, 10);
+        btnPickAction.setLayoutParams(actLp);
+        root.addView(btnPickAction);
 
-        // Swipe-up Popup Card
-        LinearLayout popupCard = new LinearLayout(context);
-        popupCard.setOrientation(LinearLayout.VERTICAL);
-        popupCard.setBackground(makeShape(0xFF191E27, 0x33FFFFFF, dp(context, 1), dp(context, 8)));
-        popupCard.setPadding(dp(context, 12), dp(context, 10), dp(context, 12), dp(context, 10));
-        LinearLayout.LayoutParams popCardLp = new LinearLayout.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT
-        );
-        popCardLp.bottomMargin = dp(context, 12);
-        popupCard.setLayoutParams(popCardLp);
+        // Popup selection row
+        TextView tvPopupHeader = new TextView(context);
+        tvPopupHeader.setText("Vuốt lên (Popup):");
+        tvPopupHeader.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
+        tvPopupHeader.setTextColor(0xFF9E9E9E);
+        root.addView(tvPopupHeader);
 
-        TextView popTitle = new TextView(context);
-        popTitle.setText("HÀNH ĐỘNG VUỐT LÊN (POPUP - TÙY CHỌN)");
-        popTitle.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11);
-        popTitle.setTypeface(Typeface.DEFAULT_BOLD);
-        popTitle.setTextColor(0xFFFFB74D);
-        popupCard.addView(popTitle);
+        LinearLayout popupRow = new LinearLayout(context);
+        popupRow.setOrientation(LinearLayout.HORIZONTAL);
+        popupRow.setGravity(Gravity.CENTER_VERTICAL);
+        LinearLayout.LayoutParams popRowLp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        popRowLp.topMargin = dp(context, 4);
+        popRowLp.bottomMargin = dp(context, 10);
+        popupRow.setLayoutParams(popRowLp);
 
-        final TextView tvPopupDesc = new TextView(context);
-        tvPopupDesc.setText(describeAction(item.popupKey, item.popupMacro));
-        tvPopupDesc.setTextColor(Color.WHITE);
-        tvPopupDesc.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13);
-        tvPopupDesc.setPadding(0, dp(context, 4), 0, dp(context, 8));
-        popupCard.addView(tvPopupDesc);
-
-        LinearLayout popupBtns = new LinearLayout(context);
-        popupBtns.setOrientation(LinearLayout.HORIZONTAL);
-
-        Button btnPickPopup = new Button(context);
-        btnPickPopup.setText("Gán Popup");
+        final Button btnPickPopup = new Button(context);
+        btnPickPopup.setText(describeAction(row.get(currentPos[0]).popupKey, row.get(currentPos[0]).popupMacro));
         btnPickPopup.setTextColor(Color.WHITE);
-        btnPickPopup.setBackground(makeRipple(0xFF33271F, 0x44FFFFFF, 0x33FFB74D, dp(context, 1), dp(context, 6)));
+        btnPickPopup.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
+        btnPickPopup.setBackground(makeRipple(0xFF262626, 0x33FFFFFF, 0x33FFFFFF, dp(context, 1), dp(context, 4)));
         LinearLayout.LayoutParams bpLp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
         btnPickPopup.setLayoutParams(bpLp);
-        popupBtns.addView(btnPickPopup);
+        popupRow.addView(btnPickPopup);
 
-        Button btnClearPopup = new Button(context);
-        btnClearPopup.setText("Xóa Popup");
-        btnClearPopup.setTextColor(0xFFE0E0E0);
-        btnClearPopup.setBackground(makeRipple(0xFF22252B, 0x44FFFFFF, 0x22FFFFFF, dp(context, 1), dp(context, 6)));
-        LinearLayout.LayoutParams bcLp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
-        bcLp.leftMargin = dp(context, 8);
+        final Button btnClearPopup = new Button(context);
+        btnClearPopup.setText("Xóa");
+        btnClearPopup.setTextColor(0xFFB0B0B0);
+        btnClearPopup.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
+        btnClearPopup.setBackground(makeRipple(0xFF1E1E1E, 0x33FFFFFF, 0x22FFFFFF, dp(context, 1), dp(context, 4)));
+        LinearLayout.LayoutParams bcLp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        bcLp.leftMargin = dp(context, 6);
         btnClearPopup.setLayoutParams(bcLp);
-        popupBtns.addView(btnClearPopup);
+        popupRow.addView(btnClearPopup);
+        root.addView(popupRow);
 
-        popupCard.addView(popupBtns);
-        form.addView(popupCard);
-
-        // Position & Delete Row
+        // Move Left / Move Right Buttons
         LinearLayout reorderRow = new LinearLayout(context);
         reorderRow.setOrientation(LinearLayout.HORIZONTAL);
-        reorderRow.setPadding(0, 0, 0, dp(context, 10));
+        reorderRow.setGravity(Gravity.CENTER_VERTICAL);
+        reorderRow.setPadding(0, dp(context, 2), 0, dp(context, 4));
 
-        Button btnMoveLeft = new Button(context);
-        btnMoveLeft.setText("← Trái");
+        final Button btnMoveLeft = new Button(context);
+        btnMoveLeft.setText("◀ Sang trái");
         btnMoveLeft.setTextColor(Color.WHITE);
-        btnMoveLeft.setEnabled(colIdx > 0);
-        btnMoveLeft.setBackground(makeRipple(0xFF21252D, 0x44FFFFFF, 0x22FFFFFF, dp(context, 1), dp(context, 6)));
-        LinearLayout.LayoutParams bmlLp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
-        btnMoveLeft.setLayoutParams(bmlLp);
+        btnMoveLeft.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
+        btnMoveLeft.setBackground(makeRipple(0xFF262626, 0x33FFFFFF, 0x22FFFFFF, dp(context, 1), dp(context, 4)));
+        LinearLayout.LayoutParams mlLp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        btnMoveLeft.setLayoutParams(mlLp);
         reorderRow.addView(btnMoveLeft);
 
-        Button btnMoveRight = new Button(context);
-        btnMoveRight.setText("Phải →");
+        final Button btnMoveRight = new Button(context);
+        btnMoveRight.setText("Sang phải ▶");
         btnMoveRight.setTextColor(Color.WHITE);
-        btnMoveRight.setEnabled(colIdx < row.size() - 1);
-        btnMoveRight.setBackground(makeRipple(0xFF21252D, 0x44FFFFFF, 0x22FFFFFF, dp(context, 1), dp(context, 6)));
-        LinearLayout.LayoutParams bmrLp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
-        bmrLp.leftMargin = dp(context, 6);
-        btnMoveRight.setLayoutParams(bmrLp);
+        btnMoveRight.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
+        btnMoveRight.setBackground(makeRipple(0xFF262626, 0x33FFFFFF, 0x22FFFFFF, dp(context, 1), dp(context, 4)));
+        LinearLayout.LayoutParams mrLp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        mrLp.leftMargin = dp(context, 6);
+        btnMoveRight.setLayoutParams(mrLp);
         reorderRow.addView(btnMoveRight);
 
-        Button btnDelete = new Button(context);
-        btnDelete.setText("Xóa phím");
-        btnDelete.setTextColor(0xFFEF5350);
-        btnDelete.setBackground(makeRipple(0xFF2D1619, 0x44FFFFFF, 0x33EF5350, dp(context, 1), dp(context, 6)));
-        LinearLayout.LayoutParams bdelLp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
-        bdelLp.leftMargin = dp(context, 6);
-        btnDelete.setLayoutParams(bdelLp);
-        reorderRow.addView(btnDelete);
-
-        form.addView(reorderRow);
-
-        AlertDialog editDialog = builder.setView(root).create();
+        root.addView(reorderRow);
 
         Runnable updatePreview = () -> {
+            if (currentPos[0] < 0 || currentPos[0] >= row.size()) return;
+            KeyItem it = row.get(currentPos[0]);
             String lbl = etDisplay.getText().toString();
-            if (TextUtils.isEmpty(lbl)) lbl = item.getVisualLabel();
-            String pop = item.getVisualPopupLabel();
+            if (TextUtils.isEmpty(lbl)) lbl = it.getVisualLabel();
+            String pop = it.getVisualPopupLabel();
             if (!TextUtils.isEmpty(pop)) {
                 previewBtn.setText(lbl + "\n↑" + pop);
             } else {
                 previewBtn.setText(lbl);
             }
+            btnMoveLeft.setEnabled(currentPos[0] > 0);
+            btnMoveRight.setEnabled(currentPos[0] < row.size() - 1);
         };
         updatePreview.run();
 
@@ -665,90 +604,99 @@ public class ExtraKeysHudEditor {
 
         btnPickAction.setOnClickListener(v -> {
             promptPickKey(context, (key, display) -> {
+                KeyItem it = row.get(currentPos[0]);
                 if (key != null && key.contains(" ")) {
-                    item.macro = key;
-                    item.key = "";
+                    it.macro = key;
+                    it.key = "";
                 } else {
-                    item.key = key != null ? key : "";
-                    item.macro = "";
+                    it.key = key != null ? key : "";
+                    it.macro = "";
                 }
-                item.display = display;
+                it.display = display;
                 etDisplay.setText(display);
-                tvActionDesc.setText(describeAction(item.key, item.macro));
+                btnPickAction.setText(describeAction(it.key, it.macro));
                 updatePreview.run();
+                onGlobalUpdated.run();
             });
         });
 
         btnPickPopup.setOnClickListener(v -> {
             promptPickKey(context, (key, display) -> {
+                KeyItem it = row.get(currentPos[0]);
                 if (key != null && key.contains(" ")) {
-                    item.popupMacro = key;
-                    item.popupKey = "";
+                    it.popupMacro = key;
+                    it.popupKey = "";
                 } else {
-                    item.popupKey = key != null ? key : "";
-                    item.popupMacro = "";
+                    it.popupKey = key != null ? key : "";
+                    it.popupMacro = "";
                 }
-                item.popupDisplay = display;
-                tvPopupDesc.setText(describeAction(item.popupKey, item.popupMacro));
+                it.popupDisplay = display;
+                btnPickPopup.setText(describeAction(it.popupKey, it.popupMacro));
                 updatePreview.run();
+                onGlobalUpdated.run();
             });
         });
 
         btnClearPopup.setOnClickListener(v -> {
-            item.popupKey = "";
-            item.popupDisplay = "";
-            item.popupMacro = "";
-            tvPopupDesc.setText("Không có (None)");
+            KeyItem it = row.get(currentPos[0]);
+            it.popupKey = "";
+            it.popupDisplay = "";
+            it.popupMacro = "";
+            btnPickPopup.setText("Không có (None)");
             updatePreview.run();
+            onGlobalUpdated.run();
         });
 
+        // Reorder without dismissing dialog!
         btnMoveLeft.setOnClickListener(v -> {
-            KeyItem prev = row.set(colIdx - 1, item);
-            row.set(colIdx, prev);
-            editDialog.dismiss();
-            onUpdated.run();
+            int p = currentPos[0];
+            if (p > 0) {
+                KeyItem it = row.remove(p);
+                row.add(p - 1, it);
+                currentPos[0] = p - 1;
+                updatePreview.run();
+                onGlobalUpdated.run();
+            }
         });
 
         btnMoveRight.setOnClickListener(v -> {
-            KeyItem next = row.set(colIdx + 1, item);
-            row.set(colIdx, next);
-            editDialog.dismiss();
-            onUpdated.run();
-        });
-
-        btnDelete.setOnClickListener(v -> {
-            row.remove(colIdx);
-            editDialog.dismiss();
-            onUpdated.run();
-        });
-
-        Button btnDone = new Button(context);
-        btnDone.setText("XONG");
-        btnDone.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13);
-        btnDone.setTypeface(Typeface.DEFAULT_BOLD);
-        btnDone.setTextColor(0xFF0D1117);
-        btnDone.setBackground(makeRipple(0xFF4FC3F7, 0x44000000, 0xFF81D4FA, dp(context, 1), dp(context, 8)));
-        btnDone.setOnClickListener(v -> {
-            String entered = etDisplay.getText().toString().trim();
-            if (!entered.isEmpty()) {
-                item.display = entered;
+            int p = currentPos[0];
+            if (p < row.size() - 1) {
+                KeyItem it = row.remove(p);
+                row.add(p + 1, it);
+                currentPos[0] = p + 1;
+                updatePreview.run();
+                onGlobalUpdated.run();
             }
-            editDialog.dismiss();
-            onUpdated.run();
         });
-        root.addView(btnDone);
 
-        editDialog.show();
+        new AlertDialog.Builder(context)
+            .setTitle("Cấu hình phím")
+            .setView(root)
+            .setPositiveButton("Xong", (d, which) -> {
+                KeyItem it = row.get(currentPos[0]);
+                String entered = etDisplay.getText().toString().trim();
+                if (!entered.isEmpty()) {
+                    it.display = entered;
+                }
+                onGlobalUpdated.run();
+            })
+            .setNegativeButton("Hủy", null)
+            .setNeutralButton("Xóa phím", (d, which) -> {
+                row.remove(currentPos[0]);
+                onGlobalUpdated.run();
+            })
+            .show();
     }
 
     private static String describeAction(String key, String macro) {
         if (!TextUtils.isEmpty(macro)) return "Macro: " + macro;
         if (TextUtils.isEmpty(key)) return "Không có (None)";
         switch (key) {
-            case "KEYBOARD": return "Bật/tắt bàn phím ảo (KEYBOARD)";
-            case "DRAWER": return "Mở menu ngăn kéo bên trái (DRAWER)";
-            case "PASTE": return "Dán văn bản từ clipboard (PASTE)";
-            case "SCROLL": return "Khóa/mở cuộn tự động khi có log mới (Lock / Pin Scroll)";
+            case "KEYBOARD": return "Bàn phím ảo (KEYBOARD)";
+            case "DRAWER": return "Ngăn kéo bên trái (DRAWER)";
+            case "PASTE": return "Dán văn bản (PASTE)";
+            case "SCROLL": return "Khóa/mở cuộn tự động (Lock / Pin Scroll)";
             default: return "Phím: " + key;
         }
     }
@@ -758,20 +706,9 @@ public class ExtraKeysHudEditor {
     }
 
     private static void promptPickKey(Context context, KeyPickCallback callback) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(context, AlertDialog.THEME_DEVICE_DEFAULT_DARK);
-
         LinearLayout root = new LinearLayout(context);
         root.setOrientation(LinearLayout.VERTICAL);
-        root.setPadding(dp(context, 16), dp(context, 14), dp(context, 16), dp(context, 14));
-        root.setBackgroundColor(0xFF141820);
-
-        TextView title = new TextView(context);
-        title.setText("CHỌN PHÍM / HÀNH ĐỘNG");
-        title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);
-        title.setTypeface(Typeface.DEFAULT_BOLD);
-        title.setTextColor(Color.WHITE);
-        title.setPadding(0, 0, 0, dp(context, 8));
-        root.addView(title);
+        root.setPadding(dp(context, 16), dp(context, 12), dp(context, 16), dp(context, 8));
 
         // Tabbed Partitioning bar to avoid excessive vertical touch scrolling
         HorizontalScrollView tabScroll = new HorizontalScrollView(context);
@@ -783,7 +720,7 @@ public class ExtraKeysHudEditor {
         tabLayout.setPadding(0, 0, 0, dp(context, 10));
 
         final String[] tabTitles = new String[]{
-            "Hệ thống & Mod", "Điều hướng", "Ký tự & Code", "Phím F", "Tùy chỉnh"
+            "Hệ thống", "Điều hướng", "Ký tự", "Phím F", "Tùy chỉnh"
         };
         final Button[] tabButtons = new Button[tabTitles.length];
 
@@ -792,19 +729,19 @@ public class ExtraKeysHudEditor {
         content.setOrientation(LinearLayout.VERTICAL);
         contentScroll.addView(content);
 
-        AlertDialog dialog = builder.setView(root).create();
+        AlertDialog[] dialogHolder = new AlertDialog[1];
 
         Runnable[] showTab = new Runnable[tabTitles.length];
 
         showTab[0] = () -> {
             content.removeAllViews();
             addCategoryHeader(context, content, "HÀNH ĐỘNG TERMINAL");
-            addKeyButtonsRow(context, content, dialog, callback,
+            addKeyButtonsRow(context, content, dialogHolder[0], callback,
                 new String[]{"KEYBOARD", "DRAWER", "PASTE", "SCROLL"},
                 new String[]{"⌨", "☰", "PASTE", "⇳"}
             );
             addCategoryHeader(context, content, "PHÍM BỔ TRỢ (MODIFIERS)");
-            addKeyButtonsRow(context, content, dialog, callback,
+            addKeyButtonsRow(context, content, dialogHolder[0], callback,
                 new String[]{"CTRL", "ALT", "SHIFT", "FN"},
                 new String[]{"CTRL", "ALT", "SHIFT", "FN"}
             );
@@ -813,15 +750,15 @@ public class ExtraKeysHudEditor {
         showTab[1] = () -> {
             content.removeAllViews();
             addCategoryHeader(context, content, "ĐIỀU HƯỚNG & SOẠN THẢO");
-            addKeyButtonsRow(context, content, dialog, callback,
+            addKeyButtonsRow(context, content, dialogHolder[0], callback,
                 new String[]{"ESC", "TAB", "ENTER", "BKSP", "DEL", "INS", "SPACE"},
                 new String[]{"ESC", "TAB", "ENTER", "BKSP", "DEL", "INS", "SPACE"}
             );
-            addKeyButtonsRow(context, content, dialog, callback,
+            addKeyButtonsRow(context, content, dialogHolder[0], callback,
                 new String[]{"UP", "DOWN", "LEFT", "RIGHT"},
                 new String[]{"↑", "↓", "←", "→"}
             );
-            addKeyButtonsRow(context, content, dialog, callback,
+            addKeyButtonsRow(context, content, dialogHolder[0], callback,
                 new String[]{"HOME", "END", "PGUP", "PGDN"},
                 new String[]{"HOME", "END", "PGUP", "PGDN"}
             );
@@ -830,19 +767,19 @@ public class ExtraKeysHudEditor {
         showTab[2] = () -> {
             content.removeAllViews();
             addCategoryHeader(context, content, "KÝ TỰ & BIỂU TƯỢNG CODE");
-            addKeyButtonsRow(context, content, dialog, callback,
+            addKeyButtonsRow(context, content, dialogHolder[0], callback,
                 new String[]{"/", "-", "_", "|", "~", "\\", "$", "@"},
                 new String[]{"/", "-", "_", "|", "~", "\\", "$", "@"}
             );
-            addKeyButtonsRow(context, content, dialog, callback,
+            addKeyButtonsRow(context, content, dialogHolder[0], callback,
                 new String[]{"=", "+", "*", "&", "%", "#", "!", "?"},
                 new String[]{"=", "+", "*", "&", "%", "#", "!", "?"}
             );
-            addKeyButtonsRow(context, content, dialog, callback,
+            addKeyButtonsRow(context, content, dialogHolder[0], callback,
                 new String[]{":", ";", "\"", "'", "`", "^", "<", ">"},
                 new String[]{":", ";", "\"", "'", "`", "^", "<", ">"}
             );
-            addKeyButtonsRow(context, content, dialog, callback,
+            addKeyButtonsRow(context, content, dialogHolder[0], callback,
                 new String[]{"{", "}", "[", "]", "(", ")", ",", "."},
                 new String[]{"{", "}", "[", "]", "(", ")", ",", "."}
             );
@@ -851,11 +788,11 @@ public class ExtraKeysHudEditor {
         showTab[3] = () -> {
             content.removeAllViews();
             addCategoryHeader(context, content, "PHÍM CHỨC NĂNG (F1 - F12)");
-            addKeyButtonsRow(context, content, dialog, callback,
+            addKeyButtonsRow(context, content, dialogHolder[0], callback,
                 new String[]{"F1", "F2", "F3", "F4", "F5", "F6"},
                 new String[]{"F1", "F2", "F3", "F4", "F5", "F6"}
             );
-            addKeyButtonsRow(context, content, dialog, callback,
+            addKeyButtonsRow(context, content, dialogHolder[0], callback,
                 new String[]{"F7", "F8", "F9", "F10", "F11", "F12"},
                 new String[]{"F7", "F8", "F9", "F10", "F11", "F12"}
             );
@@ -874,18 +811,19 @@ public class ExtraKeysHudEditor {
             etCustom.setHintTextColor(0xFF6B7280);
             etCustom.setTextColor(Color.WHITE);
             etCustom.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13);
-            etCustom.setBackground(makeShape(0xFF0F1218, 0x33FFFFFF, dp(context, 1), dp(context, 6)));
+            etCustom.setTypeface(Typeface.MONOSPACE);
+            etCustom.setBackground(makeShape(0xFF1E1E1E, 0x33FFFFFF, dp(context, 1), dp(context, 4)));
             etCustom.setPadding(dp(context, 10), dp(context, 8), dp(context, 10), dp(context, 8));
             LinearLayout.LayoutParams customLp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
             etCustom.setLayoutParams(customLp);
             customRow.addView(etCustom);
 
             Button btnAddCustom = new Button(context);
-            btnAddCustom.setText("DÙNG");
-            btnAddCustom.setTextColor(0xFF0D1117);
+            btnAddCustom.setText("Dùng");
+            btnAddCustom.setTextColor(Color.WHITE);
             btnAddCustom.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
             btnAddCustom.setTypeface(Typeface.DEFAULT_BOLD);
-            btnAddCustom.setBackground(makeRipple(0xFF4FC3F7, 0x44000000, 0xFF81D4FA, dp(context, 1), dp(context, 6)));
+            btnAddCustom.setBackground(makeRipple(0xFF262626, 0x33FFFFFF, 0x33FFFFFF, dp(context, 1), dp(context, 4)));
             LinearLayout.LayoutParams btnCustomLp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT
             );
@@ -895,7 +833,7 @@ public class ExtraKeysHudEditor {
                 String val = etCustom.getText().toString().trim();
                 if (!val.isEmpty()) {
                     callback.onSelected(val, val);
-                    dialog.dismiss();
+                    if (dialogHolder[0] != null) dialogHolder[0].dismiss();
                 }
             });
             customRow.addView(btnAddCustom);
@@ -908,8 +846,8 @@ public class ExtraKeysHudEditor {
             tabBtn.setText(tabTitles[i]);
             tabBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11);
             tabBtn.setTypeface(Typeface.DEFAULT_BOLD);
-            tabBtn.setMinHeight(dp(context, 34));
-            tabBtn.setPadding(dp(context, 10), dp(context, 4), dp(context, 10), dp(context, 4));
+            tabBtn.setMinHeight(dp(context, 32));
+            tabBtn.setPadding(dp(context, 10), dp(context, 2), dp(context, 10), dp(context, 2));
             tabBtn.setAllCaps(false);
 
             LinearLayout.LayoutParams tabLp = new LinearLayout.LayoutParams(
@@ -921,11 +859,11 @@ public class ExtraKeysHudEditor {
             tabBtn.setOnClickListener(v -> {
                 for (int j = 0; j < tabButtons.length; j++) {
                     if (j == tabIdx) {
-                        tabButtons[j].setBackground(makeShape(0xFF4FC3F7, 0xFF81D4FA, dp(context, 1), dp(context, 6)));
-                        tabButtons[j].setTextColor(0xFF0D1117);
+                        tabButtons[j].setBackground(makeShape(0xFF383838, 0x44FFFFFF, dp(context, 1), dp(context, 4)));
+                        tabButtons[j].setTextColor(Color.WHITE);
                     } else {
-                        tabButtons[j].setBackground(makeRipple(0xFF1E2430, 0x33FFFFFF, 0x22FFFFFF, dp(context, 1), dp(context, 6)));
-                        tabButtons[j].setTextColor(0xFF9EA3AF);
+                        tabButtons[j].setBackground(makeRipple(Color.TRANSPARENT, 0x22FFFFFF, 0, 0, dp(context, 4)));
+                        tabButtons[j].setTextColor(0xFF888888);
                     }
                 }
                 showTab[tabIdx].run();
@@ -941,7 +879,12 @@ public class ExtraKeysHudEditor {
 
         // Select first tab by default
         tabButtons[0].performClick();
-        dialog.show();
+
+        dialogHolder[0] = new AlertDialog.Builder(context)
+            .setTitle("Chọn phím")
+            .setView(root)
+            .setNegativeButton("Đóng", null)
+            .show();
     }
 
     private static void addCategoryHeader(Context context, LinearLayout parent, String title) {
@@ -949,7 +892,7 @@ public class ExtraKeysHudEditor {
         tv.setText(title);
         tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11);
         tv.setTypeface(Typeface.DEFAULT_BOLD);
-        tv.setTextColor(0xFF4FC3F7);
+        tv.setTextColor(0xFF888888);
         tv.setPadding(0, dp(context, 8), 0, dp(context, 4));
         parent.addView(tv);
     }
@@ -962,6 +905,7 @@ public class ExtraKeysHudEditor {
 
         LinearLayout row = new LinearLayout(context);
         row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(Gravity.CENTER_VERTICAL);
         row.setPadding(0, dp(context, 2), 0, dp(context, 6));
 
         for (int i = 0; i < keys.length; i++) {
@@ -972,10 +916,10 @@ public class ExtraKeysHudEditor {
             btn.setText(d);
             btn.setTextColor(Color.WHITE);
             btn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
-            btn.setTypeface(Typeface.DEFAULT_BOLD);
-            btn.setBackground(makeRipple(0xFF1E2430, 0x55FFFFFF, 0x33FFFFFF, dp(context, 1), dp(context, 6)));
+            btn.setTypeface(Typeface.MONOSPACE);
+            btn.setBackground(makeRipple(0xFF222222, 0x44FFFFFF, 0x33FFFFFF, dp(context, 1), dp(context, 4)));
             btn.setMinHeight(dp(context, 40));
-            btn.setMinWidth(dp(context, 42));
+            btn.setMinWidth(dp(context, 40));
             btn.setPadding(dp(context, 8), dp(context, 4), dp(context, 8), dp(context, 4));
             btn.setAllCaps(false);
 
@@ -987,7 +931,7 @@ public class ExtraKeysHudEditor {
 
             btn.setOnClickListener(v -> {
                 callback.onSelected(k, d);
-                dialog.dismiss();
+                if (dialog != null) dialog.dismiss();
             });
 
             row.addView(btn);
