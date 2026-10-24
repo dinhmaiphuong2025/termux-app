@@ -12,6 +12,10 @@
 ## Custom UI & Features
 
 <p align="center">
+  <img src="image/termux_liquid_glass_non-blur.jpg" width="48%" />
+  <img src="image/termux_liquid_glass_blur.jpg" width="48%" />
+</p>
+<p align="center">
   <img src="image/Screenshot_20261010-194440_Termux~2.jpg" width="48%" />
   <img src="image/Screenshot_20260921-115916_Termux~2.jpg" width="48%" />
 </p>
@@ -20,6 +24,11 @@
   <img src="image/Screenshot_20260921-115951_Termux~2.jpg" width="48%" />
 </p>
 
+- **Apple Liquid Glass Optics (API 33+)**: True physical optical refraction via Snell's Law in GPU AGSL shader, squircle normal edge deflection, chromatic aberration, hairline specular highlights, sunken glass wells on inactive tab buttons, and independent contrast veil control (`glass_tint_opacity`). Supports both 100% crystal-clear optical transparency and diffuse frosted glass blur.
+- **UI Style Presets & Full JSON Backup / Restore**: Switch instantly between Niri WM (Default), Liquid Glass, Classic Termux, and Custom. Dynamically export and import 100% of all SharedPreferences settings to/from JSON files with seamless in-place UI refreshing.
+- **Visual Extra Keys HUD Editor**: Interactive visual grid editor matching Termux's native monochrome dark aesthetic. Tap keys to configure primary actions and swipe-up popups, reorder keys smoothly with in-place preview, add/remove rows, and pick from categorized tabbed groups (Terminal Actions, Modifiers, Navigation, Code Symbols, Function Keys F1-F12, and custom command/macro inputs).
+- **Separated Outer Tab Bar Corner Radius**: Independent corner radii for the outer capsule bar (`tab_bar_corner_radius`) and individual tab buttons (`tab_corner_radius`).
+- **Inactive Tab Title Length Control**: Customize inactive tab process name length (0 = number only, up to 20 chars) to save horizontal screen real estate.
 - **Material 3 Pill-shaped Tab Bar**: Multi-session management with clean, centered inactive/active tabs, session numbering, matching corner action buttons (New `+`, Close `×`, Settings `⚙`) with synced stroke weight and size, independent button width controls, and configurable active tab title character length.
 - **Dedicated Custom UI Settings Screen**: Clean dedicated 'Custom UI & Niri WM' settings category grouping all window frame, pill tab bar, gesture pill, wallpaper, and extra keys styling in one organized place.
 - **Pinned Session Name Header**: Dedicated compact text-only session title pinned above the top terminal border when the full tab bar is disabled, with configurable alignment (Center, Left, Right) and click/long-click actions to switch or rename sessions.
@@ -32,6 +41,14 @@
 - **Background Wallpaper & Cell Transparency**: Custom wallpaper images with adjustable dim overlay and transparent cell backgrounds for TUI editors (Neovim, Vim, Htop).
 
 ## Changelog
+
+### v0.118.3 (Custom UI Edition)
+- **Apple Liquid Glass Optics**: Physical refraction via Snell's Law in GPU AGSL shader, squircle edge normals, chromatic aberration, hairline specular highlights, and sunken glass wells on inactive tabs.
+- **UI Style Presets & 100% JSON Backup / Restore**: Switch between Niri WM, Liquid Glass, and Classic Termux presets. Full SharedPreferences export/import via JSON with automatic in-place UI reload.
+- **Visual Extra Keys HUD Editor**: Native Termux-styled visual key grid editor with tabbed partitioning, in-place reordering, and popup configuration.
+- **Independent Outer Tab Bar Corner Radius**: Separated `tab_bar_corner_radius` for the outer capsule and `tab_corner_radius` for individual tab buttons.
+- **Inactive Tab Title Length Control**: Configurable number of leading characters on inactive tabs (0 = number only).
+- **Smooth Scrolling & Eliminated Key Boxes**: High-precision scrolling and soft capsule feedback on Extra Keys bar without sharp rectangular artifact boxes.
 
 ### v0.118.2 (Custom UI Edition)
 - **Tab Button Width & Active Title Length Customization**: Added settings to customize tab button width in dp (for inactive tabs and corner action buttons) and configure the number of leading characters displayed for active tab process names.
