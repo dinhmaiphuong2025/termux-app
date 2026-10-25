@@ -538,14 +538,29 @@ public class TermuxTerminalSessionActivityClient extends TermuxTerminalSessionCl
             }
 
             TerminalColors.COLOR_SCHEME.updateWith(props);
-            TerminalSession session = mActivity.getCurrentSession();
-            if (session != null && session.getEmulator() != null) {
-                session.getEmulator().mColors.reset();
+
+            TermuxService service = mActivity.getTermuxService();
+            if (service != null) {
+                for (int i = 0; i < service.getTermuxSessionsSize(); i++) {
+                    TermuxSession ts = service.getTermuxSession(i);
+                    if (ts != null && ts.getTerminalSession() != null && ts.getTerminalSession().getEmulator() != null) {
+                        ts.getTerminalSession().getEmulator().mColors.reset();
+                    }
+                }
+            } else {
+                TerminalSession session = mActivity.getCurrentSession();
+                if (session != null && session.getEmulator() != null) {
+                    session.getEmulator().mColors.reset();
+                }
             }
+
             updateBackgroundColor();
 
             final Typeface newTypeface = (fontFile.exists() && fontFile.length() > 0) ? Typeface.createFromFile(fontFile) : Typeface.MONOSPACE;
-            mActivity.getTerminalView().setTypeface(newTypeface);
+            if (mActivity.getTerminalView() != null) {
+                mActivity.getTerminalView().setTypeface(newTypeface);
+                mActivity.getTerminalView().onScreenUpdated();
+            }
         } catch (Exception e) {
             Logger.logStackTraceWithMessage(LOG_TAG, "Error in checkForFontAndColors()", e);
         }
@@ -555,13 +570,36 @@ public class TermuxTerminalSessionActivityClient extends TermuxTerminalSessionCl
         if (!mActivity.isVisible()) return;
         TerminalSession session = mActivity.getCurrentSession();
         if (session != null && session.getEmulator() != null) {
-            // Liquid Glass mode: the window must stay transparent so the glass
-            // backdrop (or the wallpaper behind it) shows through. The terminal
-            // background color would paint an opaque slab over everything.
-            if (mActivity.getPreferences() != null && mActivity.getPreferences().isGlassEffectEnabled()) {
+            int bgColor = session.getEmulator().mColors.mCurrentColors[TextStyle.COLOR_INDEX_BACKGROUND];
+            boolean glassEnabled = mActivity.getPreferences() != null && mActivity.getPreferences().isGlassEffectEnabled();
+            boolean hasWallpaper = mActivity.getPreferences() != null && !TextUtils.isEmpty(mActivity.getPreferences().getTerminalBackgroundImagePath());
+
+            if (glassEnabled) {
                 mActivity.getWindow().getDecorView().setBackgroundColor(Color.TRANSPARENT);
+                if (mActivity.getTermuxActivityRootView() != null) {
+                    mActivity.getTermuxActivityRootView().setBackgroundColor(Color.TRANSPARENT);
+                }
+                if (mActivity.getTerminalCardContainer() != null) {
+                    mActivity.getTerminalCardContainer().setCardBackgroundColor(Color.TRANSPARENT);
+                }
             } else {
-                mActivity.getWindow().getDecorView().setBackgroundColor(session.getEmulator().mColors.mCurrentColors[TextStyle.COLOR_INDEX_BACKGROUND]);
+                if (hasWallpaper) {
+                    mActivity.getWindow().getDecorView().setBackgroundColor(Color.BLACK);
+                    if (mActivity.getTermuxActivityRootView() != null) {
+                        mActivity.getTermuxActivityRootView().setBackgroundColor(Color.BLACK);
+                    }
+                    if (mActivity.getTerminalCardContainer() != null) {
+                        mActivity.getTerminalCardContainer().setCardBackgroundColor(Color.TRANSPARENT);
+                    }
+                } else {
+                    mActivity.getWindow().getDecorView().setBackgroundColor(bgColor);
+                    if (mActivity.getTermuxActivityRootView() != null) {
+                        mActivity.getTermuxActivityRootView().setBackgroundColor(bgColor);
+                    }
+                    if (mActivity.getTerminalCardContainer() != null) {
+                        mActivity.getTerminalCardContainer().setCardBackgroundColor(bgColor);
+                    }
+                }
             }
         }
     }

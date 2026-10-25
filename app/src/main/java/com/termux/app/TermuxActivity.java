@@ -549,6 +549,10 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         // Update the {@link TerminalSession} and {@link TerminalEmulator} clients.
         mTermuxService.setTermuxTerminalSessionClient(mTermuxTerminalSessionActivityClient);
 
+        if (mTermuxTerminalSessionActivityClient != null) {
+            mTermuxTerminalSessionActivityClient.checkForFontAndColors();
+        }
+
         updateTerminalAppearance();
     }
 
@@ -1012,6 +1016,10 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         return mTermuxActivityRootView;
     }
 
+    public MaterialCardView getTerminalCardContainer() {
+        return mTerminalCardContainer;
+    }
+
     public View getTermuxActivityBottomSpaceView() {
         return mTermuxActivityBottomSpaceView;
     }
@@ -1344,6 +1352,9 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
             hideToolbarBackground();
             hideTabBarBackground();
             hideActivityBackground();
+            if (mTermuxTerminalSessionActivityClient != null) {
+                mTermuxTerminalSessionActivityClient.updateBackgroundColor();
+            }
         }
     }
 
@@ -1601,6 +1612,10 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
             applyTabBarBackgroundSlice(bitmap, blurRadius, blurPx);
         } else {
             hideTabBarBackground();
+        }
+
+        if (mTermuxTerminalSessionActivityClient != null) {
+            mTermuxTerminalSessionActivityClient.updateBackgroundColor();
         }
     }
 
