@@ -590,7 +590,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
 
     private void setMargins() {
         RelativeLayout relativeLayout = findViewById(R.id.activity_termux_root_relative_layout);
-        int marginHorizontal = mPreferences != null ? mPreferences.getTerminalHorizontalMargin() : mProperties.getTerminalMarginHorizontal();
+        int marginHorizontal = mProperties.getTerminalMarginHorizontal();
         int marginVertical = mProperties.getTerminalMarginVertical();
         ViewUtils.setLayoutMarginsInDp(relativeLayout, marginHorizontal, marginVertical, marginHorizontal, marginVertical);
     }
@@ -1121,11 +1121,12 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
                 if (mTerminalView != null) {
                     ViewGroup.MarginLayoutParams viewLp = (ViewGroup.MarginLayoutParams) mTerminalView.getLayoutParams();
                     if (viewLp != null) {
-                        int outerGap = (int) ((getPreferences().getTerminalHorizontalMargin() + getPreferences().getTerminalBorderGaps()) * density);
-                        int borderToText = outerGap + strokeWidth;
-                        viewLp.setMargins(borderToText, borderToText, borderToText, borderToText);
+                        int innerH = (int) (getPreferences().getTerminalHorizontalMargin() * density);
+                        int innerV = (int) (2 * density);
+                        viewLp.setMargins(innerH, innerV, innerH, innerV);
                         mTerminalView.setLayoutParams(viewLp);
                         syncSnapshotMargins(viewLp);
+                        mTerminalView.post(() -> mTerminalView.updateSize());
                     }
                 }
             } else {
@@ -1152,15 +1153,15 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
                     ViewGroup.MarginLayoutParams viewLp = (ViewGroup.MarginLayoutParams) mTerminalView.getLayoutParams();
                     if (viewLp != null) {
                         if (getPreferences().isKeepBorderLayoutEnabled()) {
-                            int strokeWidth = (int) (getPreferences().getTerminalBorderWidth() * density);
-                            int outerGap = (int) ((getPreferences().getTerminalHorizontalMargin() + getPreferences().getTerminalBorderGaps()) * density);
-                            int borderToText = outerGap + strokeWidth;
-                            viewLp.setMargins(borderToText, borderToText, borderToText, borderToText);
+                            int innerH = (int) (getPreferences().getTerminalHorizontalMargin() * density);
+                            int innerV = (int) (2 * density);
+                            viewLp.setMargins(innerH, innerV, innerH, innerV);
                         } else {
                             viewLp.setMargins(0, 0, 0, 0);
                         }
                         mTerminalView.setLayoutParams(viewLp);
                         syncSnapshotMargins(viewLp);
+                        mTerminalView.post(() -> mTerminalView.updateSize());
                     }
                 }
             }
