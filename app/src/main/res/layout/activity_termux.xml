@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@android:color/transparent"
+    android:background="#000000"
     android:fitsSystemWindows="true">
 
     <RelativeLayout
@@ -254,6 +254,6 @@
         android:id="@+id/activity_termux_bottom_space_view"
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@android:color/transparent" />
+        android:background="#000000" />
 
 </com.termux.app.terminal.TermuxActivityRootView>

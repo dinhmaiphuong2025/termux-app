@@ -577,28 +577,18 @@ public class TermuxTerminalSessionActivityClient extends TermuxTerminalSessionCl
             if (glassEnabled) {
                 mActivity.getWindow().getDecorView().setBackgroundColor(Color.TRANSPARENT);
                 if (mActivity.getTermuxActivityRootView() != null) {
-                    mActivity.getTermuxActivityRootView().setBackgroundColor(Color.TRANSPARENT);
+                    mActivity.getTermuxActivityRootView().setBackgroundColor(Color.BLACK);
                 }
                 if (mActivity.getTerminalCardContainer() != null) {
                     mActivity.getTerminalCardContainer().setCardBackgroundColor(Color.TRANSPARENT);
                 }
             } else {
-                if (hasWallpaper) {
-                    mActivity.getWindow().getDecorView().setBackgroundColor(Color.BLACK);
-                    if (mActivity.getTermuxActivityRootView() != null) {
-                        mActivity.getTermuxActivityRootView().setBackgroundColor(Color.BLACK);
-                    }
-                    if (mActivity.getTerminalCardContainer() != null) {
-                        mActivity.getTerminalCardContainer().setCardBackgroundColor(Color.TRANSPARENT);
-                    }
-                } else {
-                    mActivity.getWindow().getDecorView().setBackgroundColor(bgColor);
-                    if (mActivity.getTermuxActivityRootView() != null) {
-                        mActivity.getTermuxActivityRootView().setBackgroundColor(bgColor);
-                    }
-                    if (mActivity.getTerminalCardContainer() != null) {
-                        mActivity.getTerminalCardContainer().setCardBackgroundColor(bgColor);
-                    }
+                mActivity.getWindow().getDecorView().setBackgroundColor(bgColor);
+                if (mActivity.getTermuxActivityRootView() != null) {
+                    mActivity.getTermuxActivityRootView().setBackgroundColor(bgColor);
+                }
+                if (mActivity.getTerminalCardContainer() != null) {
+                    mActivity.getTerminalCardContainer().setCardBackgroundColor(hasWallpaper ? Color.TRANSPARENT : bgColor);
                 }
             }
         }
